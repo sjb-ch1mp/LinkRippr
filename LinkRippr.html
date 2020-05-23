@@ -1,19 +1,20 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>LinkRippr</title>
     <link rel="stylesheet" href="css/link_rippr.css"/>
     <script src="js/link_rippr.js"></script>
     <script src="js/util.js"></script>
 </head>
 
-<body>
+<body ondrop="dropHandler(event)" ondragover="dragOverHandler(event)">
 
 <div class="header">
     <img id="banner" src="img/banner.png" width="100%"/>
-    <p id="chatter_box" align="center">Drop a HTML or text file below</p>
+    <p id="chatter_box" align="center">Drop an HTML file</p>
 </div>
-<div class="content" id="drop_zone" draggable="true">
+<div class="content" id="content">
     <p id="results"></p>
 </div>
 
@@ -24,7 +25,7 @@
 </body>
 
 <script lang="javascript">
-    addTestText();
+    //addTestText();
     window.onload = function(){padContent()};
     window.onresize = function(){padContent()};
 </script>

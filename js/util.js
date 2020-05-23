@@ -2,9 +2,14 @@ function padContent(){
     let headerHeight = document.getElementById("banner").clientHeight +
         document.getElementById("chatter_box").clientHeight;
     let footerHeight = document.getElementById("footer").clientHeight;
-    let content = document.getElementById("drop_zone");
+    let content = document.getElementById("content");
+    let totalHeight = document.documentElement.scrollHeight;
+    if(document.getElementById("results").innerText == ""){
+        content.setAttribute("style", "padding-top: " + (headerHeight*1.05) + "px; padding-bottom: " + (footerHeight*1.15) + "px; height: " + totalHeight + "px;");
+    }else{
+        content.setAttribute("style", "padding-top: " + (headerHeight*1.05) + "px; padding-bottom: " + (footerHeight*1.15) + "px;");
+    }
 
-    content.setAttribute("style", "padding-top: " + (headerHeight*1.05) + "px; padding-bottom: " + (footerHeight*1.15) + "px;");
 }
 
 function addTestText(){
