@@ -1,14 +1,55 @@
 body{
     background-color: #00070E;
 }
-img.banner{
-    width: 40%;
+a{
+    color: #1F4D77;
 }
-div.drop_zone{
+
+.header{
+    position: fixed;
+    top: 0px;
+    background-color: #00070E;
+    width: 100%;
+    left: 0px;
+    right: 0px;
+}
+.content{
+    padding-left: 5%;
+    padding-right: 5%;
+}
+#chatter_box{
+    background-color: #0A1926;
+    width: 100%;
+    color: #909EAA;
+    alignment: center;
+    font-family: "Courier New";
+    font-size: small;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+#results{
     background-color: #00070E;
     color: #293137;
     font-family: "Courier New";
-    font-size: large;
-    padding-left: 5%;
-    padding-top: 5%;
+    font-size: medium;
+}
+#author{
+    height: 5%;
+    width: 100%;
+    color: #909EAA;
+    alignment: center;
+    font-family: "Courier New";
+    font-size: x-small;
+}
+#footer{
+    position: fixed;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+    background-color: #0A1926;
+    width: 100%;
+    color: #909EAA;
+    alignment: center;
+    font-family: "Courier New";
+    font-size: small;
 }

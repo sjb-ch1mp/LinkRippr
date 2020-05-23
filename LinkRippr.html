@@ -6,10 +6,27 @@
     <script src="js/link_rippr.js"></script>
     <script src="js/util.js"></script>
 </head>
+
 <body>
-<img src="img/banner_short.png" class="banner"/>
-<div class="drop_zone" id="drop_zone">
-    <p>< DROP YOUR DOM HERE ></p>
+
+<div class="header">
+    <img id="banner" src="img/banner.png" width="100%"/>
+    <p id="chatter_box" align="center">Drop a HTML or text file below</p>
 </div>
+<div class="content" id="drop_zone" draggable="true">
+    <p id="results"></p>
+</div>
+
+<div id="footer">
+    <p id="author" align="center">Samuel Brookes : <a href="https://github.com/sjb-ch1mp/LinkRippr" target="_blank">github.com/sjb-ch1mp/LinkRippr</a> : May 2020</p>
+</div>
+
 </body>
+
+<script lang="javascript">
+    addTestText();
+    window.onload = function(){padContent()};
+    window.onresize = function(){padContent()};
+</script>
+
 </html>
