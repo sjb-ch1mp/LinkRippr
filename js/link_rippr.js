@@ -50,6 +50,7 @@ function ripLinks(){
     if(file != null && file != undefined){
         let raw = file.toString();
         results.innerText = raw;
+        padContent();
         chatter("Done");
     }else{
         throwError("Error importing file");

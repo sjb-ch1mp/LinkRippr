@@ -2,6 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="3c852885-e476-4f29-aa45-36f13ec98356" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/js/parser.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/js/token.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/js/tokenizer.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/LinkRippr.html" beforeDir="false" afterPath="$PROJECT_DIR$/LinkRippr.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/css/link_rippr.css" beforeDir="false" afterPath="$PROJECT_DIR$/css/link_rippr.css" afterDir="false" />
@@ -50,7 +53,8 @@
       <updated>1590142549377</updated>
       <workItem from="1590142553818" duration="4830000" />
       <workItem from="1590201771555" duration="11114000" />
-      <workItem from="1590237632299" duration="6587000" />
+      <workItem from="1590237632299" duration="6868000" />
+      <workItem from="1590713450647" duration="2774000" />
     </task>
     <servers />
   </component>
