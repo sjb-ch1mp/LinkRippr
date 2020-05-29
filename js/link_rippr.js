@@ -11,6 +11,7 @@ function dropHandler(event){
     event.preventDefault() ? event.preventDefault() : event.returnValue = false;
     event.stopPropagation();
     setUpGlobalVariables();
+    document.getElementById("results").removeAttribute("style");
 
     if(event.dataTransfer.items){
     //items have been dropped
@@ -27,6 +28,13 @@ function dropHandler(event){
         }
 
     }
+}
+
+function dragOverHandler(event){
+    event.preventDefault() ? event.preventDefault() : event.returnValue = false;
+    event.stopPropagation();
+    setUpGlobalVariables();
+
 }
 
 function loadFile(fileInfo) {
@@ -48,20 +56,18 @@ function loadFile(fileInfo) {
 
 function ripLinks(){
     if(file != null && file != undefined){
-        let raw = file.toString();
-        results.innerText = raw;
+        let tokenizer = new DOMTokenizer(file.toString());
+        let tokenizedString = '';
+        while(tokenizer.hasNext()){
+            tokenizedString += tokenizer.current.tokenType + ': ' + tokenizer.current.value + '\n';
+            tokenizer.next();
+        }
+        results.innerText = "== TOKENIZED DOM ==\n\n" + tokenizedString;
         padContent();
         chatter("Done");
     }else{
         throwError("Error importing file");
     }
-
-}
-
-function dragOverHandler(event){
-    event.preventDefault() ? event.preventDefault() : event.returnValue = false;
-    event.stopPropagation();
-    setUpGlobalVariables();
 
 }
 
