@@ -3,6 +3,10 @@ class DOMParser{
 		this.tokenizer = tokenizer;
 	}
 
+	parse(){
+		return parseDOM();
+	}
+
 	parseDOM(){
 
 	}

@@ -59,7 +59,11 @@ function ripLinks(){
         let tokenizer = new DOMTokenizer(file.toString());
         let tokenizedString = '';
         while(tokenizer.hasNext()){
-            tokenizedString += tokenizer.current.tokenType + ': ' + tokenizer.current.value + '\n';
+            if(tokenizer.current.tokenType == DOMTokenType.TAG_NAME){
+                tokenizedString += tokenizer.current.tokenType + ': ' + tokenizer.current.value + ' (is_void = ' + getFeature(tokenizer.current.value, Feature.IS_VOID) + ', is_deprecated = ' + getFeature(tokenizer.current.value, Feature.IS_DEPRECATED) + ')\n';
+            }else{
+                tokenizedString += tokenizer.current.tokenType + ': ' + tokenizer.current.value + '\n';
+            }
             tokenizer.next();
         }
         results.innerText = "== TOKENIZED DOM ==\n\n" + tokenizedString;

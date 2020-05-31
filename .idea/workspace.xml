@@ -2,15 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="3c852885-e476-4f29-aa45-36f13ec98356" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/grammar/grammar.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/js/expressions.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/js/elements.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/LinkRippr.html" beforeDir="false" afterPath="$PROJECT_DIR$/LinkRippr.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/css/link_rippr.css" beforeDir="false" afterPath="$PROJECT_DIR$/css/link_rippr.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/js/link_rippr.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/link_rippr.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/js/parser.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/parser.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/token.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/token.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/tokenizer.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/tokenizer.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -62,6 +58,7 @@
       <workItem from="1590237632299" duration="6868000" />
       <workItem from="1590713450647" duration="2970000" />
       <workItem from="1590726804536" duration="16229000" />
+      <workItem from="1590889866188" duration="5451000" />
     </task>
     <servers />
   </component>
