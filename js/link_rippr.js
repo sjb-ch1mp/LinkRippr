@@ -56,17 +56,19 @@ function loadFile(fileInfo) {
 
 function ripLinks(){
     if(file != null && file != undefined){
+
+        let resultString = "== TOKENIZED DOM ==\n";
+
         let tokenizer = new DOMTokenizer(file.toString());
-        let tokenizedString = '';
         while(tokenizer.hasNext()){
-            if(tokenizer.current.tokenType == DOMTokenType.TAG_NAME){
-                tokenizedString += tokenizer.current.tokenType + ': ' + tokenizer.current.value + ' (is_void = ' + getElementFeature(tokenizer.current.value, Feature.IS_VOID) + ', is_deprecated = ' + getElementFeature(tokenizer.current.value, Feature.IS_DEPRECATED) + ')\n';
-            }else{
-                tokenizedString += tokenizer.current.tokenType + ': ' + tokenizer.current.value + '\n';
-            }
+            resultString += "\n" + tokenizer.current.tokenType + ": " + tokenizer.current.value;
             tokenizer.next();
         }
-        results.innerText = "== TOKENIZED DOM ==\n\n" + tokenizedString;
+
+        tokenizer = new DOMTokenizer(file.toString());
+        let parser = new DOMParser(tokenizer);
+        let dom = parser.parseDOM();
+        results.innerText = resultString + "\n\n== PARSED DOM ==\n\n" + dom.print();
         padContent();
         chatter("Done");
     }else{

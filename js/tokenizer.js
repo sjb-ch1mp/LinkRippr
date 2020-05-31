@@ -40,10 +40,10 @@ class DOMTokenizer{
             this.current = new DOMToken(DOMTokenType.QUOTE, "\"");
         }else if(this.current.tokenType == DOMTokenType.OPEN_TAG_START || this.current.tokenType == DOMTokenType.CLOSE_TAG_START){
             this.previous = this.current;
-            this.current = new DOMToken(DOMTokenType.TAG_NAME, this.buffer.substring(0, this.getTokenEnd([' ', '>', '/>']).toLowerCase()));
+            this.current = new DOMToken(DOMTokenType.TAG_NAME, this.buffer.substring(0, this.getTokenEnd([' ', '>', '/>'])).toLowerCase());
         }else if(this.current.tokenType == DOMTokenType.QUOTE && this.previous.tokenType == DOMTokenType.EQUALS){
             this.previous = this.current;
-            this.current = new DOMToken(DOMTokenType.ATT_VALUE, this.buffer.substring(0, this.getTokenEnd(['\"']).toLowerCase()));
+            this.current = new DOMToken(DOMTokenType.ATT_VALUE, this.buffer.substring(0, this.getTokenEnd(['\"'])).toLowerCase());
         }else if(this.current.tokenType == DOMTokenType.TAG_NAME || this.current.tokenType == DOMTokenType.QUOTE){
             this.previous = this.current;
             this.current = new DOMToken(DOMTokenType.ATT_KEY, this.buffer.substring(0, this.getTokenEnd(['='])));

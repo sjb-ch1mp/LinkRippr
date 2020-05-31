@@ -1,30 +1,39 @@
-class DOMParser{
+class Parser{
 	constructor(tokenizer){
 		this.tokenizer = tokenizer;
 	}
+}
 
-	parse(){
-		return parseDOM();
+class DOMParser extends Parser{
+
+	constructor(tokenizer){
+		super(tokenizer);
 	}
 
 	parseDOM(){
+
 		//find the root element
-		while(tokenizer.hasNext() && tokenizer.current.tokenType != DOMTokenType.TAG_NAME && tokenizer.current.value != "html"){
-			tokenizer.next();
+		while(this.tokenizer.hasNext()){
+			if(this.tokenizer.current.tokenType === DOMTokenType.TAG_NAME && this.tokenizer.current.value === "html"){
+				break;
+			}else{
+				this.tokenizer.next();
+			}
 		}
-		if(!tokenizer.hasNext()){
-			return null;
+
+		if(!this.tokenizer.hasNext()){ //check whether the document has a <html> tag
+			return null; //if not - return null
 		}else{
 			let dom = new ElementExpression("html");
-			tokenizer.next();
-			while(tokenizer.hasNext()){
-				if(tokenizer.current.tokenType == DOMTokenType.ATT_KEY){
-					dom.attributes.push(parseAttribute());
-				}else if(tokenizer.current.tokenType == DOMTokenType.TAG_NAME){
-					if(tokenizer.current.value == "html"){
+			while(this.tokenizer.hasNext()){
+				this.tokenizer.next();
+				if(this.tokenizer.current.tokenType === DOMTokenType.ATT_KEY){
+					dom.attributes.push(this.parseAttribute());
+				}else if(this.tokenizer.current.tokenType === DOMTokenType.TAG_NAME){
+					if(this.tokenizer.current.value === "html"){
 						break;
 					}else{
-						dom.children.push(parseElement());
+						dom.children.push(this.parseElement());
 					}
 				}
 			}
@@ -35,29 +44,34 @@ class DOMParser{
 	parseElement(){
 		//get the element name
 		//check for attributes
-		//check for content and subelements
-		let element = new ElementExpression(tokenizer.current.value);
-		if(getElementFeature(element.elementName, Features.IS_VOID)){
+		//check for content and sub-elements
+		let element = new ElementExpression(this.tokenizer.current.value);
+		if(getElementFeature(element.elementName, Feature.IS_VOID)){
 			//get attributes
-			while(tokenizer.hasNext() && tokenizer.current.tokenType != DOMTokenType.DEFAULT_TAG_FINISH && tokenizer.current.tokenType != VOID_TAG_FINISH){
-				tokenizer.next();
-				if(tokenizer.current.tokenType == DOMTokenType.ATT_KEY){
-					element.attributes.push(parseAttribute());
+			while(this.tokenizer.hasNext() && this.tokenizer.current.tokenType !== DOMTokenType.DEFAULT_TAG_FINISH && this.tokenizer.current.tokenType !== DOMTokenType.VOID_TAG_FINISH){
+				this.tokenizer.next();
+				if(this.tokenizer.current.tokenType === DOMTokenType.ATT_KEY){
+					element.attributes.push(this.parseAttribute());
 				}
 			}
 		}else{
 			//get attributes, content and children
-			while(tokenizer.hasNext()){
-				tokenizer.next();
-				if(tokenizer.current.tokenType == DOMTokenType.ATT_KEY){
-					element.attributes.push(parseAttribute());
-				}else if(tokenizer.current.tokenType == DOMTokenType.CONTENT){
-					element.content = tokenizer.current.value;
-				}else if(tokenizer.current.tokenType == DOMTokenType.TAG_NAME){
-					if(tokenizer.current.value == element.elementName){
+			while(this.tokenizer.hasNext()){
+				this.tokenizer.next();
+				if(this.tokenizer.current.tokenType === DOMTokenType.ATT_KEY){
+					element.attributes.push(this.parseAttribute());
+				}else if(this.tokenizer.current.tokenType === DOMTokenType.CONTENT){
+					element.hasContent = true;
+					element.content += this.tokenizer.current.value;
+				}else if(this.tokenizer.current.tokenType === DOMTokenType.TAG_NAME){
+					if(this.tokenizer.current.value === element.elementName){
 						break;
 					}else{
-						element.children.push(parseElement());
+						let child = this.parseElement();
+						if(getElementFeature(child.elementName, Feature.IS_INLINE_TEXT_SEMANTIC)){
+							this.content += child.content;
+						}
+						element.children.push(child);
 					}
 				}
 			}
@@ -66,23 +80,19 @@ class DOMParser{
 	}
 
 	parseAttribute(){
-		let att_key = tokenizer.current.value;
-		while(tokenizer.hasNext() && tokenizer.current.tokenType != DOMTokenType.ATT_VALUE){
-			tokenizer.next();
+		let att_key = this.tokenizer.current.value;
+		while(this.tokenizer.hasNext() && this.tokenizer.current.tokenType !== DOMTokenType.ATT_VALUE){
+			this.tokenizer.next();
 		}
-		let att_val = tokenizer.current.value;
-		tokenizer.next();
-		return new AttributeExpression(att_key, att_val);
+		return new AttributeExpression(att_key, this.tokenizer.current.value);
 	}
 }
 
-class ScriptParser{
-	constructor(scriptTokenizer){
-		this.scriptTokenizer = scriptTokenizer;
+class ScriptParser extends Parser{
+
+	constructor(tokenizer){
+		super(tokenizer);
 	}
 
-	parseScript(){
-
-	}
-
+	parseScript(){}
 }
