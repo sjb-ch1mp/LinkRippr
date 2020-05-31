@@ -2,7 +2,7 @@
 * https://www.w3.org/TR/2011/WD-html-markup-20110405/syntax.html
 * */
 
-function getFeature(tag, feature){
+function getElementFeature(tag, feature){
     let features = getTag(tag);
     console.log("Features for " + tag + " are " + features);
     if(features != null){

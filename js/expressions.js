@@ -1,21 +1,15 @@
-class Expression{
-    constructor(value){
-        this.value = value;
-    }
-}
-
-class DOMExpression extends Expression{
-
-}
-
 class ElementExpression extends Expression{
-
-}
-
-class TagExpression extends Expression{
-
+	constructor(elementName){
+		this.elementName = elementName;
+		this.attributes = [];
+		this.children = [];
+		this.content = null;
+	}
 }
 
 class AttributeExpression extends Expression{
-
+	constructor(key, value){
+		this.key = key;
+		this.value = value;
+	}
 }

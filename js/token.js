@@ -20,8 +20,8 @@ class ScriptToken extends Token{
 const DOMTokenType = {
     OPEN_TAG_START: 'OPEN_TAG_START', // <
     CLOSE_TAG_START: 'CLOSE_TAG_START', // </
-    TAG_FINISH: 'TAG_FINISH', // >
-    OPEN_TAG_CLOSE: 'OPEN_TAG_CLOSE', // />
+    DEFAULT_TAG_FINISH: 'DEFAULT_TAG_FINISH', // >
+    VOID_TAG_FINISH: 'VOID_TAG_FINISH', // />
     TAG_NAME: 'TAG_NAME',
     ATT_KEY: 'ATT_KEY',
     ATT_VALUE: 'ATT_VALUE',

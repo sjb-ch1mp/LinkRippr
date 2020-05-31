@@ -60,7 +60,7 @@ function ripLinks(){
         let tokenizedString = '';
         while(tokenizer.hasNext()){
             if(tokenizer.current.tokenType == DOMTokenType.TAG_NAME){
-                tokenizedString += tokenizer.current.tokenType + ': ' + tokenizer.current.value + ' (is_void = ' + getFeature(tokenizer.current.value, Feature.IS_VOID) + ', is_deprecated = ' + getFeature(tokenizer.current.value, Feature.IS_DEPRECATED) + ')\n';
+                tokenizedString += tokenizer.current.tokenType + ': ' + tokenizer.current.value + ' (is_void = ' + getElementFeature(tokenizer.current.value, Feature.IS_VOID) + ', is_deprecated = ' + getElementFeature(tokenizer.current.value, Feature.IS_DEPRECATED) + ')\n';
             }else{
                 tokenizedString += tokenizer.current.tokenType + ': ' + tokenizer.current.value + '\n';
             }

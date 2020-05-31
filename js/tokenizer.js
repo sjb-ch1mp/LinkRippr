@@ -28,10 +28,10 @@ class DOMTokenizer{
             this.current = new DOMToken(DOMTokenType.OPEN_TAG_START, '<');
         }else if(firstChar == '/' && secondChar != null && secondChar == '>'){
             this.previous = this.current;
-            this.current = new DOMToken(DOMTokenType.OPEN_TAG_CLOSE, '/>');
+            this.current = new DOMToken(DOMTokenType.VOID_TAG_FINISH, '/>');
         }else if(firstChar == '>'){
             this.previous = this.current;
-            this.current = new DOMToken(DOMTokenType.TAG_FINISH, '>');
+            this.current = new DOMToken(DOMTokenType.DEFAULT_TAG_FINISH, '>');
         }else if(firstChar == '='){
             this.previous = this.current;
             this.current = new DOMToken(DOMTokenType.EQUALS, '=');
@@ -40,10 +40,10 @@ class DOMTokenizer{
             this.current = new DOMToken(DOMTokenType.QUOTE, "\"");
         }else if(this.current.tokenType == DOMTokenType.OPEN_TAG_START || this.current.tokenType == DOMTokenType.CLOSE_TAG_START){
             this.previous = this.current;
-            this.current = new DOMToken(DOMTokenType.TAG_NAME, this.buffer.substring(0, this.getTokenEnd([' ', '>', '/>'])));
+            this.current = new DOMToken(DOMTokenType.TAG_NAME, this.buffer.substring(0, this.getTokenEnd([' ', '>', '/>']).toLowerCase()));
         }else if(this.current.tokenType == DOMTokenType.QUOTE && this.previous.tokenType == DOMTokenType.EQUALS){
             this.previous = this.current;
-            this.current = new DOMToken(DOMTokenType.ATT_VALUE, this.buffer.substring(0, this.getTokenEnd(['\"'])));
+            this.current = new DOMToken(DOMTokenType.ATT_VALUE, this.buffer.substring(0, this.getTokenEnd(['\"']).toLowerCase()));
         }else if(this.current.tokenType == DOMTokenType.TAG_NAME || this.current.tokenType == DOMTokenType.QUOTE){
             this.previous = this.current;
             this.current = new DOMToken(DOMTokenType.ATT_KEY, this.buffer.substring(0, this.getTokenEnd(['='])));
