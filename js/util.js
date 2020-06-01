@@ -5,10 +5,10 @@ function padContent(){
     let content = document.getElementById("content");
     let totalHeight = document.documentElement.scrollHeight;
     if(document.getElementById("results").innerText == ""){
-        content.setAttribute("style", "padding-top: " + (headerHeight*1.05) + "px; padding-bottom: " + (footerHeight*1.15) + "px; height: " + totalHeight + "px;");
+        content.setAttribute("style", "padding-left: 5%; padding-right: 5%; padding-top: " + (headerHeight*1.05) + "px; padding-bottom: " + (footerHeight*1.15) + "px; height: " + totalHeight + "px;");
         document.getElementById("body").setAttribute("style", "overflow: hidden; height: 100%;");
     }else{
-        content.setAttribute("style", "padding-top: " + (headerHeight*1.05) + "px; padding-bottom: " + (footerHeight*1.15) + "px;");
+        content.setAttribute("style", "padding-left: 5%; padding-right: 5%; padding-top: " + (headerHeight*1.05) + "px; padding-bottom: " + (footerHeight*1.15) + "px;");
         document.getElementById("body").removeAttribute("style");
     }
 

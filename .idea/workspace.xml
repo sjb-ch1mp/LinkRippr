@@ -2,12 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="3c852885-e476-4f29-aa45-36f13ec98356" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/js/_parser.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/js/link_rippr.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/link_rippr.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/parser.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/parser.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/js/token.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/token.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/js/tokenizer.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/tokenizer.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/util.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/util.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -62,6 +61,7 @@
       <workItem from="1590889866188" duration="5721000" />
       <workItem from="1590917497968" duration="6501000" />
       <workItem from="1590972306492" duration="2477000" />
+      <workItem from="1590988184377" duration="17428000" />
     </task>
     <servers />
   </component>

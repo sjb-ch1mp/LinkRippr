@@ -61,7 +61,7 @@ function ripLinks(){
         let tokenizer = new DOMTokenizer(file.toString());
         let scripts = [];
         while(tokenizer.hasNext()){
-        	if(tokenizer.previous.tokenType === DOMTokenType.TAG_NAME && tokenizer.previous.value === "script" && tokenizer.current.tokenType === DOMTokenType.CONTENT){
+        	if(tokenizer.current.tokenType === DOMTokenType.SCRIPT){
         		scripts.push(tokenizer.current.value);
         	}
             resultString += "\n" + tokenizer.current.tokenType + ": " + tokenizer.current.value;
@@ -69,16 +69,17 @@ function ripLinks(){
         }
         
         if(scripts.length > 0){
-        	resultString += "\n\n== TOKENIZED SCRIPTS ==";
+            resultString += "\n\n== TOKENIZED SCRIPTS ==";
 			for(let i=0; i<scripts.length; i++){
-				sTokenizer = new ScriptTokenizer(scripts[i]);
-				resultString += "\n\n ++ SCRIPT " + (i+1);
+				let sTokenizer = new ScriptTokenizer(scripts[i]);
+                resultString += "\n\n ++ SCRIPT " + (i+1) + ": ";
 				while(sTokenizer.hasNext()){
-					resultString += sTokenizer.current.tokenType + ": " + sTokenizer.current.value;
+                    resultString += "\n" + sTokenizer.current.tokenType + ": " + sTokenizer.current.value;
+					sTokenizer.next();
 				}
 			}
         }
-        
+
         results.innerText = resultString;
         padContent();
         chatter("Done");

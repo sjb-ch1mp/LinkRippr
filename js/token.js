@@ -23,9 +23,12 @@ const DOMTokenType = {
     DEFAULT_TAG_FINISH: 'DEFAULT_TAG_FINISH', // >
     VOID_TAG_FINISH: 'VOID_TAG_FINISH', // />
     TAG_NAME: 'TAG_NAME',
+    BOOL_ATT: 'BOOL_ATT',
     ATT_KEY: 'ATT_KEY',
     ATT_VALUE: 'ATT_VALUE',
     CONTENT: 'CONTENT',
+    SCRIPT: 'SCRIPT',
+    IGNORE: 'IGNORE',
     IGNORE_TAG: 'IGNORE_TAG',
     EQUALS: 'EQUALS',
     QUOTE: 'QUOTE'
@@ -48,20 +51,49 @@ const ScriptTokenType = {
     COLON: 'COLON', //:
     RESERVED_WORD: 'RESERVED_WORD', //isReserved()
     AND: 'AND', //&
+    DOUBLE_AND: 'DOUBLE_AND',
     OR: 'OR', //|
+    DOUBLE_OR: 'DOUBLE_OR',
     GREATER_THAN: 'GREATER_THAN', //>
+    GREATER_THAN_EQUAL_TO: 'GREATER_THAN_EQUAL_TO',
     LESS_THAN: 'LESS_THEN', //<
+    LESS_THAN_EQUAL_TO: 'LESS_THAN_EQUAL_TO',
     EQUAL: 'EQUAL', //=
+    DOUBLE_EQUAL: 'DOUBLE_EQUAL',
+    TRIPLE_EQUAL: 'TRIPLE_EQUAL',
     NOT: 'NOT', //!
+    NOT_EQUAL: 'NOT_EQUAL',
+    NOT_DOUBLE_EQUAL: 'NOT_DOUBLE_EQUAL',
     PLUS: 'PLUS', //+
+    INCREMENT: 'INCREMENT', //++
+    PLUS_EQUAL: 'PLUS_EQUAL', //+=
     MINUS: 'MINUS', //-
+    DECREMENT: 'DECREMENT', //--
+    MINUS_EQUAL: 'MINUS_EQUAL',
     DIVIDE: 'DIVIDE', ///
+    DIVIDE_EQUAL: 'DIVIDE_EQUAL',
     MULTIPLY: 'MULTIPLY', //*
+    MULTIPLY_EQUAL: 'MULTIPLY_EQUAL',
     MODULUS: 'MODULUS', //%
+    MODULUS_EQUAL: 'MODULUS_EQUAL',
+    SINGLE_LINE_COMMENT_START: 'SINGLE_LINE_COMMENT_START',
+    COMMENT: 'COMMENT',
+    MULTI_LINE_COMMENT_START: 'MULTI_LINE_COMMENT_START',
+    MULTI_LINE_COMMENT_END: 'MULTI_LINE_COMMENT_END',
+    INTEGER: 'INTEGER',
+    TERNARY: 'TERNARY',
+    BITWISE_NOT: 'BITWISE_NOT',
+    BITWISE_XOR: 'BITWISE_XOR',
+    LEFT_SHIFT: 'LEFT_SHIFT',
+    RIGHT_SHIFT: 'RIGHT_SHIFT',
+    EMPTY_STRING_SINGLE_QUOTE: 'EMPTY_STRING_SINGLE_QUOTE',
+    EMPTY_STRING_DOUBLE_QUOTE: 'EMPTY_STRING_DOUBLE_QUOTE',
+    SPACE_DOUBLE_QUOTE: 'SPACE_DOUBLE_QUOTE',
+    SPACE_SINGLE_QUOTE: 'SPACE_SINGLE_QUOTE',
     OTHER: 'OTHER' //anything else
 };
 
-function isReserved(scriptToken){
+function isReserved(word){
     let reservedWords =
         ['abstract','arguments','await','boolean',
         'break','byte','case','catch',
@@ -79,5 +111,5 @@ function isReserved(scriptToken){
         'throw','throws','transient','true',
         'try','typeof','var','void',
         'volatile','while','with','yield'];
-    return reservedWords.includes(scriptToken.value);
+    return reservedWords.includes(word);
 }
