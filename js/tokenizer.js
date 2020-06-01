@@ -97,7 +97,108 @@ class ScriptTokenizer extends Tokenizer{
 
     next(){
         this.buffer.trimStart();
+        if(this.buffer.length == 0){
+        	this.current = null;
+        	return;
+        }
+        
         let firstChar = this.buffer.charAt(0);
+        let secondChar = this.buffer.length > 1 ? this.buffer.charAt(1) : null;
+        
+        if(firstChar == ';'){
+        	this.previous = this.current;
+        	this.current = new ScriptToken(ScriptTokenType.END_OF_STATEMENT, ';');
+        }else if(firstChar == '.'){
+           	this.previous = this.current;
+        	this.current = new ScriptToken(ScriptTokenType.QUALIFIER, '.');
+        }else if(firstChar == '('){
+           	this.previous = this.current;        
+        	this.current = new ScriptToken(ScriptTokenType.LEFT_PARENTHESIS, '(');
+        }else if(firstChar == ')'){
+           	this.previous = this.current;        
+        	this.current = new ScriptToken(ScriptTokenType.RIGHT_PARENTHESIS, ')');
+        }else if(firstChar == '{'){
+           	this.previous = this.current;        
+        	this.current = new ScriptToken(ScriptTokenType.LEFT_BRACE, '{');
+        }else if(firstChar == '}'){
+           	this.previous = this.current;        
+        	this.current = new ScriptToken(ScriptTokenType.RIGHT_BRACE, '}');
+        }else if(firstChar == '['){
+           	this.previous = this.current;        
+        	this.current = new ScriptToken(ScriptTokenType.LEFT_BRACKET, '[');
+        }else if(firstChar == ']'){
+           	this.previous = this.current;        
+        	this.current = new ScriptToken(ScriptTokenType.RIGHT_BRACKET, ']');
+        }else if(firstChar == '\''){
+           	this.previous = this.current;        
+        	this.current = new ScriptToken(ScriptTokenType.SINGLE_QUOTE, '\'');
+        }else if(firstChar == '\"'){
+           	this.previous = this.current;        
+        	this.current = new ScriptToken(ScriptTokenType.DOUBLE_QUOTE, '\"');
+        }else if(firstChar == ','){
+           	this.previous = this.current;        
+        	this.current = new ScriptToken(ScriptTokenType.COMMA, ',');
+        }else if(firstChar == ':'){
+           	this.previous = this.current;        
+        	this.current = new ScriptToken(ScriptTokenType.COLON, ':');
+        }else if(firstChar == '&'){
+           	this.previous = this.current;        
+        	this.current = new ScriptToken(ScriptTokenType.AND, '&');
+        }else if(firstChar == '|'){
+           	this.previous = this.current;        
+        	this.current = new ScriptToken(ScriptTokenType.OR, '|');
+        }else if(firstChar == '>'){
+           	this.previous = this.current;        
+        	this.current = new ScriptToken(ScriptTokenType.GREATER_THEN, '>');
+        }else if(firstChar == '<'){
+           	this.previous = this.current;        
+        	this.current = new ScriptToken(ScriptTokenType.LESS_THAN, '<');
+        }else if(firstChar == '='){
+           	this.previous = this.current;        
+        	this.current = new ScriptToken(ScriptTokenType.EQUAL, '=');
+        }else if(firstChar == '!'){
+           	this.previous = this.current;        
+        	this.current = new ScriptToken(ScriptTokenType.NOT, '!');
+        }else if(firstChar == '+'){
+           	this.previous = this.current;        
+        	this.current = new ScriptToken(ScriptTokenType.ADD, '+');
+        }else if(firstChar == '-'){
+           	this.previous = this.current;        
+        	this.current = new ScriptToken(ScriptTokenType.MINUS, '-');
+        }else if(firstChar == '/'){
+           	this.previous = this.current;        
+        	this.current = new ScriptToken(ScriptTokenType.DIVIDE, '/');
+        }else if(firstChar == '*'){
+           	this.previous = this.current;        
+        	this.current = new ScriptToken(ScriptTokenType.MULTIPLY, '*');
+        }else if(firstChar == '%'){
+           	this.previous = this.current;        
+        	this.current = new ScriptToken(ScriptTokenType.MODULUS, '%');
+        }else{
+        	if(this.previous.tokenType === ScriptTokenType.SINGLE_QUOTE || this.previous.tokenType === ScriptTokenType.DOUBLE_QUOTE){ //STRING
+        		let idx = 0;
+        		while(idx < this.buffer.length && this.buffer.charAt(idx) != this.previous.value){
+        			idx++;
+        		}
+        		this.previous = this.current;
+        		this.current = new ScriptToken(ScriptTokenType.STRING, this.buffer.substring(0, idx));
+        	}else if(firstChar.matches(/[a-zA-Z\$_]/g).length > 0){
+    			let idx = 0;
+    			while(idx < this.buffer.length && this.buffer.charAt(idx).matches(/[a-zA-Z0-9_\-]/g).length > 0){
+    				idx++;
+    			}
+    			this.previous = this.current;
+    			this.current = new ScriptToken(ScriptTokenType.WORD, this.buffer.substring(0, idx));
+        	}else{
+        		let idx = 0; 
+        		while(idx < this.buffer.length && this.buffer.charAt(idx) != ' '){
+        			idx++;
+        		}
+        		this.previous = this.current;
+        		this.current = new ScriptToken(ScriptTokenType.OTHER, this.buffer.substring(0, idx));
+        	}
+        }
+        this.buffer = this.buffer.substring(this.current.value.length);
     }
 
     hasNext(){

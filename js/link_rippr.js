@@ -58,12 +58,27 @@ function ripLinks(){
     if(file !== null && file !== undefined){
 
         let resultString = "== TOKENIZED DOM ==\n";
-
         let tokenizer = new DOMTokenizer(file.toString());
+        let scripts = [];
         while(tokenizer.hasNext()){
+        	if(tokenizer.previous.tokenType === DOMTokenType.TAG_NAME && tokenizer.previous.value === "script" && tokenizer.current.tokenType === DOMTokenType.CONTENT){
+        		scripts.push(tokenizer.current.value);
+        	}
             resultString += "\n" + tokenizer.current.tokenType + ": " + tokenizer.current.value;
             tokenizer.next();
         }
+        
+        if(scripts.length > 0){
+        	resultString += "\n\n== TOKENIZED SCRIPTS ==";
+			for(let i=0; i<scripts.length; i++){
+				sTokenizer = new ScriptTokenizer(scripts[i]);
+				resultString += "\n\n ++ SCRIPT " + (i+1);
+				while(sTokenizer.hasNext()){
+					resultString += sTokenizer.current.tokenType + ": " + sTokenizer.current.value;
+				}
+			}
+        }
+        
         results.innerText = resultString;
         padContent();
         chatter("Done");
