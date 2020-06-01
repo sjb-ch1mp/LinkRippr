@@ -2,15 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="3c852885-e476-4f29-aa45-36f13ec98356" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/res/alexa-top-1000.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/js/_parser.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LinkRippr.html" beforeDir="false" afterPath="$PROJECT_DIR$/LinkRippr.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/elements.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/elements.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/expressions.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/expressions.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/js/link_rippr.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/link_rippr.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/js/parser.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/parser.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/token.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/token.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/js/tokenizer.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/tokenizer.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/util.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/util.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -64,6 +61,7 @@
       <workItem from="1590726804536" duration="16229000" />
       <workItem from="1590889866188" duration="5721000" />
       <workItem from="1590917497968" duration="6501000" />
+      <workItem from="1590972306492" duration="2477000" />
     </task>
     <servers />
   </component>
@@ -79,10 +77,10 @@
       <screen x="0" y="40" width="2560" height="1400" />
     </state>
     <state x="1024" y="543" key="#com.intellij.fileTypes.FileTypeChooser/0.40.2560.1400/-1920.0.1920.1080@0.40.2560.1400" timestamp="1590728791629" />
-    <state x="-960" y="0" width="960" height="1080" key="dock-window-1" timestamp="1590727834321">
+    <state x="-1891" y="-21" width="1936" height="1168" maximized="true" key="dock-window-1" timestamp="1590974781331">
       <screen x="-1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="-960" y="0" width="960" height="1080" key="dock-window-1/0.40.2560.1400/-1920.0.1920.1080@0.40.2560.1400" timestamp="1590727834321" />
+    <state x="-1891" y="-21" width="1936" height="1168" maximized="true" key="dock-window-1/0.40.2560.1400/-1920.0.1920.1080@0.40.2560.1400" timestamp="1590974781331" />
     <state x="-1920" y="0" width="960" height="1080" key="dock-window-2" timestamp="1590731387841">
       <screen x="-1920" y="0" width="1920" height="1080" />
     </state>

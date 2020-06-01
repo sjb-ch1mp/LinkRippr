@@ -55,7 +55,7 @@ function loadFile(fileInfo) {
 }
 
 function ripLinks(){
-    if(file != null && file != undefined){
+    if(file !== null && file !== undefined){
 
         let resultString = "== TOKENIZED DOM ==\n";
 
@@ -64,11 +64,7 @@ function ripLinks(){
             resultString += "\n" + tokenizer.current.tokenType + ": " + tokenizer.current.value;
             tokenizer.next();
         }
-
-        tokenizer = new DOMTokenizer(file.toString());
-        let parser = new DOMParser(tokenizer);
-        let dom = parser.parseDOM();
-        results.innerText = resultString + "\n\n== PARSED DOM ==\n\n" + dom.print();
+        results.innerText = resultString;
         padContent();
         chatter("Done");
     }else{

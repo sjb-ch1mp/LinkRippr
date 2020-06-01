@@ -1,53 +1,59 @@
-class DOMTokenizer{
-
+class Tokenizer{
     constructor(buffer){
         this.buffer = buffer.replace(new RegExp("(\\r\\n|\\n|\\r)", "g"), "");
         this.previous = null;
         this.current = null;
+    }
+}
+
+class DOMTokenizer extends Tokenizer{
+
+    constructor(buffer){
+        super(buffer);
         this.next();
     }
 
     next(){
         this.buffer = this.buffer.trimStart();
-        let firstChar = this.buffer.charAt(0);
-        let secondChar = this.buffer.length > 1 ? this.buffer.charAt(1) : null;
-
-        if(this.buffer.length == 0){
+        if(this.buffer.length === 0){
             this.current = null;
             return;
         }
 
-        if(firstChar == '<' && secondChar != null && secondChar == '/'){
+        let firstChar = this.buffer.charAt(0);
+        let secondChar = this.buffer.length > 1 ? this.buffer.charAt(1) : null;
+
+        if(firstChar === '<' && secondChar != null && secondChar === '/'){
             this.previous = this.current;
             this.current = new DOMToken(DOMTokenType.CLOSE_TAG_START, '</');
-        }else if(firstChar == '<' && secondChar != null && secondChar == '!') {
+        }else if(firstChar === '<' && secondChar != null && secondChar === '!') {
             this.previous = this.current;
             this.current = new DOMToken(DOMTokenType.IGNORE_TAG, '<!');
-        }else if(firstChar == '<'){
+        }else if(firstChar === '<'){
             this.previous = this.current;
             this.current = new DOMToken(DOMTokenType.OPEN_TAG_START, '<');
-        }else if(firstChar == '/' && secondChar != null && secondChar == '>'){
+        }else if(firstChar === '/' && secondChar != null && secondChar === '>'){
             this.previous = this.current;
             this.current = new DOMToken(DOMTokenType.VOID_TAG_FINISH, '/>');
-        }else if(firstChar == '>'){
+        }else if(firstChar === '>'){
             this.previous = this.current;
             this.current = new DOMToken(DOMTokenType.DEFAULT_TAG_FINISH, '>');
-        }else if(firstChar == '='){
+        }else if(firstChar === '='){
             this.previous = this.current;
             this.current = new DOMToken(DOMTokenType.EQUALS, '=');
-        }else if(firstChar == '\"'){
+        }else if(firstChar === '\"'){
             this.previous = this.current;
             this.current = new DOMToken(DOMTokenType.QUOTE, "\"");
-        }else if(this.current.tokenType == DOMTokenType.OPEN_TAG_START || this.current.tokenType == DOMTokenType.CLOSE_TAG_START){
+        }else if(this.current.tokenType === DOMTokenType.OPEN_TAG_START || this.current.tokenType === DOMTokenType.CLOSE_TAG_START){
             this.previous = this.current;
             this.current = new DOMToken(DOMTokenType.TAG_NAME, this.buffer.substring(0, this.getTokenEnd([' ', '>', '/>'])).toLowerCase());
-        }else if(this.current.tokenType == DOMTokenType.QUOTE && this.previous.tokenType == DOMTokenType.EQUALS){
+        }else if(this.current.tokenType === DOMTokenType.QUOTE && this.previous.tokenType === DOMTokenType.EQUALS){
             this.previous = this.current;
             this.current = new DOMToken(DOMTokenType.ATT_VALUE, this.buffer.substring(0, this.getTokenEnd(['\"'])).toLowerCase());
-        }else if(this.current.tokenType == DOMTokenType.TAG_NAME || this.current.tokenType == DOMTokenType.QUOTE){
+        }else if(this.current.tokenType === DOMTokenType.TAG_NAME || this.current.tokenType === DOMTokenType.QUOTE){
             this.previous = this.current;
             this.current = new DOMToken(DOMTokenType.ATT_KEY, this.buffer.substring(0, this.getTokenEnd(['='])));
-        }else if(this.current.tokenType == DOMTokenType.IGNORE_TAG){
+        }else if(this.current.tokenType === DOMTokenType.IGNORE_TAG){
             this.previous = this.current;
             this.current = new DOMToken(DOMTokenType.CONTENT, this.buffer.substring(0, this.getTokenEnd(['>'])));
         }else{
@@ -82,16 +88,16 @@ class DOMTokenizer{
     }
 }
 
-class ScriptTokenizer{
+class ScriptTokenizer extends Tokenizer{
 
     constructor(buffer){
-        this.buffer = buffer.trim();
-        this.current = null;
+        super(buffer);
         this.next();
     }
 
     next(){
-        this.buffer.trim();
+        this.buffer.trimStart();
+        let firstChar = this.buffer.charAt(0);
     }
 
     hasNext(){
