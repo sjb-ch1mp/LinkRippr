@@ -57,8 +57,46 @@ function loadFile(fileInfo) {
 function ripLinks(){
     if(file !== null && file !== undefined){
 
-        let resultString = "== TOKENIZED DOM ==\n";
+        let resultString = ""
         let tokenizer = new DOMTokenizer(file.toString());
+        let parser = new Parser(tokenizer);
+        if(parser.hasIocs()){
+            if(parser.iocs["base"] != null){
+                resultString += "=== DOM CONTAINS BASE ELEMENT ===\n\n";
+                resultString += "1: " + parser.iocs["base"] + "\n\n";
+            }
+            if(parser.iocs["form"].length > 0){
+                resultString += "=== DOM CONTAINS FORM ELEMENTS ===\n\n";
+                for(let i=0; i<parser.iocs["form"].length; i++){
+                    resultString += (i + 1) + ": " + parser.iocs["form"][i].method.toUpperCase() + " to " + parser.iocs["form"][i].action + "\n";
+                }
+                resultString += "\n";
+            }
+            if(parser.iocs["iframe"].length > 0){
+                resultString += "=== DOM CONTAINS IFRAMES ===\n\n";
+                for(let i=0; i<parser.iocs["iframe"].length; i++){
+                    resultString += (i + 1) + ": " + parser.iocs["iframe"][i] + "\n";
+                }
+                resultString += "\n";
+            }
+            if(parser.iocs["a"].length > 0){
+                resultString += "=== DOM CONTAINS HYPERLINKS ===\n\n";
+                for(let i=0; i<parser.iocs["a"].length; i++){
+                    resultString += (i + 1) + ": " + parser.iocs["a"][i] + "\n";
+                }
+                resultString += "\n";
+            }
+            if(parser.iocs["script"].length > 0){
+                resultString += "=== DOM REFERENCES SCRIPTS ===\n\n";
+                for(let i=0; i<parser.iocs["script"].length; i++){
+                    resultString += (i + 1) + ": " + parser.iocs["script"][i] + "\n";
+                }
+                resultString += "\n";
+            }
+        }else{
+            resultString = "=== NOTHING OF INTEREST IN DOM ===";
+        }
+        /* DEBUGGING PARSER
         let scripts = [];
         while(tokenizer.hasNext()){
         	if(tokenizer.current.tokenType === DOMTokenType.SCRIPT){
@@ -79,7 +117,7 @@ function ripLinks(){
 				}
 			}
         }
-
+        */
         results.innerText = resultString;
         padContent();
         chatter("Done");

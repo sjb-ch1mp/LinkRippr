@@ -49,15 +49,17 @@ class DOMTokenizer extends Tokenizer{
         }else if(firstChar === '\"'){
             this.previous = this.current;
             this.current = new DOMToken(DOMTokenType.QUOTE, "\"");
-        }else if(this.current.tokenType === DOMTokenType.OPEN_TAG_START || this.current.tokenType === DOMTokenType.CLOSE_TAG_START){
+        }else if (this.current.tokenType === DOMTokenType.OPEN_TAG_START){
             this.previous = this.current;
-            this.current = new DOMToken(DOMTokenType.TAG_NAME, this.buffer.substring(0, this.getTokenEnd([' ', '>', '/>'])).toLowerCase());
+            this.current = new DOMToken(DOMTokenType.OPEN_TAG_NAME, this.buffer.substring(0, this.getTokenEnd([' ', '>', '/>'])).toLowerCase());
             if(this.current.value === "script"){
-                if(this.previous.tokenType === DOMTokenType.OPEN_TAG_START){
-                    this.isScript = true;
-                }else if(this.previous.tokenType === DOMTokenType.CLOSE_TAG_START){
+                this.isScript = true;
+            }
+        }else if(this.current.tokenType === DOMTokenType.CLOSE_TAG_START){
+            this.previous = this.current;
+            this.current = new DOMToken(DOMTokenType.CLOSE_TAG_NAME, this.buffer.substring(0, this.getTokenEnd([' ', '>', '/>'])).toLowerCase());
+            if(this.current.value === "script"){
                     this.isScript = false;
-                }
             }
         }else if(this.current.tokenType === DOMTokenType.QUOTE && this.previous.tokenType === DOMTokenType.EQUALS){
             this.previous = this.current;
@@ -65,7 +67,7 @@ class DOMTokenizer extends Tokenizer{
         }else if(this.current.tokenType === DOMTokenType.IGNORE_TAG){
             this.previous = this.current;
             this.current = new DOMToken(DOMTokenType.IGNORE, this.buffer.substring(0, this.getTokenEnd(['>'])));
-        }else if(this.current.tokenType === DOMTokenType.TAG_NAME || this.current.tokenType === DOMTokenType.BOOL_ATT ||
+        }else if(this.current.tokenType === DOMTokenType.OPEN_TAG_NAME || this.current.tokenType === DOMTokenType.BOOL_ATT ||
             (this.current.tokenType === DOMTokenType.QUOTE && this.previous.tokenType !== DOMTokenType.DEFAULT_TAG_FINISH)){
             this.previous = this.current;
             if(this.isBooleanAttribute()){

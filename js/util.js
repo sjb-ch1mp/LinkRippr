@@ -22,7 +22,3 @@ function addTestText(){
     }
     results.innerText = loremIpsum;
 }
-
-function getPseudoHash(anyString){
-
-}
