@@ -1,0 +1,35 @@
+@@@       @@@  @@@  @@@  @@@  @@@  @@@@@@@   @@@  @@@@@@@   @@@@@@@   @@@@@@@
+@@@       @@@  @@@@ @@@  @@@  @@@  @@@@@@@@  @@@  @@@@@@@@  @@@@@@@@  @@@@@@@@
+@@!       @@!  @@!@!@@@  @@!  !@@  @@!  @@@  @@!  @@!  @@@  @@!  @@@  @@!  @@@
+!@!       !@!  !@!!@!@!  !@!  @!!  !@!  @!@  !@!  !@!  @!@  !@!  @!@  !@!  @!@
+@!!       !!@  @!@ !!@!  @!@@!@!   @!@!!@!   !!@  @!@@!@!   @!@@!@!   @!@!!@!
+!!!       !!!  !@!  !!!  !!@!!!    !!@!@!    !!!  !!@!!!    !!@!!!    !!@!@!
+!!:       !!:  !!:  !!!  !!: :!!   !!: :!!   !!:  !!:       !!:       !!: :!!
+ :!:      :!:  :!:  !:!  :!:  !:!  :!:  !:!  :!:  :!:       :!:       :!:  !:!
+ :: ::::   ::   ::   ::   ::  :::  ::   :::   ::   ::        ::       ::   :::
+: :: : :  :    ::    :    :   :::   :   : :  :     :         :         :   : :
+
+Author:
+
+sjb-ch1mp
+
+Description:
+
+LinkRippr is a static analysis tool for HTML documents for infosec professionals. LinkRippr
+extracts elements from the DOM and prints a formatted summary for the user to quickly assess
+the contents of the document in which they are interested.
+
+By default, LinkRippr will:
+ 1. Extract any hyperlinks (<a> elements),
+ 2. Will check if a <base> element is being utilised (this can obfuscate URLs from some tools),
+ 3. Extract any forms, along with their 'method' and 'action' attributes,
+ 4. Extract all input associated with each form,
+ 5. Extract the source attribute for any scripts.
+
+In addition to LinkRippr's default behaviour, the user can identify any elements of interest in
+the 'Extractions' pane.
+
+Planned Functionality:
+
+- Deobfuscation of common simple JavaScript obfuscation techniques.
+- Export report to CSV file.

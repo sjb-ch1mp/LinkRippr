@@ -2,6 +2,7 @@ class Parser{
     constructor(domTokenizer) {
         this.domTokenizer = domTokenizer;
         this.__raw__ = this.domTokenizer.buffer;
+
         this.iocs = {
             "base":null,
             "a":[],
@@ -9,53 +10,101 @@ class Parser{
             "form":[],
             "script":[]
         };
+
+        //add user defined extractions if they exist
+        if(userSettings.userExtractions != null){
+            for(let key in userSettings.userExtractions){
+                this.iocs[key] = [];
+            }
+        }
+
         this.parseDom();
     }
 
     hasIocs(){
+
+        let userDefinedExtractionsFound = false;
+        if(userSettings.userExtractions != null){
+            for(let key in userSettings.userExtractions){
+                if(this.iocs[key].length > 0){
+                    userDefinedExtractionsFound = true;
+                }
+            }
+        }
+
         return this.iocs["base"] != null ||
             this.iocs["a"].length > 0 ||
             this.iocs["iframe"].length > 0 ||
             this.iocs["form"].length > 0 ||
-            this.iocs["script"].length > 0;
+            this.iocs["script"].length > 0 ||
+            userDefinedExtractionsFound;
     }
 
     parseDom(){
         while(this.domTokenizer.hasNext()){
             if(this.domTokenizer.current.tokenType === DOMTokenType.OPEN_TAG_NAME &&
-                this.domTokenizer.current.value in this.iocs){
-                switch(this.domTokenizer.current.value) {
+                this.domTokenizer.current.value in this.iocs &&
+                defaultTags.includes(this.domTokenizer.current.value)){ //while user-defined tags will be detected, they will be ignored
+                let searchTag = this.domTokenizer.current.value;
+                switch(searchTag) {
                     case "base":
-                        this.iocs["base"] = this.getAttribute("href");
+                        this.iocs[searchTag] = this.getAttribute("href", null);
                         break;
                     case "a":
                         let url = (this.iocs["base"] == null) ? "" : this.iocs["base"];
-                        url += this.getAttribute("href");
-                        if(!this.iocs["a"].includes(url)){
-                            this.iocs["a"].push(url);
+                        url += this.getAttribute("href", null);
+                        if(!this.iocs[searchTag].includes(url)){
+                            this.iocs[searchTag].push(url);
                         }
                         break;
                     case "iframe":
-                        this.iocs["iframe"].push(this.getAttribute("href"));
+                        this.iocs[searchTag].push(this.getAttribute("href", null));
                         break;
                     case "form":
                         let form = this.parseForm();
-                        if(!form.alreadyParsed(this.iocs["form"])){
-                            this.iocs["form"].push(form);
+                        if(!form.alreadyParsed(this.iocs[searchTag])){
+                            this.iocs[searchTag].push(form);
                         }
                         break;
                     case "script":
                         this.parseScript();
+                        break;
                 }
             }
-
             this.domTokenizer.next();
+        }
+
+        //now get user-defined extractions
+        let freshTokenizer = new DOMTokenizer(this.__raw__);
+        while(freshTokenizer.hasNext()){
+            if(freshTokenizer.current.tokenType === DOMTokenType.OPEN_TAG_NAME &&
+                freshTokenizer.current.value in this.iocs &&
+                !(defaultTags.includes(freshTokenizer.current.value))){
+                let searchTag = freshTokenizer.current.value;
+                let attributes = this.getAttribute("*", freshTokenizer);
+                let attributeFound = false;
+                let att_container = {};
+                if(userSettings.userExtractions[searchTag][0] === "*"){
+                    this.iocs[searchTag].push(attributes);
+                }else{
+                    for(let i=0; i<userSettings.userExtractions[searchTag].length; i++) {
+                        if(attributes != null && userSettings.userExtractions[searchTag][i] in attributes){
+                            attributeFound = true;
+                            att_container[userSettings.userExtractions[searchTag][i]] = attributes[userSettings.userExtractions[searchTag][i]];
+                        }
+                    }
+                    if(attributeFound){
+                        this.iocs[searchTag].push(att_container);
+                    }
+                }
+            }
+            freshTokenizer.next();
         }
     }
 
     parseScript(){
         //check if the script is being imported from elsewhere
-        let attributes = this.getAttribute("*");
+        let attributes = this.getAttribute("*", null);
         if(attributes != null && "src" in attributes){
             this.iocs["script"].push(attributes["src"]);
             return;
@@ -97,7 +146,7 @@ class Parser{
                 this.domTokenizer.current.value === "form")){
             if(this.domTokenizer.current.tokenType === DOMTokenType.OPEN_TAG_NAME &&
                 this.domTokenizer.current.value === "input"){
-                let inputAttributes = this.getAttribute("*");
+                let inputAttributes = this.getAttribute("*", null);
                 if("name" in inputAttributes || "type" in inputAttributes){
                     form.inputs.push(new Input(
                         ("name" in inputAttributes) ? inputAttributes["name"]:"",
@@ -110,52 +159,53 @@ class Parser{
         return form;
     }
 
-    getAttribute(attributeName){
+    getAttribute(attributeName, useTokenizer){
+        let tokenizer = (useTokenizer == null) ? this.domTokenizer : useTokenizer;
         if(attributeName === "*"){ //get all attributes
             let attributes = null;
-            while(this.domTokenizer.hasNext() &&
-                this.domTokenizer.current.tokenType !== DOMTokenType.DEFAULT_TAG_FINISH &&
-                this.domTokenizer.current.tokenType !== DOMTokenType.VOID_TAG_FINISH){
-                if(this.domTokenizer.current.tokenType === DOMTokenType.ATT_KEY){
+            while(tokenizer.hasNext() &&
+                tokenizer.current.tokenType !== DOMTokenType.DEFAULT_TAG_FINISH &&
+                tokenizer.current.tokenType !== DOMTokenType.VOID_TAG_FINISH){
+                if(tokenizer.current.tokenType === DOMTokenType.ATT_KEY){
                     if(attributes == null){
                         attributes = {};
                     }
-                    let att_key = this.domTokenizer.current.value;
-                    this.domTokenizer.next(); //EQUALS
-                    this.domTokenizer.next(); //QUOTE
-                    this.domTokenizer.next(); //QUOTE or ATT_VALUE
-                    if(this.domTokenizer.current.tokenType === DOMTokenType.QUOTE){
+                    let att_key = tokenizer.current.value;
+                    tokenizer.next(); //EQUALS
+                    tokenizer.next(); //QUOTE
+                    tokenizer.next(); //QUOTE or ATT_VALUE
+                    if(tokenizer.current.tokenType === DOMTokenType.QUOTE){
                         attributes[att_key] = "";
                     }else{
-                        attributes[att_key] = this.domTokenizer.current.value;
+                        attributes[att_key] = tokenizer.current.value;
                     }
-                }else if(this.domTokenizer.current.tokenType === DOMTokenType.BOOL_ATT){
+                }else if(tokenizer.current.tokenType === DOMTokenType.BOOL_ATT){
                     if(attributes == null){
                         attributes = {};
                     }
-                    attributes[this.domTokenizer.current.value] = "True";
+                    attributes[tokenizer.current.value] = "True";
                 }
-                this.domTokenizer.next();
+                tokenizer.next();
             }
             return attributes;
         }else{
-            while(this.domTokenizer.hasNext() &&
-                this.domTokenizer.current.tokenType !== DOMTokenType.DEFAULT_TAG_FINISH &&
-                this.domTokenizer.current.tokenType !== DOMTokenType.VOID_TAG_FINISH){
-                if(this.domTokenizer.current.tokenType === DOMTokenType.ATT_KEY &&
-                    this.domTokenizer.current.value === attributeName){
-                    this.domTokenizer.next(); //EQUALS
-                    this.domTokenizer.next(); //QUOTE
-                    this.domTokenizer.next(); //QUOTE or ATT_VALUE
-                    if(this.domTokenizer.current.tokenType === DOMTokenType.QUOTE){
+            while(tokenizer.hasNext() &&
+                tokenizer.current.tokenType !== DOMTokenType.DEFAULT_TAG_FINISH &&
+                tokenizer.current.tokenType !== DOMTokenType.VOID_TAG_FINISH){
+                if(tokenizer.current.tokenType === DOMTokenType.ATT_KEY &&
+                    tokenizer.current.value === attributeName){
+                    tokenizer.next(); //EQUALS
+                    tokenizer.next(); //QUOTE
+                    tokenizer.next(); //QUOTE or ATT_VALUE
+                    if(tokenizer.current.tokenType === DOMTokenType.QUOTE){
                         return "";
                     }else{
-                        return this.domTokenizer.current.value;
+                        return tokenizer.current.value;
                     }
-                }else if(this.domTokenizer.current.tokenType === DOMTokenType.BOOL_ATT){
+                }else if(tokenizer.current.tokenType === DOMTokenType.BOOL_ATT){
                     return "True";
                 }
-                this.domTokenizer.next();
+                tokenizer.next();
             }
         }
     }

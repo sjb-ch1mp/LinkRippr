@@ -1,17 +1,29 @@
 let file = null;
 let chatterBox = null;
 let results = null;
+let userSettings = null;
+let settingsVisible = false;
+let defaultTags = null;
 
 function setUpGlobalVariables(){
+
     chatterBox = document.getElementById("chatter_box");
+    chatter("Drop an HTML file");
+
     results = document.getElementById("results");
+    defaultTags = ["script", "a", "base", "iframe", "form", "input"];
+
+    if(userSettings == null){
+        console.log('refreshing usersettings')
+        userSettings = new UserSettings();
+    }
+    padContent();
 }
 
 function dropHandler(event){
     event.preventDefault() ? event.preventDefault() : event.returnValue = false;
     event.stopPropagation();
-    setUpGlobalVariables();
-    document.getElementById("results").removeAttribute("style");
+    hideSettings();
 
     if(event.dataTransfer.items){
     //items have been dropped
@@ -33,8 +45,7 @@ function dropHandler(event){
 function dragOverHandler(event){
     event.preventDefault() ? event.preventDefault() : event.returnValue = false;
     event.stopPropagation();
-    setUpGlobalVariables();
-
+    hideSettings();
 }
 
 function loadFile(fileInfo) {
@@ -64,11 +75,11 @@ function ripLinks(){
             let parser = new Parser(tokenizer);
             if(parser.hasIocs()){
                 if(parser.iocs["base"] != null){
-                    resultString += "=== DOM CONTAINS BASE ELEMENT ===\n\n";
+                    resultString += buildHeader("base", null);
                     resultString += "1: " + parser.iocs["base"] + "\n\n";
                 }
                 if(parser.iocs["form"].length > 0){
-                    resultString += "=== DOM CONTAINS FORM ELEMENTS ===\n\n";
+                    resultString += buildHeader("form", null);
                     for(let i=0; i<parser.iocs["form"].length; i++){
                         resultString += (i + 1) + ": " + parser.iocs["form"][i].method.toUpperCase() + " to " + parser.iocs["form"][i].action + "\n";
                         if(parser.iocs["form"][i].inputs.length > 0){
@@ -82,30 +93,66 @@ function ripLinks(){
                     resultString += "\n";
                 }
                 if(parser.iocs["iframe"].length > 0){
-                    resultString += "=== DOM CONTAINS IFRAMES ===\n\n";
+                    resultString += buildHeader("iframe", null);
                     for(let i=0; i<parser.iocs["iframe"].length; i++){
                         resultString += (i + 1) + ": " + parser.iocs["iframe"][i] + "\n";
                     }
                     resultString += "\n";
                 }
                 if(parser.iocs["a"].length > 0){
-                    resultString += "=== DOM CONTAINS HYPERLINKS ===\n\n";
+                    resultString += buildHeader("a", null);
                     for(let i=0; i<parser.iocs["a"].length; i++){
                         resultString += (i + 1) + ": " + parser.iocs["a"][i] + "\n";
                     }
                     resultString += "\n";
                 }
                 if(parser.iocs["script"].length > 0){
-                    resultString += "=== DOM REFERENCES SCRIPTS ===\n\n";
+                    resultString += buildHeader("script", null);
                     for(let i=0; i<parser.iocs["script"].length; i++){
                         resultString += (i + 1) + ": " + parser.iocs["script"][i] + "\n";
                     }
                     resultString += "\n";
                 }
+                if(userSettings.userExtractions != null){
+                    for(let key in userSettings.userExtractions){
+                        let accountedFor = [];
+                        if(parser.iocs[key].length > 0){
+                            resultString += buildHeader(key, userSettings.userExtractions[key]);
+                            for(let i=0; i<parser.iocs[key].length; i++){
+                                for(let innerKey in parser.iocs[key][i]){
+                                    let att = "(" + innerKey.toUpperCase() + ") \"" + (parser.iocs[key][i][innerKey] + "\"").replace(/\r?\n|\r/g, "");
+                                    if(!accountedFor.includes(att)){
+                                        resultString += (i + 1) + ": " + att + "\n";
+                                        accountedFor.push(att);
+                                    }
+                                }
+                            }
+                            resultString += "\n";
+                        }
+                    }
+                }
             }else{
-                resultString = "=== NOTHING OF INTEREST IN DOM ===";
+                resultString = buildHeader("NOTHING OF INTEREST");
             }
-            /* DEBUGGING PARSER
+            results.innerText = resultString;
+            padContent();
+            chatter("Done");
+        }else{
+            throwError("Error importing file");
+        }
+    }catch(err){
+        throwError("There was an error");
+        results.innerText = err.message.toUpperCase() + "\n\n" + err.stack;
+        padContent();
+    }
+}
+
+function dumpTokens(){
+    try{
+        if(file !== null && file !== undefined){
+
+            let resultString = "== TOKENIZED DOM ==\n";
+            let tokenizer = new DOMTokenizer(file.toString());
             let scripts = [];
             while(tokenizer.hasNext()){
                 if(tokenizer.current.tokenType === DOMTokenType.SCRIPT){
@@ -126,7 +173,6 @@ function ripLinks(){
                     }
                 }
             }
-            */
             results.innerText = resultString;
             padContent();
             chatter("Done");
@@ -140,8 +186,37 @@ function ripLinks(){
     }
 }
 
+function buildHeader(tagName, attributeNames){
+    let headerText = "";
+    let wrapper = "";
+    let attributes = "";
+    let defaults = ["base","a","script","form","iframe"];
+    if(defaults.includes(tagName)){
+        switch(tagName){
+            case "a":
+                headerText = "| HYPERLINKS"
+                break;
+            case "script":
+                headerText = "| REFERENCED SCRIPTS"
+                break;
+            default:
+                headerText = "| " + tagName.toUpperCase() + " ELEMENTS"
+        }
+    }else{
+        headerText = "| USER-DEFINED EXTRACTION\n";
+        headerText += "| TAG: " + tagName.toLowerCase();
+        for(let i=0; i<attributeNames.length; i++){
+            attributes += "| ATT_" + (i + 1) + ": " + attributeNames[i] + "\n";
+        }
+    }
+    for(let i=0; i<100; i++){
+        wrapper += "=";
+    }
+    return wrapper + "\n" + headerText + "\n" + attributes + wrapper + "\n\n";
+}
+
 function throwError(message){
-    chatterBox.setAttribute("style","background-color: #8E0000; color: black; font-weight: bold");
+    chatterBox.setAttribute("style","color: #8E0000; font-weight: bold");
     chatterBox.innerText = message;
 }
 
