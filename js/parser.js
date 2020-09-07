@@ -51,8 +51,10 @@ class Parser{
                         this.iocs[searchTag] = this.getAttribute("href", null);
                         break;
                     case "a":
-                        let url = (this.iocs["base"] == null) ? "" : this.iocs["base"];
-                        url += this.getAttribute("href", null);
+                        let url = this.getAttribute("href", null);
+                        if(this.iocs["base"] != null && !url.startsWith(this.iocs["base"])){
+                            url = this.iocs["base"] + url;
+                        }
                         if(!this.iocs[searchTag].includes(url)){
                             this.iocs[searchTag].push(url);
                         }

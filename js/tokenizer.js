@@ -12,6 +12,7 @@ class DOMTokenizer extends Tokenizer{
         super(buffer);
         //this.buffer = this.buffer.replace(new RegExp("(\\r\\n|\\n|\\r)", "g"), "");
         this.isScript = false;
+        this.holdQuoteType = null;
         this.next();
     }
 
@@ -46,9 +47,10 @@ class DOMTokenizer extends Tokenizer{
         }else if(firstChar === '='){
             this.previous = this.current;
             this.current = new DOMToken(DOMTokenType.EQUALS, '=');
-        }else if(firstChar === '\"'){
+        }else if(firstChar === '\"' || firstChar === '\''){
+            this.holdQuoteType = firstChar;
             this.previous = this.current;
-            this.current = new DOMToken(DOMTokenType.QUOTE, '\"');
+            this.current = new DOMToken(DOMTokenType.QUOTE, firstChar);
         }else if (this.current !== null && this.current.tokenType === DOMTokenType.OPEN_TAG_START){
             this.previous = this.current;
             this.current = new DOMToken(DOMTokenType.OPEN_TAG_NAME, this.buffer.substring(0, this.getTokenEnd([' ', '>', '/>'])).toLowerCase());
@@ -63,7 +65,8 @@ class DOMTokenizer extends Tokenizer{
             }
         }else if(this.current !== null && this.current.tokenType === DOMTokenType.QUOTE && this.previous.tokenType === DOMTokenType.EQUALS){
             this.previous = this.current;
-            this.current = new DOMToken(DOMTokenType.ATT_VALUE, this.buffer.substring(0, this.getTokenEnd(['\"'])));
+            this.current = new DOMToken(DOMTokenType.ATT_VALUE, this.buffer.substring(0, this.getTokenEnd([this.holdQuoteType])));
+            this.holdQuoteType = null;
         }else if(this.current !== null && this.current.tokenType === DOMTokenType.EQUALS){
             this.previous = this.current;
             this.current = new DOMToken(DOMTokenType.ATT_VALUE, this.buffer.substring(0, this.getTokenEnd([' ', '/>', '>'])));
