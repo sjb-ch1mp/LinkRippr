@@ -27,6 +27,7 @@ function showSettings(buttonClicked){
     let extractionsPanel = document.getElementById("content");
     let extractionsHtml = "<h2>< Extractions /></h2>";
     extractionsHtml += "<button style='background-color: #0A1926; color: whitesmoke; font-family: Roboto; border-color: #0A1926;' onclick='clearUserExtractions()'>RESET TO DEFAULT</button><br/>";
+    extractionsHtml += "<p id='settings-text'>LinkRippr is currently extracting the following elements and attributes.</p>";
     extractionsHtml += "<table class='settings'><tr><th>TAG NAME</th><th>ATTRIBUTE NAMES</th><th>EXTRACTION TYPE</th></tr>";
     extractionsHtml += "<tr><td>base</td><td>href</td><td>default</td></tr>";
     extractionsHtml += "<tr><td>a</td><td>href</td><td>default</td></tr>";

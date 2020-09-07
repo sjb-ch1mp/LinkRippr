@@ -5,9 +5,6 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/LinkRippr.html" beforeDir="false" afterPath="$PROJECT_DIR$/LinkRippr.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/css/link_rippr.css" beforeDir="false" afterPath="$PROJECT_DIR$/css/link_rippr.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/link_rippr.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/link_rippr.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/parser.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/parser.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/tokenizer.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/tokenizer.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/js/util.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/util.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -68,7 +65,7 @@
       <workItem from="1599281442765" duration="17599000" />
       <workItem from="1599312654528" duration="5811000" />
       <workItem from="1599356144396" duration="21614000" />
-      <workItem from="1599470358067" duration="6630000" />
+      <workItem from="1599470358067" duration="7309000" />
     </task>
     <servers />
   </component>

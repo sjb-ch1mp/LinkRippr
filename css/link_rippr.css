@@ -17,10 +17,6 @@ a{
     padding-right: 5%;
 }
 
-#menu-table{
-    background-color: #0A1926;
-}
-
 #settings-text{
     color: whitesmoke;
     font-family: "Courier New";
@@ -85,7 +81,11 @@ h2{
 }
 
 table.settings{
-    padding: 10px;
+    padding: 2px;
+    border: solid 1px #0A1926;
+}
+.menu{
+    background-color: #0A1926;
 }
 
 td{
@@ -94,6 +94,9 @@ td{
     font-size: small;
     padding-left: 10px;
     padding-right: 10px;
+}
+.menu{
+    background-color: #0A1926;
 }
 
 th{
@@ -106,4 +109,7 @@ th{
     padding-left: 10px;
     padding-right: 10px;
     padding-bottom: 5px;
+}
+.menu{
+    background-color: #0A1926;
 }
