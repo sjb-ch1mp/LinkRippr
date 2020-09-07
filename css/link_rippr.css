@@ -20,12 +20,21 @@ a{
 #menu-table{
     background-color: #0A1926;
 }
-#extraction-menu-button{
+
+#settings-text{
+    color: whitesmoke;
+    font-family: "Courier New";
+    font-size: small;
+}
+
+button.menu-button{
     background-color:  #54001C;
     border-color:  #54001C;
     font-family: "Courier New";
-    font-size: x-large;
-    font-weight: bold;
+    font-size: large;
+    width: 60px;
+    height: 40px;
+    text-align: center;
 }
 #add-extraction-popup{
     background-color:  #900C3F;
@@ -73,6 +82,10 @@ h2{
     font-family: "Courier New";
     font-size: x-large;
     color: #54001C;
+}
+
+table.settings{
+    padding: 10px;
 }
 
 td{

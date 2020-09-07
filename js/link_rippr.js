@@ -14,9 +14,9 @@ function setUpGlobalVariables(){
     defaultTags = ["script", "a", "base", "iframe", "form", "input"];
 
     if(userSettings == null){
-        console.log('refreshing usersettings')
         userSettings = new UserSettings();
     }
+
     padContent();
 }
 
@@ -57,8 +57,13 @@ function loadFile(fileInfo) {
     };
     reader.onload = function () {
         file = reader.result;
-        chatter("Ripping links...");
-        ripLinks();
+        if(userSettings.mode === LRMode.NORMAL){
+            chatter("Ripping links...");
+            ripLinks();
+        }else if(userSettings.mode === LRMode.DEBUG_TOKENIZER){
+            chatter("Disassembling DOM...");
+            dumpTokens();
+        }
     };
     reader.onerror = function () {
         throwError("Error importing file");

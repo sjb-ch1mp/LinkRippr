@@ -48,7 +48,7 @@ class DOMTokenizer extends Tokenizer{
             this.current = new DOMToken(DOMTokenType.EQUALS, '=');
         }else if(firstChar === '\"'){
             this.previous = this.current;
-            this.current = new DOMToken(DOMTokenType.QUOTE, "\"");
+            this.current = new DOMToken(DOMTokenType.QUOTE, '\"');
         }else if (this.current !== null && this.current.tokenType === DOMTokenType.OPEN_TAG_START){
             this.previous = this.current;
             this.current = new DOMToken(DOMTokenType.OPEN_TAG_NAME, this.buffer.substring(0, this.getTokenEnd([' ', '>', '/>'])).toLowerCase());
@@ -64,14 +64,19 @@ class DOMTokenizer extends Tokenizer{
         }else if(this.current !== null && this.current.tokenType === DOMTokenType.QUOTE && this.previous.tokenType === DOMTokenType.EQUALS){
             this.previous = this.current;
             this.current = new DOMToken(DOMTokenType.ATT_VALUE, this.buffer.substring(0, this.getTokenEnd(['\"'])));
+        }else if(this.current !== null && this.current.tokenType === DOMTokenType.EQUALS){
+            this.previous = this.current;
+            this.current = new DOMToken(DOMTokenType.ATT_VALUE, this.buffer.substring(0, this.getTokenEnd([' ', '/>', '>'])));
         }else if(this.current !== null && this.current.tokenType === DOMTokenType.IGNORE_TAG){
             this.previous = this.current;
             this.current = new DOMToken(DOMTokenType.IGNORE, this.buffer.substring(0, this.getTokenEnd(['>'])));
-        }else if(this.current !== null && (this.current.tokenType === DOMTokenType.OPEN_TAG_NAME || this.current.tokenType === DOMTokenType.BOOL_ATT ||
+        }else if(this.current !== null && (this.current.tokenType === DOMTokenType.OPEN_TAG_NAME ||
+            this.current.tokenType === DOMTokenType.BOOL_ATT ||
+            this.current.tokenType === DOMTokenType.ATT_VALUE ||
             (this.current.tokenType === DOMTokenType.QUOTE && this.previous.tokenType !== DOMTokenType.DEFAULT_TAG_FINISH))){
             this.previous = this.current;
             if(this.isBooleanAttribute()){
-                this.current = new DOMToken(DOMTokenType.BOOL_ATT, this.buffer.substring(0, this.getTokenEnd([' '])).toLowerCase());
+                this.current = new DOMToken(DOMTokenType.BOOL_ATT, this.buffer.substring(0, this.getTokenEnd([' ', '>'])).toLowerCase());
             }else{
                 this.current = new DOMToken(DOMTokenType.ATT_KEY, this.buffer.substring(0, this.getTokenEnd(['='])).toLowerCase());
             }

@@ -105,8 +105,12 @@ class Parser{
     parseScript(){
         //check if the script is being imported from elsewhere
         let attributes = this.getAttribute("*", null);
-        if(attributes != null && "src" in attributes){
-            this.iocs["script"].push(attributes["src"]);
+        if(attributes != null){
+            if("data-src" in attributes){
+                this.iocs["script"].push(attributes["data-src"]);
+            }else if("src" in attributes) {
+                this.iocs["script"].push(attributes["src"]);
+            }
             return;
         }
 
@@ -120,25 +124,11 @@ class Parser{
 
     parseForm(){
         let form = new Form("", "");
+
         //get form attributes
-        while(this.domTokenizer.hasNext() && this.domTokenizer.current.tokenType !== DOMTokenType.DEFAULT_TAG_FINISH){
-            if(this.domTokenizer.current.tokenType === DOMTokenType.ATT_KEY){
-                if(this.domTokenizer.current.value === "method" || this.domTokenizer.current.value === "action"){
-                    let att_key = this.domTokenizer.current.value;
-                    this.domTokenizer.next(); //EQUALS
-                    this.domTokenizer.next(); //QUOTE
-                    this.domTokenizer.next(); //ATT_VALUE or QUOTE if empty
-                    switch(att_key){
-                        case "method":
-                            form.method = (this.domTokenizer.current.tokenType === DOMTokenType.QUOTE) ? "" : this.domTokenizer.current.value;
-                            break;
-                        default:
-                            form.action = (this.domTokenizer.current.tokenType === DOMTokenType.QUOTE) ? "/" : this.domTokenizer.current.value;
-                    }
-                }
-            }
-            this.domTokenizer.next();
-        }
+        let attributes = this.getAttribute("*", null);
+        form.method = ("method" in attributes) ? attributes["method"] : "no-method";
+        form.action = ("action" in attributes && attributes["action"] !== "") ? attributes["action"] : "/";
 
         //get form inputs
         while(this.domTokenizer.hasNext() &&
@@ -147,12 +137,10 @@ class Parser{
             if(this.domTokenizer.current.tokenType === DOMTokenType.OPEN_TAG_NAME &&
                 this.domTokenizer.current.value === "input"){
                 let inputAttributes = this.getAttribute("*", null);
-                if("name" in inputAttributes || "type" in inputAttributes){
-                    form.inputs.push(new Input(
-                        ("name" in inputAttributes) ? inputAttributes["name"]:"",
-                        ("type" in inputAttributes) ? inputAttributes["type"]:""
-                    ));
-                }
+                form.inputs.push(new Input(
+                    ("name" in inputAttributes) ? inputAttributes["name"]:"",
+                    ("type" in inputAttributes) ? inputAttributes["type"]:""
+                ));
             }
             this.domTokenizer.next();
         }
@@ -171,12 +159,20 @@ class Parser{
                         attributes = {};
                     }
                     let att_key = tokenizer.current.value;
-                    tokenizer.next(); //EQUALS
-                    tokenizer.next(); //QUOTE
-                    tokenizer.next(); //QUOTE or ATT_VALUE
+
+                    while(tokenizer.hasNext() && tokenizer.current.tokenType !== DOMTokenType.ATT_VALUE
+                    && tokenizer.current.tokenType !== DOMTokenType.QUOTE){
+                        tokenizer.next();
+                    }
+
                     if(tokenizer.current.tokenType === DOMTokenType.QUOTE){
-                        attributes[att_key] = "";
-                    }else{
+                        tokenizer.next();
+                        if(tokenizer.current.tokenType === DOMTokenType.QUOTE){
+                            attributes[att_key] = "";
+                        }else{
+                            attributes[att_key] = tokenizer.current.value;
+                        }
+                    }else if(tokenizer.current.tokenType === DOMTokenType.ATT_VALUE){
                         attributes[att_key] = tokenizer.current.value;
                     }
                 }else if(tokenizer.current.tokenType === DOMTokenType.BOOL_ATT){
@@ -194,12 +190,19 @@ class Parser{
                 tokenizer.current.tokenType !== DOMTokenType.VOID_TAG_FINISH){
                 if(tokenizer.current.tokenType === DOMTokenType.ATT_KEY &&
                     tokenizer.current.value === attributeName){
-                    tokenizer.next(); //EQUALS
-                    tokenizer.next(); //QUOTE
-                    tokenizer.next(); //QUOTE or ATT_VALUE
+                    while(tokenizer.hasNext() && tokenizer.current.tokenType !== DOMTokenType.ATT_VALUE
+                        && tokenizer.current.tokenType !== DOMTokenType.QUOTE){
+                        tokenizer.next();
+                    }
+
                     if(tokenizer.current.tokenType === DOMTokenType.QUOTE){
-                        return "";
-                    }else{
+                        tokenizer.next();
+                        if(tokenizer.current.tokenType === DOMTokenType.QUOTE){
+                            return "";
+                        }else{
+                            return tokenizer.current.value;
+                        }
+                    }else if(tokenizer.current.tokenType === DOMTokenType.ATT_VALUE){
                         return tokenizer.current.value;
                     }
                 }else if(tokenizer.current.tokenType === DOMTokenType.BOOL_ATT){

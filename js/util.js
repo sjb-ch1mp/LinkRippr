@@ -14,15 +14,6 @@ function padContent(){
 
 }
 
-function addTestText(){
-    let loremIpsum = "Lorem ipsum dolor sit amet.\n";
-    let results = document.getElementById("results");
-    for(let i = 0; i<5; i++){
-        loremIpsum += loremIpsum;
-    }
-    results.innerText = loremIpsum;
-}
-
 function showSettings(buttonClicked){
     if(buttonClicked){
         if(settingsVisible){
@@ -34,16 +25,15 @@ function showSettings(buttonClicked){
     }
 
     let extractionsPanel = document.getElementById("content");
-    let extractionsHtml = "<h2>< EXTRACTIONS /></h2>";
-    extractionsHtml += "<button style='background-color: #0A1926; color: whitesmoke; font-family: Roboto; border-color: #0A1926;' onclick='clearUserExtractions()'>RESET</button>";
-    extractionsHtml += "<hr style='color: #54001C'>";
-    extractionsHtml += "<table><tr><th>TAG NAME</th><th>ATTRIBUTE NAMES</th><th>EXTRACTION TYPE</th></tr>";
+    let extractionsHtml = "<h2>< Extractions /></h2>";
+    extractionsHtml += "<button style='background-color: #0A1926; color: whitesmoke; font-family: Roboto; border-color: #0A1926;' onclick='clearUserExtractions()'>RESET TO DEFAULT</button><br/>";
+    extractionsHtml += "<table class='settings'><tr><th>TAG NAME</th><th>ATTRIBUTE NAMES</th><th>EXTRACTION TYPE</th></tr>";
     extractionsHtml += "<tr><td>base</td><td>href</td><td>default</td></tr>";
     extractionsHtml += "<tr><td>a</td><td>href</td><td>default</td></tr>";
     extractionsHtml += "<tr><td>iframe</td><td>href</td><td>default</td></tr>";
     extractionsHtml += "<tr><td>form</td><td>method,action</td><td>default</td></tr>";
     extractionsHtml += "<tr><td>input</td><td>name,type</td><td>default</td></tr>";
-    extractionsHtml += "<tr><td>script</td><td>src</td><td>default</td></tr>";
+    extractionsHtml += "<tr><td>script</td><td>data-src,src</td><td>default</td></tr>";
     if(userSettings.userExtractions != null){
         for(let key in userSettings.userExtractions){
             extractionsHtml += "<tr><td>" + key + "</td><td>" + userSettings.userExtractions[key].join(",") + "</td><td>user-defined</td></tr>";
@@ -52,7 +42,13 @@ function showSettings(buttonClicked){
     extractionsHtml += "<tr><td><input type='text' name='newTag' id='newTag' placeholder='New <tag>'/></td>";
     extractionsHtml += "<td><input type='text' name='newAttributes' id='newAttributes'/></td>";
     extractionsHtml += "<td><button style='background-color: #0A1926; color: whitesmoke; font-family: Roboto; border-color: #0A1926;' onclick='addUserExtraction()'>ADD</button></td></tr>";
-    extractionsHtml += "</table><hr style='color: #54001C'>";
+    extractionsHtml += "</table>";
+    extractionsHtml += "<hr style='color: #54001C'>";
+    extractionsHtml += "<h2>< Mode /></h2>";
+    extractionsHtml += "<button style='background-color: #0A1926; color: whitesmoke; font-family: Roboto; border-color: #0A1926;' onclick='changeMode()'>TOGGLE MODE</button><br/>";
+    extractionsHtml += "<p id='settings-text'>LinkRippr is currently in " + userSettings.mode + " mode.</p>";
+    extractionsHtml += "<hr style='color: #54001C'>";
+
     extractionsPanel.innerHTML = extractionsHtml;
     extractionsPanel.style.color = "#54001C";
     setUpGlobalVariables();
@@ -62,6 +58,13 @@ function hideSettings(){
     settingsVisible = false;
     document.getElementById("content").innerHTML = "<p id='results'></p>";
     setUpGlobalVariables();
+}
+
+function changeMode(){
+    if(userSettings != null){
+        userSettings.mode = (userSettings.mode === LRMode.NORMAL) ? LRMode.DEBUG_TOKENIZER : LRMode.NORMAL;
+        showSettings();
+    }
 }
 
 function addUserExtraction(){
@@ -93,6 +96,7 @@ class UserSettings{
 
     constructor(){
         this.userExtractions = null;
+        this.mode = LRMode.NORMAL;
     }
 
     addUserExtraction(tag, attributes){
@@ -113,4 +117,9 @@ class UserSettings{
             this.userExtractions[tag] = [attributes];
         }
     }
+}
+
+const LRMode = {
+    NORMAL:"NORMAL",
+    DEBUG_TOKENIZER:"DEBUG_TOKENIZER"
 }
