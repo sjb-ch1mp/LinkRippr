@@ -8,6 +8,7 @@ let defaultTags = null;
 function setUpGlobalVariables(){
 
     chatterBox = document.getElementById("chatter_box");
+    chatter("Drop an HTML file");
     results = document.getElementById("results");
     defaultTags = ["script", "a", "base", "iframe", "form", "input"];
 
