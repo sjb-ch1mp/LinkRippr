@@ -3,14 +3,12 @@ let chatterBox = null;
 let results = null;
 let userSettings = null;
 let settingsVisible = false;
-let defaultTags = null;
 
 function setUpGlobalVariables(){
 
     chatterBox = document.getElementById("chatter_box");
     chatter("Drop an HTML file");
     results = document.getElementById("results");
-    defaultTags = ["script", "a", "base", "iframe", "form", "input"];
 
     if(userSettings == null){
         userSettings = new UserSettings();
@@ -45,6 +43,7 @@ function dragOverHandler(event){
     event.preventDefault() ? event.preventDefault() : event.returnValue = false;
     event.stopPropagation();
     hideSettings();
+    chatter("File detected. Bombs away!");
 }
 
 function loadFile(fileInfo) {
@@ -74,69 +73,25 @@ function ripLinks(){
         if(file !== null && file !== undefined){
 
             let resultString = ""
-            let tokenizer = new DOMTokenizer(file.toString());
+            let parser = new Parser(new DOMTokenizer(file.toString()));
 
-            let parser = new Parser(tokenizer);
             if(parser.hasIocs()){
-                if(parser.iocs["base"] != null){
-                    resultString += buildHeader("base", null);
-                    resultString += "1: " + parser.iocs["base"] + "\n\n";
-                }
-                if(parser.iocs["form"].length > 0){
-                    resultString += buildHeader("form", null);
-                    for(let i=0; i<parser.iocs["form"].length; i++){
-                        resultString += (i + 1) + ": " + parser.iocs["form"][i].method.toUpperCase() + " to " + parser.iocs["form"][i].action + "\n";
-                        if(parser.iocs["form"][i].inputs.length > 0){
-                            for(let j=0; j<parser.iocs["form"][i].inputs.length; j++){
-                                let input = parser.iocs["form"][i].inputs[j];
-                                resultString += "--> " + ((input.name === "")?"unnamed":"\"" + input.name + "\"") + " (" + ((input.type === "")?"untyped":input.type) + ")\n"
-                            }
-                            resultString += "\n";
-                        }
+                for(let key in parser.unnested_iocs){
+                    resultString += buildHeader(key, parser.unnested_iocs[key]["attributes"], null);
+                    for(let i=0; i<parser.unnested_iocs[key]["extractions"].length; i++){
+                        resultString += (i + 1) + ": (" + parser.unnested_iocs[key]["extractions"][i]["att"] + ") \"" + parser.unnested_iocs[key]["extractions"][i]["value"] + "\"\n";
                     }
                     resultString += "\n";
                 }
-                if(parser.iocs["iframe"].length > 0){
-                    resultString += buildHeader("iframe", null);
-                    for(let i=0; i<parser.iocs["iframe"].length; i++){
-                        resultString += (i + 1) + ": " + parser.iocs["iframe"][i] + "\n";
-                    }
+                for(let key in parser.nested_iocs){
+                    resultString += buildHeader(key, parser.nested_iocs[key]["attributes"], parser.nested_iocs[key]["nested_tags"]);
+
                     resultString += "\n";
                 }
-                if(parser.iocs["a"].length > 0){
-                    resultString += buildHeader("a", null);
-                    for(let i=0; i<parser.iocs["a"].length; i++){
-                        resultString += (i + 1) + ": " + parser.iocs["a"][i] + "\n";
-                    }
-                    resultString += "\n";
-                }
-                if(parser.iocs["script"].length > 0){
-                    resultString += buildHeader("script", null);
-                    for(let i=0; i<parser.iocs["script"].length; i++){
-                        resultString += (i + 1) + ": " + parser.iocs["script"][i] + "\n";
-                    }
-                    resultString += "\n";
-                }
-                if(userSettings.userExtractions != null){
-                    for(let key in userSettings.userExtractions){
-                        let accountedFor = [];
-                        if(parser.iocs[key].length > 0){
-                            resultString += buildHeader(key, userSettings.userExtractions[key]);
-                            for(let i=0; i<parser.iocs[key].length; i++){
-                                for(let innerKey in parser.iocs[key][i]){
-                                    let att = "(" + innerKey.toUpperCase() + ") \"" + (parser.iocs[key][i][innerKey] + "\"").replace(/\r?\n|\r/g, "");
-                                    if(!accountedFor.includes(att)){
-                                        resultString += (i + 1) + ": " + att + "\n";
-                                        accountedFor.push(att);
-                                    }
-                                }
-                            }
-                            resultString += "\n";
-                        }
-                    }
-                }
+                //REMOVED
+
             }else{
-                resultString = buildHeader("NOTHING OF INTEREST");
+                resultString = buildHeader("NOTHING OF INTEREST", null);
             }
             results.innerText = resultString;
             padContent();
@@ -190,33 +145,25 @@ function dumpTokens(){
     }
 }
 
-function buildHeader(tagName, attributeNames){
-    let headerText = "";
-    let wrapper = "";
-    let attributes = "";
-    let defaults = ["base","a","script","form","iframe"];
-    if(defaults.includes(tagName)){
-        switch(tagName){
-            case "a":
-                headerText = "| HYPERLINKS"
-                break;
-            case "script":
-                headerText = "| REFERENCED SCRIPTS"
-                break;
-            default:
-                headerText = "| " + tagName.toUpperCase() + " ELEMENTS"
-        }
-    }else{
-        headerText = "| USER-DEFINED EXTRACTION\n";
-        headerText += "| TAG: " + tagName.toLowerCase();
-        for(let i=0; i<attributeNames.length; i++){
-            attributes += "| ATT_" + (i + 1) + ": " + attributeNames[i] + "\n";
-        }
-    }
+function buildHeader(tagName, attributeNames, nestedTags){
+    let headerText = ".| TAG: " + tagName;
+
+    let border = "";
     for(let i=0; i<100; i++){
-        wrapper += "=";
+        border += "=";
     }
-    return wrapper + "\n" + headerText + "\n" + attributes + wrapper + "\n\n";
+
+    let attributes = "";
+    for(let i=0; i<attributeNames.length; i++){
+        attributes += ".| ATT_" + (i + 1) + ": " + attributeNames[i].toLowerCase() + "\n";
+    }
+    if(nestedTags != null){
+        for(let key in nestedTags){
+            attributes += ".| --> " + key.toUpperCase() + ": " + nestedTags[key].join(",") + "\n";
+        }
+    }
+
+    return border + "\n" + headerText + "\n" + attributes + "\\/\n\n";
 }
 
 function throwError(message){
@@ -228,3 +175,75 @@ function chatter(message){
     chatterBox.removeAttribute("style");
     chatterBox.innerText = message;
 }
+/*
+*
+                if(parser.iocs["base"] != null){
+                    resultString += buildHeader("base", null);
+                    resultString += "1: " + parser.iocs["base"] + "\n\n";
+                }
+                if(parser.iocs["iframe"].length > 0){
+                    resultString += buildHeader("iframe", null);
+                    for(let i=0; i<parser.iocs["iframe"].length; i++){
+                        resultString += (i + 1) + ": " + parser.iocs["iframe"][i] + "\n";
+                    }
+                    resultString += "\n";
+                }
+                if(parser.iocs["a"].length > 0){
+                    resultString += buildHeader("a", null);
+                    for(let i=0; i<parser.iocs["a"].length; i++){
+                        resultString += (i + 1) + ": " + parser.iocs["a"][i] + "\n";
+                    }
+                    resultString += "\n";
+                }
+                if(parser.iocs["script"].length > 0){
+                    resultString += buildHeader("script", null);
+                    for(let i=0; i<parser.iocs["script"].length; i++){
+                        resultString += (i + 1) + ": " + parser.iocs["script"][i] + "\n";
+                    }
+                    resultString += "\n";
+                }
+                if(userSettings.userExtractions != null){
+                    for(let key in userSettings.userExtractions){
+                        let accountedFor = [];
+                        if(parser.iocs[key].length > 0){
+                            resultString += buildHeader(key, userSettings.userExtractions[key]);
+                            for(let i=0; i<parser.iocs[key].length; i++){
+                                for(let innerKey in parser.iocs[key][i]){
+                                    let att = "(" + innerKey.toUpperCase() + ") \"" + (parser.iocs[key][i][innerKey] + "\"").replace(/\r?\n|\r/g, "");
+                                    if(!accountedFor.includes(att)){
+                                        resultString += (i + 1) + ": " + att + "\n";
+                                        accountedFor.push(att);
+                                    }
+                                }
+                            }
+                            resultString += "\n";
+                        }
+                    }
+                }
+
+                //form is the unique extraction
+                if(parser.iocs["form"].length > 0){
+                    resultString += buildHeader("form", null);
+                    for(let i=0; i<parser.iocs["form"].length; i++){
+
+                        if(parser.iocs["form"][i].method === "no-method" && parser.iocs["form"][i].action === "no-action"){
+                            resultString += (i + 1) + ": No METHOD and no ACTION.\n";
+                        }else if(parser.iocs["form"][i].method === "no-method"){
+                            resultString += (i + 1) + ": Has ACTION to \"" + parser.iocs["form"][i].action + "\"";
+                        }else if(parser.iocs["form"][i].action === "no-action"){
+                            resultString += (i + 1) + ": Uses METHOD \"" + parser.iocs["form"][i].method.toUpperCase() + "\"";
+                        }else{
+                            resultString += (i + 1) + ": " + parser.iocs["form"][i].method.toUpperCase() + " to " + parser.iocs["form"][i].action + "\n";
+                        }
+
+                        if(parser.iocs["form"][i].inputs.length > 0){
+                            for(let j=0; j<parser.iocs["form"][i].inputs.length; j++){
+                                let input = parser.iocs["form"][i].inputs[j];
+                                resultString += "--> " + ((input.name === "")?"unnamed":"\"" + input.name + "\"") + " (" + ((input.type === "")?"untyped":input.type) + ")\n"
+                            }
+                            resultString += "\n";
+                        }
+                    }
+                    resultString += "\n";
+                }
+* */

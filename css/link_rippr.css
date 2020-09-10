@@ -32,6 +32,13 @@ button.menu-button{
     height: 40px;
     text-align: center;
 }
+button.settings{
+    background-color: #0A1926;
+    color: whitesmoke;
+    border-color: #0A1926;
+    font-family: "Courier New";
+}
+
 #add-extraction-popup{
     background-color:  #900C3F;
 }
@@ -84,8 +91,13 @@ table.settings{
     padding: 2px;
     border: solid 1px #0A1926;
 }
-.menu{
+table.menu{
     background-color: #0A1926;
+}
+table.options{
+    padding: 2px;
+    border: solid 1px #0A1926;
+    background-color: #54001C;
 }
 
 td{
@@ -95,7 +107,7 @@ td{
     padding-left: 10px;
     padding-right: 10px;
 }
-.menu{
+td.menu{
     background-color: #0A1926;
 }
 
@@ -110,6 +122,10 @@ th{
     padding-right: 10px;
     padding-bottom: 5px;
 }
-.menu{
+th.options{
+    text-align: center;
+    background-color: #3E0015;
+}
+th.menu{
     background-color: #0A1926;
 }

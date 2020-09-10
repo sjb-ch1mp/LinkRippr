@@ -25,30 +25,25 @@ function showSettings(buttonClicked){
     }
 
     let extractionsPanel = document.getElementById("content");
-    let extractionsHtml = "<h2>< Extractions /></h2>";
-    extractionsHtml += "<button style='background-color: #0A1926; color: whitesmoke; font-family: Roboto; border-color: #0A1926;' onclick='clearUserExtractions()'>RESET TO DEFAULT</button><br/>";
-    extractionsHtml += "<p id='settings-text'>LinkRippr is currently extracting the following elements and attributes.</p>";
-    extractionsHtml += "<table class='settings'><tr><th>TAG NAME</th><th>ATTRIBUTE NAMES</th><th>EXTRACTION TYPE</th></tr>";
-    extractionsHtml += "<tr><td>base</td><td>href</td><td>default</td></tr>";
-    extractionsHtml += "<tr><td>a</td><td>href</td><td>default</td></tr>";
-    extractionsHtml += "<tr><td>iframe</td><td>href</td><td>default</td></tr>";
-    extractionsHtml += "<tr><td>form</td><td>method,action</td><td>default</td></tr>";
-    extractionsHtml += "<tr><td>input</td><td>name,type</td><td>default</td></tr>";
-    extractionsHtml += "<tr><td>script</td><td>data-src,src</td><td>default</td></tr>";
-    if(userSettings.userExtractions != null){
-        for(let key in userSettings.userExtractions){
-            extractionsHtml += "<tr><td>" + key + "</td><td>" + userSettings.userExtractions[key].join(",") + "</td><td>user-defined</td></tr>";
-        }
-    }
-    extractionsHtml += "<tr><td><input type='text' name='newTag' id='newTag' placeholder='New <tag>'/></td>";
-    extractionsHtml += "<td><input type='text' name='newAttributes' id='newAttributes'/></td>";
-    extractionsHtml += "<td><button style='background-color: #0A1926; color: whitesmoke; font-family: Roboto; border-color: #0A1926;' onclick='addUserExtraction()'>ADD</button></td></tr>";
-    extractionsHtml += "</table>";
-    extractionsHtml += "<hr style='color: #54001C'>";
-    extractionsHtml += "<h2>< Mode /></h2>";
-    extractionsHtml += "<button style='background-color: #0A1926; color: whitesmoke; font-family: Roboto; border-color: #0A1926;' onclick='changeMode()'>TOGGLE MODE</button><br/>";
+    let extractionsHtml = "<h2>< Mode /></h2>";
+    extractionsHtml += "<button class='settings' onclick='changeMode()'>TOGGLE MODE</button><br/>";
     extractionsHtml += "<p id='settings-text'>LinkRippr is currently in " + userSettings.mode + " mode.</p>";
     extractionsHtml += "<hr style='color: #54001C'>";
+    extractionsHtml += "<h2>< Extractions /></h2>";
+    extractionsHtml += "<button class='settings' onclick='reset()'>RESET DEFAULTS</button>";
+    if(Object.keys(userSettings.extractions).length > 0){
+        extractionsHtml += "<p id='settings-text'>LinkRippr is currently extracting the following elements and attributes.</p>";
+        extractionsHtml += "<table class='settings'><tr><th>TAG NAME</th><th colspan='2'>ATTRIBUTE NAMES</th></tr>";
+        for(let key in userSettings.extractions){
+            extractionsHtml += "<tr><td>" + key + "</td><td>" + userSettings.extractions[key]["attributes"].join(",") + "</td>"
+            extractionsHtml += "<td><button id='" + key + "' class='settings' onclick='changeExtractions(this.id)'>DEL</button></td></tr>";
+        }
+        extractionsHtml += "<tr><td><input type='text' placeholder='NEW TAG' id='newTag'></td><td><input type='text' id='newAttributes'></td><td><button class='settings' onclick='changeExtractions(null)'>ADD</button></td></tr>";
+    }else {
+        extractionsHtml += "<p id='settings-text'>LinkRippr is not extracting any elements.</p>";
+        extractionsHtml += "<table class='settings'><tr><th>TAG NAME</th><th colspan='2'>ATTRIBUTE NAMES</th></tr>";
+        extractionsHtml += "<tr><td><input type='text' placeholder='NEW TAG' id='newTag'></td><td><input type='text' id='newAttributes'></td><td><button class='settings' onclick='changeExtractions(null)'>ADD</button></td></tr>";
+    }
 
     extractionsPanel.innerHTML = extractionsHtml;
     extractionsPanel.style.color = "#54001C";
@@ -68,55 +63,147 @@ function changeMode(){
     }
 }
 
-function addUserExtraction(){
-    let newTag = document.getElementById("newTag");
-    let newAttributes = document.getElementById("newAttributes");
-    let extractionsPanel = document.getElementById("content");
-
-    try{
-        if(newTag.value === undefined || newTag.value === ""){
-            throw "Tag name required";
-        }
-        if(newAttributes.value === undefined || newAttributes.value === ""){
-            throw "Attributes required";
-        }
-        userSettings.addUserExtraction(newTag.value, newAttributes.value);
+function changeExtractions(key){
+    if(key!=null){
+        userSettings.removeExtraction(key);
         showSettings(false);
-    }catch(err){
-        throwError(err);
+    }else{
+        let newTag = document.getElementById("newTag");
+        let newAttributes = document.getElementById("newAttributes");
+        try{
+            if(newTag.value === undefined || newTag.value === ""){
+                throw "Tag name required";
+            }
+            if(newAttributes.value === undefined || newAttributes.value === ""){
+                throw "Attributes required";
+            }
+            userSettings.addExtraction(newTag.value, newAttributes.value);
+            showSettings(false);
+        }catch(err){
+            throwError(err);
+        }
     }
-
 }
 
-function clearUserExtractions(){
-    userSettings.userExtractions = {};
+function reset(){
+    userSettings.resetDefaults();
     showSettings(false);
 }
 
 class UserSettings{
 
     constructor(){
-        this.userExtractions = null;
+        this.extractions = {};
+        this.resetDefaults();
         this.mode = LRMode.NORMAL;
     }
 
-    addUserExtraction(tag, attributes){
+    resetDefaults(){
+        this.extractions = {
+            "base":{"attributes":["href"],"hasNested":false},
+            "a":{"attributes":["href"],"hasNested":false},
+            "iframe":{"attributes":["href"],"hasNested":false},
+            "script":{"attributes":["src"],"hasNested":false},
+            "form":{"attributes":["method", "action","[input:name,type]"],"hasNested":true}
+        };
+    }
 
-        //initialise userExtractions
-        if(this.userExtractions == null){
-            this.userExtractions = {};
-        }
+    addExtraction(tag, attributes){
 
         //check if tag is already being extracted
-        if(tag in this.userExtractions || defaultTags.includes(tag)){
+        if(tag in this.extractions){
             throw "Tag \'" + tag + "\' is already being extracted."
         }
 
-        if(attributes.includes(",")){
-            this.userExtractions[tag] = attributes.split(",");
+        if(attributes.includes(",") || attributes.includes("[") || attributes.includes("]")){
+            try{
+                attributes = this.processAttributes(attributes);
+            }catch(err){
+                throw err;
+            }
         }else{
-            this.userExtractions[tag] = [attributes];
+            attributes = {"attributes":[attributes.replace(" ", "")], "hasNested":false};
         }
+        this.extractions[tag] = attributes;
+    }
+
+    removeExtraction(tag){
+        if(this.extractions == null || !(tag in this.extractions)){
+            return;
+        }
+
+        if(tag in this.extractions) {
+            delete this.extractions[tag];
+        }
+    }
+
+    processAttributes(attString){
+
+        let hasNested = false;
+        let attributes = [];
+        let buffer = "";
+        let nested = false;
+        let errChars = ["]", ":"];
+
+        //general check for bad characters
+        attString = attString.toLowerCase();
+        if(!(attString.match(new RegExp("^[,\\[\\]:a-z0-9\-]+$")))){
+            throw "Attribute string contains illegal values.";
+        }
+
+        //use pseudo parser to extract nested and unnested attributes
+        for(let i=0; i<attString.length; i++){
+            if(nested){
+                hasNested = true;
+                buffer += attString.charAt(i);
+                if(attString.charAt(i) === "]"){
+                    nested = false;
+                    attributes.push(buffer);
+                    buffer = "";
+                }
+            }else if(attString.charAt(i) === "["){
+                if(buffer.trim() !== ""){
+                    attributes.push(buffer);
+                }
+                buffer = "[";
+                nested = true;
+            }else if(attString.charAt(i) === ","){
+                if(buffer.trim() !== ""){
+                    attributes.push(buffer);
+                    buffer = "";
+                }
+            }else if(i === attString.length - 1){
+                if(errChars.includes(attString.charAt(i))){
+                    buffer = "err";
+                    break;
+                }
+                if(buffer.trim() != ""){
+                    if(attString.charAt(i) !== ","){
+                        attributes.push(buffer + attString.charAt(i));
+                    }
+                    buffer = "";
+                }
+            }else{
+                if(errChars.includes(attString.charAt(i))){
+                    console.log(attString.charAt(i))
+                    buffer = "err";
+                    break;
+                }
+                buffer += attString.charAt(i);
+            }
+        }
+
+        //check for errors
+        if(buffer !== ""){
+            console.log(buffer);
+            throw "Incorrect syntax for nested extraction";
+        }
+
+        //clean up attributes
+        for(let idx in attributes){
+            attributes[idx] = attributes[idx].replace(" ","");
+        }
+        return {"attributes":attributes, "hasNested":hasNested};
     }
 }
 
