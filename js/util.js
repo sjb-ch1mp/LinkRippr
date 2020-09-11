@@ -104,7 +104,7 @@ class UserSettings{
             "a":{"attributes":["href"],"hasNested":false},
             "iframe":{"attributes":["href"],"hasNested":false},
             "script":{"attributes":["src"],"hasNested":false},
-            "form":{"attributes":["method", "action","[input:name,type]"],"hasNested":true}
+            "form":{"attributes":["method", "action"],"hasNested":false}
         };
     }
 
@@ -124,6 +124,12 @@ class UserSettings{
         }else{
             attributes = {"attributes":[attributes.replace(" ", "")], "hasNested":false};
         }
+
+        //check if tag is for a void element and is nested - this is impossible
+        if(getElementFeature(tag, Feature.IS_VOID) && attributes["hasNested"]){
+            throw "\"" + tag.toUpperCase() + "\" is a void element and can therefore not contain nested elements.";
+        }
+
         this.extractions[tag] = attributes;
     }
 
@@ -160,6 +166,8 @@ class UserSettings{
                     nested = false;
                     attributes.push(buffer);
                     buffer = "";
+                }else if(attString.charAt(i) === "["){
+                    throw "LinkRipper can only handle nesting to a depth of 1."
                 }
             }else if(attString.charAt(i) === "["){
                 if(buffer.trim() !== ""){

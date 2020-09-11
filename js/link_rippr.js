@@ -76,17 +76,44 @@ function ripLinks(){
             let parser = new Parser(new DOMTokenizer(file.toString()));
 
             if(parser.hasIocs()){
-                for(let key in parser.unnested_iocs){
-                    resultString += buildHeader(key, parser.unnested_iocs[key]["attributes"], null);
-                    for(let i=0; i<parser.unnested_iocs[key]["extractions"].length; i++){
-                        resultString += (i + 1) + ": (" + parser.unnested_iocs[key]["extractions"][i]["att"] + ") \"" + parser.unnested_iocs[key]["extractions"][i]["value"] + "\"\n";
+                let iocs = parser.unnested_iocs;
+                for(let key in iocs){
+                    if(iocs[key]["extractions"] != null){
+                        resultString += buildHeader(key, iocs[key]["attributes"], null);
+                        for(let i=0; i<iocs[key]["extractions"].length; i++){
+                            for(let att in iocs[key]["extractions"][i]){
+                                resultString += "| " + padNumber(i + 1) + ":" + ((iocs[key]["attributes"].length === 1)?" ":" (" + att + ") ") + iocs[key]["extractions"][i][att] + "\n";
+                            }
+                            resultString += (iocs[key]["attributes"].length > 1)?"|" + getDivider() + "\n":"";
+                        }
+                        resultString += (iocs[key]["attributes"].length === 1)?"|" + getDivider() + "\n":"\n";
                     }
-                    resultString += "\n";
                 }
-                for(let key in parser.nested_iocs){
-                    resultString += buildHeader(key, parser.nested_iocs[key]["attributes"], parser.nested_iocs[key]["nested_tags"]);
-
-                    resultString += "\n";
+                iocs = parser.nested_iocs;
+                for(let key in iocs){
+                    if(iocs[key]["extractions"] != null){
+                        resultString += buildHeader(key, iocs[key]["attributes"], iocs[key]["nested_tags"]);
+                        for(let i=0; i<iocs[key]["extractions"].length; i++){
+                            if(iocs[key]["extractions"][i].extractions != null){
+                                for(let att in iocs[key]["extractions"][i].extractions){
+                                    resultString += "| " + padNumber(i + 1) + ":" + ((iocs[key]["attributes"].length === 1)?" ":" (" + att + ") ") + iocs[key]["extractions"][i].extractions[att] + "\n";
+                                }
+                            }
+                            if(iocs[key]["extractions"][i].innerTags != null){
+                                let innerTagCount = 1;
+                                for(let j=0; j<iocs[key]["extractions"][i].innerTags.length; j++){
+                                    if(iocs[key]["extractions"][i].innerTags[j].extractions != null){
+                                        for(let att in iocs[key]["extractions"][i].innerTags[j].extractions){
+                                            resultString += "| " + padNumber(i + 1) + ": -> (" + iocs[key]["extractions"][i].innerTags[j].tag.toUpperCase() + " " + padNumber(innerTagCount);
+                                            resultString += ((iocs[key]["nested_tags"][iocs[key]["extractions"][i].innerTags[j].tag].length === 1)?") ":":" + att + ") ") + iocs[key]["extractions"][i].innerTags[j].extractions[att] + "\n";
+                                        }
+                                    }
+                                    innerTagCount += 1;
+                                }
+                            }
+                            resultString += "|" + getDivider() + "\n";
+                        }
+                    }
                 }
                 //REMOVED
 
@@ -145,25 +172,40 @@ function dumpTokens(){
     }
 }
 
+function getDivider(){
+    let divider = "";
+    for(let i=0; i<99; i++){
+        divider += "-"
+    }
+    return divider;
+}
+
 function buildHeader(tagName, attributeNames, nestedTags){
-    let headerText = ".| TAG: " + tagName;
+    let headerText = "| < " + tagName.toUpperCase() + ((attributeNames.length > 0)?": " + attributeNames.join(","):"") + " />";
 
-    let border = "";
-    for(let i=0; i<100; i++){
-        border += "=";
+    let upperBorder = "=";
+    let lowerBorder = "";
+    for(let i=0; i<99; i++){
+        upperBorder += "=";
+        lowerBorder += "-";
     }
 
-    let attributes = "";
-    for(let i=0; i<attributeNames.length; i++){
-        attributes += ".| ATT_" + (i + 1) + ": " + attributeNames[i].toLowerCase() + "\n";
-    }
+    let nestedTagList = "";
     if(nestedTags != null){
         for(let key in nestedTags){
-            attributes += ".| --> " + key.toUpperCase() + ": " + nestedTags[key].join(",") + "\n";
+            nestedTagList += "| + < " + key.toUpperCase() + ": " + nestedTags[key].join(",") + " />\n";
         }
     }
 
-    return border + "\n" + headerText + "\n" + attributes + "\\/\n\n";
+    return "\n\n" + upperBorder + "\n" + headerText + "\n" + nestedTagList + "|" + lowerBorder + "\n";
+}
+
+function padNumber(number){
+    let numStr = number + "";
+    while(numStr.length < 3){
+        numStr = "0" + numStr;
+    }
+    return numStr;
 }
 
 function throwError(message){
@@ -175,75 +217,3 @@ function chatter(message){
     chatterBox.removeAttribute("style");
     chatterBox.innerText = message;
 }
-/*
-*
-                if(parser.iocs["base"] != null){
-                    resultString += buildHeader("base", null);
-                    resultString += "1: " + parser.iocs["base"] + "\n\n";
-                }
-                if(parser.iocs["iframe"].length > 0){
-                    resultString += buildHeader("iframe", null);
-                    for(let i=0; i<parser.iocs["iframe"].length; i++){
-                        resultString += (i + 1) + ": " + parser.iocs["iframe"][i] + "\n";
-                    }
-                    resultString += "\n";
-                }
-                if(parser.iocs["a"].length > 0){
-                    resultString += buildHeader("a", null);
-                    for(let i=0; i<parser.iocs["a"].length; i++){
-                        resultString += (i + 1) + ": " + parser.iocs["a"][i] + "\n";
-                    }
-                    resultString += "\n";
-                }
-                if(parser.iocs["script"].length > 0){
-                    resultString += buildHeader("script", null);
-                    for(let i=0; i<parser.iocs["script"].length; i++){
-                        resultString += (i + 1) + ": " + parser.iocs["script"][i] + "\n";
-                    }
-                    resultString += "\n";
-                }
-                if(userSettings.userExtractions != null){
-                    for(let key in userSettings.userExtractions){
-                        let accountedFor = [];
-                        if(parser.iocs[key].length > 0){
-                            resultString += buildHeader(key, userSettings.userExtractions[key]);
-                            for(let i=0; i<parser.iocs[key].length; i++){
-                                for(let innerKey in parser.iocs[key][i]){
-                                    let att = "(" + innerKey.toUpperCase() + ") \"" + (parser.iocs[key][i][innerKey] + "\"").replace(/\r?\n|\r/g, "");
-                                    if(!accountedFor.includes(att)){
-                                        resultString += (i + 1) + ": " + att + "\n";
-                                        accountedFor.push(att);
-                                    }
-                                }
-                            }
-                            resultString += "\n";
-                        }
-                    }
-                }
-
-                //form is the unique extraction
-                if(parser.iocs["form"].length > 0){
-                    resultString += buildHeader("form", null);
-                    for(let i=0; i<parser.iocs["form"].length; i++){
-
-                        if(parser.iocs["form"][i].method === "no-method" && parser.iocs["form"][i].action === "no-action"){
-                            resultString += (i + 1) + ": No METHOD and no ACTION.\n";
-                        }else if(parser.iocs["form"][i].method === "no-method"){
-                            resultString += (i + 1) + ": Has ACTION to \"" + parser.iocs["form"][i].action + "\"";
-                        }else if(parser.iocs["form"][i].action === "no-action"){
-                            resultString += (i + 1) + ": Uses METHOD \"" + parser.iocs["form"][i].method.toUpperCase() + "\"";
-                        }else{
-                            resultString += (i + 1) + ": " + parser.iocs["form"][i].method.toUpperCase() + " to " + parser.iocs["form"][i].action + "\n";
-                        }
-
-                        if(parser.iocs["form"][i].inputs.length > 0){
-                            for(let j=0; j<parser.iocs["form"][i].inputs.length; j++){
-                                let input = parser.iocs["form"][i].inputs[j];
-                                resultString += "--> " + ((input.name === "")?"unnamed":"\"" + input.name + "\"") + " (" + ((input.type === "")?"untyped":input.type) + ")\n"
-                            }
-                            resultString += "\n";
-                        }
-                    }
-                    resultString += "\n";
-                }
-* */
