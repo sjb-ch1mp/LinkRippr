@@ -24,6 +24,10 @@ function dropHandler(event){
 
     if(event.dataTransfer.items){
     //items have been dropped
+        if(Object.keys(userSettings.extractions).length === 0 && userSettings.mode === LRMode.NORMAL){
+            throwError("LinkRippr currently has no extractions defined.")
+            return;
+        }
         if(event.dataTransfer.items.length == 1){
             let fileInfo = event.dataTransfer.files[0];
             if((fileInfo.type == "text/html")){

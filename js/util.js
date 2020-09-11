@@ -33,7 +33,7 @@ function showSettings(buttonClicked){
     extractionsHtml += "<button class='settings' onclick='reset()'>RESET DEFAULTS</button>";
     if(Object.keys(userSettings.extractions).length > 0){
         extractionsHtml += "<p id='settings-text'>LinkRippr is currently extracting the following elements and attributes.</p>";
-        extractionsHtml += "<table class='settings'><tr><th>TAG NAME</th><th colspan='2'>ATTRIBUTE NAMES</th></tr>";
+        extractionsHtml += "<table class='settings'><tr><th>TAG</th><th colspan='2'>ATTRIBUTES</th></tr>";
         for(let key in userSettings.extractions){
             extractionsHtml += "<tr><td>" + key + "</td><td>" + userSettings.extractions[key]["attributes"].join(",") + "</td>"
             extractionsHtml += "<td><button id='" + key + "' class='settings' onclick='changeExtractions(this.id)'>DEL</button></td></tr>";
@@ -41,7 +41,7 @@ function showSettings(buttonClicked){
         extractionsHtml += "<tr><td><input type='text' placeholder='NEW TAG' id='newTag'></td><td><input type='text' id='newAttributes'></td><td><button class='settings' onclick='changeExtractions(null)'>ADD</button></td></tr>";
     }else {
         extractionsHtml += "<p id='settings-text'>LinkRippr is not extracting any elements.</p>";
-        extractionsHtml += "<table class='settings'><tr><th>TAG NAME</th><th colspan='2'>ATTRIBUTE NAMES</th></tr>";
+        extractionsHtml += "<table class='settings'><tr><th>TAG</th><th colspan='2'>ATTRIBUTES</th></tr>";
         extractionsHtml += "<tr><td><input type='text' placeholder='NEW TAG' id='newTag'></td><td><input type='text' id='newAttributes'></td><td><button class='settings' onclick='changeExtractions(null)'>ADD</button></td></tr>";
     }
 
