@@ -3,23 +3,20 @@ let chatterBox = null;
 let results = null;
 let userSettings = null;
 let settingsVisible = false;
+let previousResults = null;
 
-function setUpGlobalVariables(){
-
+function setUpGlobalVariables(msg){
     chatterBox = document.getElementById("chatter_box");
-    chatter("Drop an HTML file");
     results = document.getElementById("results");
-
     if(userSettings == null){
         userSettings = new UserSettings();
     }
-
+    chatter(msg);
     padContent();
 }
 
 function dropHandler(event){
-    event.preventDefault() ? event.preventDefault() : event.returnValue = false;
-    event.stopPropagation();
+    halt(event);
     hideSettings();
 
     if(event.dataTransfer.items){
@@ -28,9 +25,9 @@ function dropHandler(event){
             throwError("LinkRippr currently has no extractions defined.")
             return;
         }
-        if(event.dataTransfer.items.length == 1){
+        if(event.dataTransfer.items.length === 1){
             let fileInfo = event.dataTransfer.files[0];
-            if((fileInfo.type == "text/html")){
+            if((fileInfo.type === "text/html")){
                 loadFile(fileInfo);
             }else{
                 throwError("LinkRippr can only process .html files");
@@ -39,15 +36,26 @@ function dropHandler(event){
         //more than 1 file has been dropped
             throwError("LinkRippr can only process 1 file at a time");
         }
-
     }
 }
 
 function dragOverHandler(event){
-    event.preventDefault() ? event.preventDefault() : event.returnValue = false;
-    event.stopPropagation();
+    halt(event);
     hideSettings();
     chatter("File detected. Bombs away!");
+}
+
+function halt(event){
+    event.preventDefault() ? event.preventDefault() : event.returnValue = false;
+    event.stopPropagation();
+}
+
+function dragExitHandler(){
+    if(previousResults != null){
+        chatter(stylize(previousResults.fileName));
+    }else{
+        chatter("Drop an HTML File");
+    }
 }
 
 function loadFile(fileInfo) {
@@ -61,7 +69,7 @@ function loadFile(fileInfo) {
         file = reader.result;
         if(userSettings.mode === LRMode.NORMAL){
             chatter("Ripping links...");
-            ripLinks();
+            ripLinks(fileInfo.name);
         }else if(userSettings.mode === LRMode.DEBUG_TOKENIZER){
             chatter("Disassembling DOM...");
             dumpTokens();
@@ -72,13 +80,12 @@ function loadFile(fileInfo) {
     }
 }
 
-function ripLinks(){
+function ripLinks(fileName){
     try{
         if(file !== null && file !== undefined){
 
-            let resultString = ""
+            let resultString = "";
             let parser = new Parser(new DOMTokenizer(file.toString()));
-
             if(parser.hasIocs()){
                 let iocs = parser.unnested_iocs;
                 for(let key in iocs){
@@ -86,11 +93,12 @@ function ripLinks(){
                         resultString += buildHeader(key, iocs[key]["attributes"], null);
                         for(let i=0; i<iocs[key]["extractions"].length; i++){
                             for(let att in iocs[key]["extractions"][i]){
-                                resultString += "| " + padNumber(i + 1) + ":" + ((iocs[key]["attributes"].length === 1)?" ":" (" + att + ") ") + iocs[key]["extractions"][i][att] + "\n";
+                                let tmpStr = "| " + padNumber(i + 1) + " | " + ((iocs[key]["attributes"].length === 1)?" ":" (" + att + ") ") + cleanString(iocs[key]["extractions"][i][att]) + "\n";
+                                resultString += checkLength(tmpStr);
                             }
-                            resultString += (iocs[key]["attributes"].length > 1)?"|" + getDivider() + "\n":"";
+                            resultString += (iocs[key]["attributes"].length > 1)?"|" + getDivider("-", 99) + "\n":"";
                         }
-                        resultString += (iocs[key]["attributes"].length === 1)?"|" + getDivider() + "\n":"\n";
+                        resultString += (iocs[key]["attributes"].length === 1)?"|" + getDivider("-", 99) + "\n":"\n";
                     }
                 }
                 iocs = parser.nested_iocs;
@@ -100,7 +108,8 @@ function ripLinks(){
                         for(let i=0; i<iocs[key]["extractions"].length; i++){
                             if(iocs[key]["extractions"][i].extractions != null){
                                 for(let att in iocs[key]["extractions"][i].extractions){
-                                    resultString += "| " + padNumber(i + 1) + ":" + ((iocs[key]["attributes"].length === 1)?" ":" (" + att + ") ") + iocs[key]["extractions"][i].extractions[att] + "\n";
+                                    let tmpStr = "| " + padNumber(i + 1) + " | " + ((iocs[key]["attributes"].length === 1)?" ":" (" + att + ") ") + cleanString(iocs[key]["extractions"][i].extractions[att]) + "\n";
+                                    resultString += checkLength(tmpStr);
                                 }
                             }
                             if(iocs[key]["extractions"][i].innerTags != null){
@@ -108,25 +117,27 @@ function ripLinks(){
                                 for(let j=0; j<iocs[key]["extractions"][i].innerTags.length; j++){
                                     if(iocs[key]["extractions"][i].innerTags[j].extractions != null){
                                         for(let att in iocs[key]["extractions"][i].innerTags[j].extractions){
-                                            resultString += "| " + padNumber(i + 1) + ": -> (" + iocs[key]["extractions"][i].innerTags[j].tag.toUpperCase() + " " + padNumber(innerTagCount);
-                                            resultString += ((iocs[key]["nested_tags"][iocs[key]["extractions"][i].innerTags[j].tag].length === 1)?") ":":" + att + ") ") + iocs[key]["extractions"][i].innerTags[j].extractions[att] + "\n";
+                                            let tmpStr = "| " + padNumber(i + 1) + " | -> (" + iocs[key]["extractions"][i].innerTags[j].tag.toUpperCase() + " " + padNumber(innerTagCount);
+                                            tmpStr += ((iocs[key]["nested_tags"][iocs[key]["extractions"][i].innerTags[j].tag].length === 1)?") ":":" + att + ") ") + cleanString(iocs[key]["extractions"][i].innerTags[j].extractions[att]) + "\n";
+                                            resultString += checkLength(tmpStr);
                                         }
                                     }
                                     innerTagCount += 1;
                                 }
                             }
-                            resultString += "|" + getDivider() + "\n";
+                            resultString += "|" + getDivider("-", 99) + "\n";
                         }
                     }
                 }
                 //REMOVED
 
             }else{
-                resultString = buildHeader("NOTHING OF INTEREST", null);
+                resultString = "\n\n" + stylize("NOTHING FOUND");
             }
             results.innerText = resultString;
+            chatter(stylize(fileName));
+            previousResults = new PreviousResults(fileName, resultString);
             padContent();
-            chatter("Done");
         }else{
             throwError("Error importing file");
         }
@@ -176,32 +187,28 @@ function dumpTokens(){
     }
 }
 
-function getDivider(){
+function getDivider(char, len){
     let divider = "";
-    for(let i=0; i<99; i++){
-        divider += "-"
+    for(let i=0; i<=len; i++){
+        divider += char
     }
     return divider;
 }
 
 function buildHeader(tagName, attributeNames, nestedTags){
-    let headerText = "| < " + tagName.toUpperCase() + ((attributeNames.length > 0)?": " + attributeNames.join(","):"") + " />";
 
-    let upperBorder = "=";
-    let lowerBorder = "";
-    for(let i=0; i<99; i++){
-        upperBorder += "=";
-        lowerBorder += "-";
-    }
+    let headerText = "| " + stylize(tagName.toUpperCase() + ((attributeNames.length > 1)?": " + attributeNames.join(","):""));
+
+    let divider = getDivider("=", 99);
 
     let nestedTagList = "";
     if(nestedTags != null){
         for(let key in nestedTags){
-            nestedTagList += "| + < " + key.toUpperCase() + ": " + nestedTags[key].join(",") + " />\n";
+            nestedTagList += "| + " + stylize(key.toUpperCase() + ": " + nestedTags[key].join(",")) + "\n";
         }
     }
 
-    return "\n\n" + upperBorder + "\n" + headerText + "\n" + nestedTagList + "|" + lowerBorder + "\n";
+    return "\n\n" + headerText + "\n" + nestedTagList + "|" + divider + "\n";
 }
 
 function padNumber(number){
@@ -212,6 +219,18 @@ function padNumber(number){
     return numStr;
 }
 
+function checkLength(str){
+    if(str.length <= 100 || (str.length === 101 && str.charAt(101) === "\n")){
+        return str;
+    }else{
+        return str.substring(0, 97) + "...\n";
+    }
+}
+
+function cleanString(str){
+    return str.replace(new RegExp("[\n|\r]", "g"),'');
+}
+
 function throwError(message){
     chatterBox.setAttribute("style","color: #8E0000; font-weight: bold");
     chatterBox.innerText = message;
@@ -220,4 +239,11 @@ function throwError(message){
 function chatter(message){
     chatterBox.removeAttribute("style");
     chatterBox.innerText = message;
+}
+
+class PreviousResults{
+    constructor(fileName, resultString){
+        this.fileName = fileName;
+        this.resultString = resultString;
+    }
 }

@@ -64,18 +64,17 @@ class Parser{
         //Use a fresh tokenizer for each nested ioc extraction
         for(let tag in this.nested_iocs){
             let tokenizer = new DOMTokenizer(this.__raw__);
-            let extractions = [];
             while(tokenizer.hasNext()){
                 if(tokenizer.current.tokenType === DOMTokenType.OPEN_TAG_NAME && tokenizer.current.value === tag){
                     let outerTag = this.parseNestedTag(tag, this.nested_iocs[tag]["attributes"], this.nested_iocs[tag]["nested_tags"], tokenizer)
-                    if((outerTag.extractions != null || outerTag.innerTags != null) && !this.alreadyExists(tag, null, null, true, outerTag)){
-                        extractions.push(outerTag);
+                    if(!(outerTag.extractions == null && outerTag.innerTags == null) && !this.alreadyExists(tag, null, null, true, outerTag)){
+                        if(this.nested_iocs[tag]["extractions"] == null){
+                            this.nested_iocs[tag]["extractions"] = [];
+                        }
+                        this.nested_iocs[tag]["extractions"].push(outerTag);
                     }
                 }
                 tokenizer.next();
-            }
-            if(extractions.length > 0){
-                this.nested_iocs[tag]["extractions"] = extractions;
             }
         }
 
@@ -157,7 +156,7 @@ class Parser{
 
     checkForBase(attName, attVal){
         let urlAttributes = ["data-src","src","href"];
-        if(urlAttributes.includes(attName) && this.unnested_iocs["base"]["extractions"] != null){
+        if(urlAttributes.includes(attName) && this.unnested_iocs["base"] != null && this.unnested_iocs["base"]["extractions"] != null){
             if(!(attVal.startsWith(this.unnested_iocs["base"]["extractions"][0]["href"])) &&
                 !(attVal.startsWith("http")) &&
                 !(attVal.startsWith("#"))){

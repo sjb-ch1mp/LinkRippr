@@ -13,7 +13,7 @@
     <script src="js/elements.js"></script>
 </head>
 
-<body id="body" ondrop="dropHandler(event)" ondragover="dragOverHandler(event)">
+<body id="body" ondrop="dropHandler(event)" ondragover="dragOverHandler(event)" ondragexit="dragExitHandler()">
 
 <div class="header">
     <img id="banner" src="img/banner.png" width="100%"/>
@@ -37,13 +37,12 @@
 <script lang="javascript">
     //addTestText();
     window.onload = function(){
-        setUpGlobalVariables();
+        setUpGlobalVariables("Drop an HTML file");
     };
     window.onresize = function(){
-        if(settingsVisible){
-            hideSettings();
-        }
-        setUpGlobalVariables();
+        setUpGlobalVariables(chatterBox.innerText);
     };
+
+    //Header artwork adapted from: https://wallup.net/jack-the-ripper-artwork-fantasy-art-digital-art-dark-top-hat-suits-alleyway/ (no attribution - anonymous upload)
 </script>
 </html>

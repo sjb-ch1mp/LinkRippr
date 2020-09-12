@@ -4,7 +4,7 @@ function padContent(){
     let footerHeight = document.getElementById("footer").clientHeight;
     let content = document.getElementById("content");
     let totalHeight = document.documentElement.scrollHeight;
-    if(document.getElementById("results") == null || document.getElementById("results").innerText == ""){
+    if(settingsVisible || document.getElementById("results") == null || document.getElementById("results").innerText == ""){
         content.setAttribute("style", "padding-left: 5%; padding-right: 5%; padding-top: " + (headerHeight*1.05) + "px; padding-bottom: " + (footerHeight*1.15) + "px; height: " + totalHeight + "px;");
         document.getElementById("body").setAttribute("style", "overflow: hidden; height: 100%;");
     }else{
@@ -47,13 +47,18 @@ function showSettings(buttonClicked){
 
     extractionsPanel.innerHTML = extractionsHtml;
     extractionsPanel.style.color = "#54001C";
-    setUpGlobalVariables();
+    setUpGlobalVariables("Settings");
 }
 
 function hideSettings(){
     settingsVisible = false;
     document.getElementById("content").innerHTML = "<p id='results'></p>";
-    setUpGlobalVariables();
+    if(previousResults !== null){
+        document.getElementById("results").innerText = previousResults.resultString;
+        setUpGlobalVariables(stylize(previousResults.fileName));
+    }else{
+        setUpGlobalVariables( "Drop an HTML file");
+    }
 }
 
 function changeMode(){
@@ -213,6 +218,10 @@ class UserSettings{
         }
         return {"attributes":attributes, "hasNested":hasNested};
     }
+}
+
+function stylize(str){
+    return "< " + str + " />";
 }
 
 const LRMode = {
