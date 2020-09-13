@@ -1,9 +1,10 @@
-class Parser{
+class domParser{
     constructor(domTokenizer) {
         this.domTokenizer = domTokenizer;
         this.__raw__ = this.domTokenizer.buffer;
 
         //separate extractions into nested and unnested
+        this.scripts = []; //[Script, Script, ...]
         this.unnested_iocs = {};
         this.nested_iocs = {};
         for(let key in userSettings.extractions){
@@ -56,6 +57,9 @@ class Parser{
                     }
                     this.unnested_iocs[tag]["extractions"].push(attributesOfInterest);
                 }
+            }else if(this.domTokenizer.current.tokenType === DOMTokenType.SCRIPT){
+                let scriptParser = new ScriptParser(this.domTokenizer.current);
+                this.scripts.push(scriptParser.script);
             }
 
             this.domTokenizer.next();
