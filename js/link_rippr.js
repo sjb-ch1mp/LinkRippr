@@ -197,7 +197,7 @@ function getDivider(char, len){
 
 function buildHeader(tagName, attributeNames, nestedTags){
 
-    let headerText = "| " + stylize(tagName.toUpperCase() + ((attributeNames.length > 1)?": " + attributeNames.join(","):""));
+    let headerText = "| " + stylize(tagName.toUpperCase() + ": " + attributeNames.join(","));
 
     let divider = getDivider("=", 99);
 
