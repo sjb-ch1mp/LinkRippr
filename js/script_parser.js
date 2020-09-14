@@ -5,22 +5,20 @@ class ScriptParser{
             throw "ScriptParser cannot parse content of DOMTokenType." + script.tokenType;
         }
         this.script = new Script(script.value);
+        this.signatures = {};
         this.parseScript();
     }
 
     parseScript(){
         this.breakIntoStatements();
-
     }
 
     breakIntoStatements(){
         let _raw = this.script.raw;
         if(_raw <= 3){
-            this.script.statements[0] = cleanString(_raw);
+            this.script.statements[0] = stripNewLines(_raw);
             return;
         }
-
-        let quoteType = null;
 
         //pseudo-tokens
         const PREVIOUS = 0;
@@ -34,35 +32,36 @@ class ScriptParser{
         const SINGLE_LINE_COMMENT = '//';
         const ML_COMMENT_OPEN = '/*';
         const ML_COMMENT_CLOSE = '*/';
-        const FUNCTION_TAG = 'fun';
         const SINGLE_QUOTE = '\'';
-        const DOUBLE_QUOTE = '"';
+        const DOUBLE_QUOTE = "\"";
+        const OPEN_PAREN = "(";
+        const CLOSE_PAREN = ")";
 
         //in conditionals
         let inMLComment = false;
         let inSingleComment = false;
-        let inFunction = false;
         let inString = false;
 
         //depth counters
+        let depthParen = 0;
         let depthCodeBlock = 0;
-        let depthFunction = 0;
 
+        let quoteType = SINGLE_QUOTE;
         let statement = '';
         for(let i=0; i<_raw.length; i++){
             let buffer = this.setBuffer(i);
 
             if(i === _raw.length - 1){ //Check for the end of _raw
                 statement += buffer[CURRENT];
-                if(statement.trim() !== ""){
-                    this.script.statements.push(statement.trim());
+                if(statement.trim().length > 0){
+                    this.script.statements.push(stripNewLines(statement.trim()));
                 }
             }else if(inString){
                 statement += buffer[CURRENT];
                 if(buffer[PREVIOUS] !== ESCAPE && ((buffer[CURRENT] === DOUBLE_QUOTE && quoteType === DOUBLE_QUOTE) ||
                         (buffer[CURRENT] === SINGLE_QUOTE && quoteType === SINGLE_QUOTE))){
-                        inString = false;
-                        quoteType = null;
+                    quoteType = null;
+                    inString = false;
                 }
             }else if(inSingleComment){ //Check for single line comment exit
                 if(buffer[CURRENT] === NEW_LINE){
@@ -74,66 +73,52 @@ class ScriptParser{
                 }
             }else if(buffer[PREVIOUS] !== ESCAPE){ //Interpret everything in this block as if NOT a string literal
                 if(buffer[CURRENT] === DOUBLE_QUOTE){
-                    inString = true;
-                    statement += buffer[CURRENT];
-                    quoteType = SINGLE_QUOTE;
-                }else if(buffer[CURRENT] === SINGLE_QUOTE){
-                    inString = true;
                     statement += buffer[CURRENT];
                     quoteType = DOUBLE_QUOTE;
+                    inString = true;
+                }else if(buffer[CURRENT] === SINGLE_QUOTE){
+                    statement += buffer[CURRENT];
+                    quoteType = SINGLE_QUOTE;
+                    inString = true;
                 }else if(buffer[CURRENT] === CODE_BLOCK_OPEN){
+                    statement += buffer[CURRENT];
                     depthCodeBlock++;
-                    if(inFunction){
-                        depthFunction++;
-                    }
-                    statement += buffer[CURRENT];
                 }else if(buffer[CURRENT] === CODE_BLOCK_CLOSE){
+                    statement += buffer[CURRENT];
                     depthCodeBlock--;
-                    if(inFunction){
-                        depthFunction--;
-                        if(depthFunction === 0){
-                            inFunction = false;
-                        }
-                    }
+                }else if(buffer[CURRENT] === OPEN_PAREN){
                     statement += buffer[CURRENT];
-                }else if(buffer.join("") === FUNCTION_TAG && this.isFunction(i)){
-                    inFunction = true;
+                    depthParen++;
+                }else if(buffer[CURRENT] === CLOSE_PAREN){
                     statement += buffer[CURRENT];
+                    depthParen--;
                 }else if(buffer[CURRENT] + buffer[NEXT] === SINGLE_LINE_COMMENT){
-                    if(statement.trim() !== ""){
-                        this.script.statements.push(statement.trim());
-                    }
-                    statement = '';
                     inSingleComment = true;
                 }else if(buffer[CURRENT] + buffer[NEXT] === ML_COMMENT_OPEN){
-                    if(statement.trim() !== ""){
-                        this.script.statements.push(statement.trim());
-                    }
-                    statement = '';
                     inMLComment = true;
                 }else if(buffer[CURRENT] === NEW_LINE){
-                    if(statement.trim().length > 0 && depthCodeBlock === 0 && !inFunction){
-                        this.script.statements.push(statement.trim());
-                        statement = '';
+                    if(statement.trim().length > 0 && depthCodeBlock === 0 && depthParen === 0){
+                        if(statement.trim().length > 0){
+                            this.script.statements.push(stripNewLines(statement.trim() + END_STATEMENT));
+                            statement = '';
+                        }
                     }
                 }else if(buffer[CURRENT] === END_STATEMENT){
-                    if(statement.trim().length > 0 && depthCodeBlock === 0 && !inFunction){
-                        this.script.statements.push((statement + END_STATEMENT).trim());
-                        statement = '';
+                    if(statement.trim().length > 0 && depthCodeBlock === 0 && depthParen === 0){
+                        if(statement.trim().length > 0){
+                            this.script.statements.push(stripNewLines(statement.trim() + END_STATEMENT));
+                            statement = '';
+                        }
                     }else{
                         statement += buffer[CURRENT];
                     }
                 }else{
                     statement += buffer[CURRENT];
                 }
-            }else{ //Interpret everything in this block as if a string literal
+            }else{
                 statement += buffer[CURRENT];
             }
         }
-    }
-
-    isFunction(currentIdx){
-        return currentIdx + 7 < this.script.raw.length && this.script.raw.substring(currentIdx - 1, currentIdx + 7) === "function ";
     }
 
     setBuffer(currentIdx){
@@ -143,6 +128,7 @@ class ScriptParser{
             (currentIdx < this.script.raw.length - 1)?this.script.raw.charAt(currentIdx + 1):null
         ];
     }
+
 
 }
 
@@ -156,11 +142,4 @@ class Script{
     prettyPrint(){
         return "Script.prettyPrint()";
     }
-}
-
-const OBFUSCATION_TECHNIQUE = {
-    EVAL:"EVAL",
-    ATOB:"ATOB",
-    UNESCAPE:"UNESCAPE",
-    DOC_WRITE:"DOC_WRITE"
 }

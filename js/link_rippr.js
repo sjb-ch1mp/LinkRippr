@@ -1,9 +1,12 @@
+
+//Global variables
 let file = null;
 let chatterBox = null;
 let results = null;
 let userSettings = null;
 let settingsVisible = false;
 let previousResults = null;
+let menuShowing = false;
 
 function ripLinks(fileName){
     try{
@@ -20,7 +23,7 @@ function ripLinks(fileName){
                             for(let att in iocs[key]["extractions"][i]){
                                 let tmpStr = "| " + padNumber(i + 1) + " | "
                                 tmpStr += ((iocs[key]["attributes"].length === 1)?" ":" (" + att + ") ");
-                                tmpStr += cleanString(iocs[key]["extractions"][i][att]) + "\n";
+                                tmpStr += stripNewLines(iocs[key]["extractions"][i][att]) + "\n";
                                 resultString += checkLength(tmpStr);
                             }
                             resultString += (iocs[key]["attributes"].length > 1)?"|" + getDivider("-", 99) + "\n":"";
@@ -37,7 +40,7 @@ function ripLinks(fileName){
                                 for(let att in iocs[key]["extractions"][i].extractions){
                                     let tmpStr = "| " + padNumber(i + 1) + " | ";
                                     tmpStr += ((iocs[key]["attributes"].length === 1)?" ":" (" + att + ") ");
-                                    tmpStr += cleanString(iocs[key]["extractions"][i].extractions[att]) + "\n";
+                                    tmpStr += stripNewLines(iocs[key]["extractions"][i].extractions[att]) + "\n";
                                     resultString += checkLength(tmpStr);
                                 }
                             }
@@ -49,7 +52,7 @@ function ripLinks(fileName){
                                             let tmpStr = "| " + padNumber(i + 1) + " | -> (";
                                             tmpStr += iocs[key]["extractions"][i].innerTags[j].tag.toUpperCase() + " " + padNumber(innerTagCount);
                                             tmpStr += ((iocs[key]["nested_tags"][iocs[key]["extractions"][i].innerTags[j].tag].length === 1)?") ":":" + att + ") ");
-                                            tmpStr += cleanString(iocs[key]["extractions"][i].innerTags[j].extractions[att]) + "\n";
+                                            tmpStr += stripNewLines(iocs[key]["extractions"][i].innerTags[j].extractions[att]) + "\n";
                                             resultString += checkLength(tmpStr);
                                         }
                                     }
@@ -68,8 +71,11 @@ function ripLinks(fileName){
             if(parser.scripts.length > 0){
                 for(let i in parser.scripts){
                     resultString += "\n\n| " + stylize("SCRIPT: statement") + "\n|" + getDivider("=", 99) + "\n";
+                    let idx = 0;
                     for(let j in parser.scripts[i].statements){
-                        resultString += "| " + padNumber(j + 1) + " | " + cleanString(parser.scripts[i].statements[j]) + "\n";
+                        idx++;
+                        let tmpStr = "| " + padNumber(idx) + " | " + stripNewLines(parser.scripts[i].statements[j]) + "\n";
+                        resultString += checkLength(tmpStr);
                     }
                 }
             }

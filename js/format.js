@@ -8,7 +8,7 @@ function getDivider(char, len){
 
 function buildHeader(tagName, attributeNames, nestedTags){
 
-    let headerText = "| " + stylize(tagName.toUpperCase() + ((attributeNames.length > 1)?": " + attributeNames.join(","):""));
+    let headerText = "| " + stylize(tagName.toUpperCase() + ": " + attributeNames.join(","));
 
     let divider = getDivider("=", 99);
 
@@ -38,6 +38,10 @@ function checkLength(str){
     }
 }
 
-function cleanString(str){
+function stripNewLines(str){
     return str.replace(new RegExp("[\n|\r]", "g"),'');
+}
+
+function stylize(str){
+    return "< " + str + " />";
 }
