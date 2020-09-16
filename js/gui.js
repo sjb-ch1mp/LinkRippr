@@ -23,8 +23,8 @@ function showSettings(section){
     settingsHtml += "<hr style='color: #54001C'>";
 
     switch(section){
-        case 'mode':
-            settingsHtml += buildModeMenu();
+        case 'settings':
+            settingsHtml += buildSettingsMenu();
             break;
         case 'extractions':
             settingsHtml += buildExtractionsMenu();
@@ -35,11 +35,15 @@ function showSettings(section){
 
     settingsPanel.innerHTML = settingsHtml;
     settingsPanel.style.color = "#54001C";
-    setUpGlobalVariables("Settings");
+    setUpGlobalVariables(stylize(section.toUpperCase()));
 }
 
-function buildModeMenu(){
-    let settingsHtml = "<h2>< Mode /></h2>";
+function buildSettingsMenu(){
+    let settingsHtml = "<h2>< Upload /></h2>";
+    settingsHtml += "<p class='settings'>Manually upload an HTML file.</p>"
+    settingsHtml += "<input class='settings' id='upload-file' type='file' accept='text/html' onchange='uploadHandler(this)'>";
+    settingsHtml += "<br><br><hr style='color: #54001C'>";
+    settingsHtml += "<h2>< Mode /></h2>";
     settingsHtml += "<button class='settings' onclick='changeMode()'>TOGGLE MODE</button><br/>";
     settingsHtml += "<p class='settings'>LinkRippr is currently in " + userSettings.mode + " mode.</p>";
     return settingsHtml;
@@ -69,10 +73,10 @@ function buildSignaturesMenu(){
     let settingsHtml = "<h2>< Script Signatures ></h2>";
     settingsHtml += "<button class='settings' onclick='resetScriptSignatureDefaults()'>RESET DEFAULTS</button>";
     if(Object.keys(userSettings.signatures).length > 0){
-        settingsHtml += "<p class='settings'>LinkRippr is currently search for the following signatures.</p>";
+        settingsHtml += "<p class='settings'>LinkRippr is currently searching for the following signatures.</p>";
         settingsHtml += "<table class='settings'><tr><th>NAME</th><th colspan='2'>PATTERN</th></tr>";
         for(let key in userSettings.signatures){
-            settingsHtml += "<tr><td>" + key + "</td><td>" + userSettings.signatures[key]["pattern"] + "</td>";
+            settingsHtml += "<tr><td>" + key + "</td><td>" + showEscapeCharacters(userSettings.signatures[key]) + "</td>";
             settingsHtml += "<td><button id='" + key + "' class='settings' onclick='changeSignatures(this.id)'>DEL</button></td></tr>";
         }
         settingsHtml += "<tr><td><input type='text' placeholder='NEW SIGNATURE' id='newFunction'></td><td><input type='text' id='newPattern'></td><td><button class='settings' onclick='changeSignatures(null)'>ADD</button></td></tr>";
@@ -82,6 +86,17 @@ function buildSignaturesMenu(){
         settingsHtml += "<tr><td><input type='text' placeholder='NEW SIGNATURE' id='newFunction'></td><td><input type='text' id='newPattern'></td><td><button class='settings' onclick='changeSignatures(null)'>ADD</button></td></tr>";
     }
     return settingsHtml;
+}
+
+function showEscapeCharacters(signature){
+    if(signature["default"]){
+        let pattern = signature["pattern"];
+        pattern = pattern.replace(/\\/g, "\\\\");
+        pattern = pattern.replace(/\n/g,"\\n");
+        return pattern;
+    }else{
+        return signature["pattern"];
+    }
 }
 
 function toggleMenu(){
@@ -98,3 +113,4 @@ function hideSettings(){
         setUpGlobalVariables( "Drop an HTML file");
     }
 }
+

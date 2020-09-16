@@ -39,7 +39,9 @@ function checkLength(str){
 }
 
 function stripNewLines(str){
-    return str.replace(new RegExp("[\n|\r]", "g"),'');
+    if(typeof str === "string"){
+        return str.replace(new RegExp("[\n|\r]", "g"),'');
+    }
 }
 
 function stylize(str){

@@ -13,7 +13,7 @@ function ripLinks(fileName){
         if(file !== null && file !== undefined){
 
             let resultString = "";
-            let parser = new domParser(new DOMTokenizer(file.toString()));
+            let parser = new DomParser(new DOMTokenizer(file.toString()));
             if(parser.hasIocs()){
                 let iocs = parser.unnested_iocs;
                 for(let key in iocs){
@@ -72,10 +72,12 @@ function ripLinks(fileName){
                 for(let i in parser.scripts){
                     resultString += "\n\n| " + stylize("SCRIPT: statement") + "\n|" + getDivider("=", 99) + "\n";
                     let idx = 0;
-                    for(let j in parser.scripts[i].statements){
-                        idx++;
-                        let tmpStr = "| " + padNumber(idx) + " | " + stripNewLines(parser.scripts[i].statements[j]) + "\n";
-                        resultString += checkLength(tmpStr);
+                    if(parser.scripts[i].statements != null){
+                        for(let j in parser.scripts[i].statements){
+                            idx++;
+                            let tmpStr = "| " + padNumber(idx) + " | " + stripNewLines(parser.scripts[i].statements[j]._raw) + "\n";
+                            resultString += checkLength(tmpStr);
+                        }
                     }
                 }
             }
@@ -169,6 +171,22 @@ function dragExitHandler(){
         chatter(stylize(previousResults.fileName));
     }else{
         chatter("Drop an HTML File");
+    }
+}
+
+function uploadHandler(input){
+    try{
+        let file = input.files[0];
+        if(file == undefined){
+            throw "File didn't upload correctly";
+        }else if(file.type !== "text/html"){
+            throw "LinkRippr can only process .html files";
+        }else{
+            hideSettings();
+            loadFile(file);
+        }
+    }catch(err){
+        throwError(err);
     }
 }
 

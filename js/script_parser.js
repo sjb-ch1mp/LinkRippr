@@ -4,20 +4,37 @@ class ScriptParser{
         if(script.tokenType !== DOMTokenType.SCRIPT){
             throw "ScriptParser cannot parse content of DOMTokenType." + script.tokenType;
         }
+        this.signatures = userSettings.signatures;
         this.script = new Script(script.value);
-        this.signatures = {};
         this.parseScript();
     }
 
     parseScript(){
+        if(this.script.statements != null){
+            let statements = this.script.statements
+            for(let i in statements){
+                statements[i].checkForSignatures(this.signatures);
+                statements[i].attemptToDeobfuscate();
+                statements[i].attemptDomExtraction(this.signatures);
+            }
+        }
+    }
+
+}
+
+class Script{
+    constructor(raw) {
+        this._raw = raw;
+        this.statements = null;
         this.breakIntoStatements();
     }
 
     breakIntoStatements(){
-        let _raw = this.script.raw;
-        if(_raw <= 3){
-            this.script.statements[0] = stripNewLines(_raw);
+
+        if(this._raw.trim().length === 0){
             return;
+        }else{
+            this.statements = [];
         }
 
         //pseudo-tokens
@@ -48,18 +65,18 @@ class ScriptParser{
 
         let quoteType = SINGLE_QUOTE;
         let statement = '';
-        for(let i=0; i<_raw.length; i++){
+        for(let i=0; i<this._raw.length; i++){
             let buffer = this.setBuffer(i);
 
-            if(i === _raw.length - 1){ //Check for the end of _raw
+            if(i === this._raw.length - 1){ //Check for the end of _raw
                 statement += buffer[CURRENT];
                 if(statement.trim().length > 0){
-                    this.script.statements.push(stripNewLines(statement.trim()));
+                    this.statements.push(new Statement(stripNewLines(statement.trim())));
                 }
             }else if(inString){
                 statement += buffer[CURRENT];
                 if(buffer[PREVIOUS] !== ESCAPE && ((buffer[CURRENT] === DOUBLE_QUOTE && quoteType === DOUBLE_QUOTE) ||
-                        (buffer[CURRENT] === SINGLE_QUOTE && quoteType === SINGLE_QUOTE))){
+                    (buffer[CURRENT] === SINGLE_QUOTE && quoteType === SINGLE_QUOTE))){
                     quoteType = null;
                     inString = false;
                 }
@@ -99,14 +116,14 @@ class ScriptParser{
                 }else if(buffer[CURRENT] === NEW_LINE){
                     if(statement.trim().length > 0 && depthCodeBlock === 0 && depthParen === 0){
                         if(statement.trim().length > 0){
-                            this.script.statements.push(stripNewLines(statement.trim() + END_STATEMENT));
+                            this.statements.push(new Statement(stripNewLines(statement.trim() + END_STATEMENT)));
                             statement = '';
                         }
                     }
                 }else if(buffer[CURRENT] === END_STATEMENT){
                     if(statement.trim().length > 0 && depthCodeBlock === 0 && depthParen === 0){
                         if(statement.trim().length > 0){
-                            this.script.statements.push(stripNewLines(statement.trim() + END_STATEMENT));
+                            this.statements.push(new Statement(stripNewLines(statement.trim() + END_STATEMENT)));
                             statement = '';
                         }
                     }else{
@@ -119,27 +136,77 @@ class ScriptParser{
                 statement += buffer[CURRENT];
             }
         }
+
     }
 
     setBuffer(currentIdx){
         return [
-            (currentIdx > 0)?this.script.raw.charAt(currentIdx - 1):null,
-            this.script.raw.charAt(currentIdx),
-            (currentIdx < this.script.raw.length - 1)?this.script.raw.charAt(currentIdx + 1):null
+            (currentIdx > 0)?this._raw.charAt(currentIdx - 1):null,
+            this._raw.charAt(currentIdx),
+            (currentIdx < this._raw.length - 1)?this._raw.charAt(currentIdx + 1):null
         ];
     }
-
-
 }
 
-class Script{
-    constructor(raw) {
-        this.raw = raw;
-        this.statements = [];
-        this.obfuscationTechniques = [];
+class Statement{
+    constructor(raw){
+        this._raw = raw;
+        this.signatureHits = []; //{"signature":"signature_name","tag":"content","deob_success":false,"deob_content":"deobfuscation"}
+        this.domExtractions = [];
+    }
+
+    checkForSignatures(signatures){
+        for(let key in signatures){
+            let global = new RegExp(signatures[key]["pattern"],"g");
+            let sticky = new RegExp(signatures[key]["pattern"],"y");
+            let tmp = this._raw;
+            while(global.test(tmp)){
+
+                //locate the matching substring
+                let stickyIdx = 0;
+                sticky.lastIndex = stickyIdx;
+                while(!sticky.test(tmp)){
+                    stickyIdx++;
+                    sticky.lastIndex = stickyIdx;
+                }
+                let lastIdx = stickyIdx + 1;
+                let tmpSub = tmp.substring(stickyIdx, lastIdx);
+                while(!sticky.test(tmpSub)){
+                    lastIdx++;
+                    tmpSub = tmp.substring(stickyIdx, lastIdx);
+                }
+
+                //add the substring as a tag to signatureHits
+                this.signatureHits.push({
+                    "signature":key,
+                    "tag":this._raw.substring(stickyIdx, lastIdx),
+                    "deob_success":false,
+                    "deob_content":null
+                });
+
+                //debugging
+                console.log("Found signature \"" + key + "\". Matching value = " + this._raw.substring(stickyIdx, lastIdx));
+
+                //trim tmp
+                tmp = tmp.substring(lastIdx);
+            }
+        }
+    }
+
+    attemptToDeobfuscate(){
+        if(this.signatureHits.length > 0){
+
+        }
+
+    }
+
+    attemptDomExtraction(signatures){
+        if(this.signatureHits.length > 0){
+
+        }
     }
 
     prettyPrint(){
-        return "Script.prettyPrint()";
+
     }
 }

@@ -72,10 +72,10 @@ function getDefaultDomExtractions(){
 
 function getDefaultScriptSignatures(){
     return {
-        "document.write":{"pattern":"document.write\\(.*\\);?", "result":DeobResult.HTML},
-        "eval":{"pattern":"eval\\(.*\\);?","result":DeobResult.UNKNOWN},
-        "atob":{"pattern":"atob\\(.*\\);?", "result":DeobResult.STRING},
-        "unescape":{"pattern":"unescape\\(.*\\);?","result":DeobResult.STRING}
+        "document.write":{"pattern":"document\\.write\\(.*\\)(;|\n| )", "result":DeobResult.HTML, "default":true},
+        "eval":{"pattern":"eval\\(.*\\)","result":DeobResult.UNKNOWN, "default":true},
+        "atob":{"pattern":"atob\\(.*\\)", "result":DeobResult.STRING, "default":true},
+        "unescape":{"pattern":"unescape\\(.*\\)","result":DeobResult.STRING, "default":true}
     }
 }
 
@@ -91,10 +91,7 @@ class UserSettings{
         if(name in this.signatures){
             throw "Name \"" + name + "\" is already being used to identify a signature.";
         }
-        this.signatures[name] = {"pattern":pattern,"result":DeobResult.UNKNOWN};
-        for(let key in this.signatures){
-
-        }
+        this.signatures[name] = {"pattern":pattern,"result":DeobResult.UNKNOWN, "default":false};
     }
 
     removeSignature(name){
