@@ -3,11 +3,10 @@
   <component name="ChangeListManager">
     <list default="true" id="3c852885-e476-4f29-aa45-36f13ec98356" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LinkRippr.html" beforeDir="false" afterPath="$PROJECT_DIR$/LinkRippr.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/img/banner.png" beforeDir="false" afterPath="$PROJECT_DIR$/img/banner.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/gui.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/gui.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/js/link_rippr.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/link_rippr.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/parser.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/parser.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/util.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/util.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/script_parser.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/script_parser.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/settings.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/settings.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -44,6 +43,7 @@
       </list>
     </recent_temporary>
   </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="SvnConfiguration">
     <configuration />
   </component>
@@ -72,12 +72,17 @@
       <workItem from="1599730338066" duration="15459000" />
       <workItem from="1599817236029" duration="14022000" />
       <workItem from="1599831644211" duration="368000" />
-      <workItem from="1599877844711" duration="13735000" />
+      <workItem from="1599877844711" duration="14232000" />
+      <workItem from="1599968191258" duration="2094000" />
+      <workItem from="1599990271606" duration="12133000" />
+      <workItem from="1600074906130" duration="12424000" />
+      <workItem from="1600249923263" duration="12871000" />
+      <workItem from="1600334019579" duration="4149000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
-    <option name="version" value="2" />
+    <option name="version" value="3" />
   </component>
   <component name="WindowStateProjectService">
     <state x="1024" y="543" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1599389499826">

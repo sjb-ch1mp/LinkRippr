@@ -2,15 +2,19 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" href="img/favicon.png">
     <title>LinkRippr</title>
     <link rel="stylesheet" href="css/link_rippr.css">
     <link rel="contents" href="res/alexa-top-1000.txt">
     <script src="js/link_rippr.js"></script>
-    <script src="js/util.js"></script>
-    <script src="js/parser.js"></script>
+    <script src="js/dom_parser.js"></script>
     <script src="js/token.js"></script>
     <script src="js/tokenizer.js"></script>
     <script src="js/elements.js"></script>
+    <script src="js/format.js"></script>
+    <script src="js/script_parser.js"></script>
+    <script src="js/gui.js"></script>
+    <script src="js/settings.js"></script>
 </head>
 
 <body id="body" ondrop="dropHandler(event)" ondragover="dragOverHandler(event)" ondragexit="dragExitHandler()">
@@ -19,7 +23,14 @@
     <img id="banner" src="img/banner.png" width="100%"/>
     <table class="menu">
         <tr class="menu" width="100%">
-            <td width="1%" class="menu"><button class="menu-button" onclick="showSettings(true)">&#9935;</button></td>
+            <div class="dropdown">
+                <td width="1%" class="menu"><button class="menu-button" onclick="toggleMenu()">&#9776;</button></td>
+                <div id="settings-menu" class="dropdown-content">
+                    <button id="settings" class="dropdown" onclick="showSettings(this.id)">SETTINGS</button>
+                    <button id="extractions" class="dropdown" onclick="showSettings(this.id)">EXTRACTIONS</button>
+                    <button id="signatures" class="dropdown" onclick="showSettings(this.id)">SIGNATURES</button>
+                </div>
+            </div>
             <td width="98%" class="menu"><p id="chatter_box" align="center">Drop an HTML file</p></td>
         </tr>
     </table>
@@ -42,7 +53,14 @@
     window.onresize = function(){
         setUpGlobalVariables(chatterBox.innerText);
     };
-
+    window.onclick = function(event){
+        if(!event.target.matches(".menu-button")){
+            let settingsMenu = document.getElementById("settings-menu");
+            if(settingsMenu.classList.contains("show")){
+                settingsMenu.classList.remove("show");
+            }
+        }
+    }
     //Header artwork adapted from: https://wallup.net/jack-the-ripper-artwork-fantasy-art-digital-art-dark-top-hat-suits-alleyway/ (no attribution - anonymous upload)
 </script>
 </html>

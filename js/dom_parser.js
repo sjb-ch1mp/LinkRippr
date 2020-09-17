@@ -1,9 +1,10 @@
-class Parser{
+class DomParser{
     constructor(domTokenizer) {
         this.domTokenizer = domTokenizer;
         this.__raw__ = this.domTokenizer.buffer;
 
         //separate extractions into nested and unnested
+        this.scripts = []; //[Script, Script, ...]
         this.unnested_iocs = {};
         this.nested_iocs = {};
         for(let key in userSettings.extractions){
@@ -22,7 +23,7 @@ class Parser{
             }
         }
 
-        this.parseDom();
+        this.parseDom(true);
     }
 
     processExtractions(attList) {
@@ -38,7 +39,7 @@ class Parser{
         return processedTags;
     }
 
-    parseDom(){
+    parseDom(parseScripts){
         //Use the main tokenizer to extract all unnested iocs
         while(this.domTokenizer.hasNext()){
             if(this.domTokenizer.current.tokenType === DOMTokenType.OPEN_TAG_NAME && this.domTokenizer.current.value in this.unnested_iocs){
@@ -56,6 +57,9 @@ class Parser{
                     }
                     this.unnested_iocs[tag]["extractions"].push(attributesOfInterest);
                 }
+            }else if(this.domTokenizer.current.tokenType === DOMTokenType.SCRIPT && parseScripts){
+                let scriptParser = new ScriptParser(this.domTokenizer.current);
+                this.scripts.push(scriptParser.script);
             }
 
             this.domTokenizer.next();
@@ -77,9 +81,6 @@ class Parser{
                 tokenizer.next();
             }
         }
-
-
-        //FIXME: THIRD: Use a fresh tokenizer to extract all scripts and deobfuscate
     }
 
     alreadyExists(tag, attName, attValue, nested, outerTag){
