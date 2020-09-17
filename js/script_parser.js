@@ -14,8 +14,6 @@ class ScriptParser{
             let statements = this.script.statements
             for(let i in statements){
                 statements[i].checkForSignatures(this.signatures);
-                statements[i].attemptToDeobfuscate();
-                statements[i].attemptDomExtraction(this.signatures);
             }
         }
     }
@@ -152,13 +150,12 @@ class Statement{
     constructor(raw){
         this._raw = raw;
         this.signatureHits = []; //{"signature":"signature_name","tag":"content","deob_success":false,"deob_content":"deobfuscation"}
-        this.domExtractions = [];
     }
 
     checkForSignatures(signatures){
         for(let key in signatures){
-            let global = new RegExp(signatures[key]["pattern"],"g");
-            let sticky = new RegExp(signatures[key]["pattern"],"y");
+            let global = signatures[key]["global"];
+            let sticky = signatures[key]["sticky"];
             let tmp = this._raw;
             while(global.test(tmp)){
 
@@ -184,29 +181,40 @@ class Statement{
                     "deob_content":null
                 });
 
-                //debugging
-                console.log("Found signature \"" + key + "\". Matching value = " + this._raw.substring(stickyIdx, lastIdx));
-
                 //trim tmp
                 tmp = tmp.substring(lastIdx);
             }
         }
     }
+}
 
-    attemptToDeobfuscate(){
-        if(this.signatureHits.length > 0){
-
-        }
-
-    }
-
-    attemptDomExtraction(signatures){
-        if(this.signatureHits.length > 0){
-
+function areSignatureHits(scripts){
+    for(let i in scripts){
+        for(let j in scripts[i].statements){
+            if(scripts[i].statements[j].signatureHits.length > 0){
+                return true;
+            }
         }
     }
+    return false;
+}
 
-    prettyPrint(){
-
+function getDetectedSignatures(scripts){
+    let signatures = {};
+    for(let i in scripts){
+        for(let j in scripts[i].statements){
+            if(scripts[i].statements[j].signatureHits.length > 0){
+                for(let k in scripts[i].statements[j].signatureHits){
+                    let signature = scripts[i].statements[j].signatureHits[k]["signature"];
+                    if(!(signature in signatures)){
+                        signatures[signature] = [];
+                    }
+                    if(!signatures[signature].includes(scripts[i].statements[j].signatureHits[k]["tag"])){
+                        signatures[signature].push(scripts[i].statements[j].signatureHits[k]["tag"]);
+                    }
+                }
+            }
+        }
     }
+    return signatures;
 }

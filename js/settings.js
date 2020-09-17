@@ -59,26 +59,6 @@ function resetScriptSignatureDefaults(){
     showSettings('signatures');
 }
 
-function getDefaultDomExtractions(){
-    return {
-        "base":{"attributes":["href"],"hasNested":false},
-        "a":{"attributes":["href"],"hasNested":false},
-        "iframe":{"attributes":["href"],"hasNested":false},
-        "script":{"attributes":["src"],"hasNested":false},
-        "form":{"attributes":["method", "action"],"hasNested":false},
-        "meta":{"attributes":["http-equiv"],"hasNested":false}
-    };
-}
-
-function getDefaultScriptSignatures(){
-    return {
-        "document.write":{"pattern":"document\\.write\\(.*\\)(;|\n| )", "result":DeobResult.HTML, "default":true},
-        "eval":{"pattern":"eval\\(.*\\)","result":DeobResult.UNKNOWN, "default":true},
-        "atob":{"pattern":"atob\\(.*\\)", "result":DeobResult.STRING, "default":true},
-        "unescape":{"pattern":"unescape\\(.*\\)","result":DeobResult.STRING, "default":true}
-    }
-}
-
 class UserSettings{
 
     constructor(){
@@ -91,7 +71,12 @@ class UserSettings{
         if(name in this.signatures){
             throw "Name \"" + name + "\" is already being used to identify a signature.";
         }
-        this.signatures[name] = {"pattern":pattern,"result":DeobResult.UNKNOWN, "default":false};
+        this.signatures[name] = {
+            "global":new RegExp(pattern, "g"),
+            "sticky":new RegExp(pattern, "y"),
+            "user_view":pattern,
+            "deob_result":DeobResult.UNKNOWN,
+            "default":false};
     }
 
     removeSignature(name){
@@ -216,4 +201,50 @@ const DeobResult = {
     SCRIPT:"SCRIPT",
     UNKNOWN:"UNKNOWN",
     STRING:"STRING"
+}
+
+function getDefaultDomExtractions(){
+    return {
+        "base":{"attributes":["href"],"hasNested":false},
+        "a":{"attributes":["href"],"hasNested":false},
+        "iframe":{"attributes":["href"],"hasNested":false},
+        "script":{"attributes":["src"],"hasNested":false},
+        "form":{"attributes":["method", "action"],"hasNested":false},
+        "meta":{"attributes":["http-equiv"],"hasNested":false}
+    };
+}
+
+function getDefaultScriptSignatures(){
+    return {
+        "document.write":{
+            "global":new RegExp("document\\.write\\(.*\\)(;|\n| )", "g"),
+            "sticky":new RegExp("document\\.write\\(.*\\)(;|\n| )", "y"),
+            "user_view":"document\\.write\\(.*\\)(;|\\n| )",
+            "deob_result":DeobResult.HTML,
+            "default":true},
+        "eval":{
+            "global":new RegExp("eval\\(.*\\)", "g"),
+            "sticky":new RegExp("eval\\(.*\\)", "y"),
+            "user_view":"eval\\(.*\\)",
+            "deob_result":DeobResult.UNKNOWN,
+            "default":true},
+        "atob":{
+            "global":new RegExp("atob\\(.*\\)", "g"),
+            "sticky":new RegExp("atob\\(.*\\)", "y"),
+            "user_view":"atob\\(.*\\)",
+            "deob_result":DeobResult.STRING,
+            "default":true},
+        "unescape":{
+            "global":new RegExp("unescape\\(.*\\)", "g"),
+            "sticky":new RegExp("unescape\\(.*\\)", "y"),
+            "user_view":"unescape\\(.*\\)",
+            "deob_result":DeobResult.STRING,
+            "default":true},
+        "simple-url":{
+            "global":new RegExp("http(s)?://.*\\.(com|net)", "g"),
+            "sticky":new RegExp("http(s)?://.*\\.(com|net)", "y"),
+            "user_view":"http(s)?://.*\\.(com|net)",
+            "deob_result":DeobResult.STRING,
+            "default":true}
+    }
 }

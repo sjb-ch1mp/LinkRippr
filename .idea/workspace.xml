@@ -3,10 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="3c852885-e476-4f29-aa45-36f13ec98356" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LinkRippr.html" beforeDir="false" afterPath="$PROJECT_DIR$/LinkRippr.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/css/link_rippr.css" beforeDir="false" afterPath="$PROJECT_DIR$/css/link_rippr.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/dom_parser.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/dom_parser.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/format.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/format.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/js/gui.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/gui.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/js/link_rippr.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/link_rippr.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/js/script_parser.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/script_parser.js" afterDir="false" />
@@ -80,7 +76,8 @@
       <workItem from="1599968191258" duration="2094000" />
       <workItem from="1599990271606" duration="12133000" />
       <workItem from="1600074906130" duration="12424000" />
-      <workItem from="1600249923263" duration="12664000" />
+      <workItem from="1600249923263" duration="12871000" />
+      <workItem from="1600334019579" duration="4149000" />
     </task>
     <servers />
   </component>

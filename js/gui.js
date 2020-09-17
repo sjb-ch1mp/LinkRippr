@@ -76,7 +76,7 @@ function buildSignaturesMenu(){
         settingsHtml += "<p class='settings'>LinkRippr is currently searching for the following signatures.</p>";
         settingsHtml += "<table class='settings'><tr><th>NAME</th><th colspan='2'>PATTERN</th></tr>";
         for(let key in userSettings.signatures){
-            settingsHtml += "<tr><td>" + key + "</td><td>" + showEscapeCharacters(userSettings.signatures[key]) + "</td>";
+            settingsHtml += "<tr><td>" + key + "</td><td>" + userSettings.signatures[key]["user_view"] + "</td>";
             settingsHtml += "<td><button id='" + key + "' class='settings' onclick='changeSignatures(this.id)'>DEL</button></td></tr>";
         }
         settingsHtml += "<tr><td><input type='text' placeholder='NEW SIGNATURE' id='newFunction'></td><td><input type='text' id='newPattern'></td><td><button class='settings' onclick='changeSignatures(null)'>ADD</button></td></tr>";
@@ -86,17 +86,6 @@ function buildSignaturesMenu(){
         settingsHtml += "<tr><td><input type='text' placeholder='NEW SIGNATURE' id='newFunction'></td><td><input type='text' id='newPattern'></td><td><button class='settings' onclick='changeSignatures(null)'>ADD</button></td></tr>";
     }
     return settingsHtml;
-}
-
-function showEscapeCharacters(signature){
-    if(signature["default"]){
-        let pattern = signature["pattern"];
-        pattern = pattern.replace(/\\/g, "\\\\");
-        pattern = pattern.replace(/\n/g,"\\n");
-        return pattern;
-    }else{
-        return signature["pattern"];
-    }
 }
 
 function toggleMenu(){

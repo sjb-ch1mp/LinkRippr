@@ -64,22 +64,23 @@ function ripLinks(fileName){
                     }
                 }
                 //REMOVED
-            }else{
-                resultString = "\n\n" + stylize("NOTHING FOUND IN DOM");
             }
 
-            if(parser.scripts.length > 0){
-                for(let i in parser.scripts){
-                    resultString += "\n\n| " + stylize("SCRIPT: statement") + "\n|" + getDivider("=", 99) + "\n";
+            if(parser.scripts.length > 0 && areSignatureHits(parser.scripts)){
+                let detectedSignatures = getDetectedSignatures(parser.scripts);
+                for(let key in detectedSignatures){
                     let idx = 0;
-                    if(parser.scripts[i].statements != null){
-                        for(let j in parser.scripts[i].statements){
-                            idx++;
-                            let tmpStr = "| " + padNumber(idx) + " | " + stripNewLines(parser.scripts[i].statements[j]._raw) + "\n";
-                            resultString += checkLength(tmpStr);
-                        }
+                    resultString += "\n\n| " + stylize("SIGNATURE DETECTED: " + key) + "\n|" + getDivider("=", 99) + "\n";
+                    for(let i in detectedSignatures[key]){
+                        idx++;
+                        let tmpStr = "| " + padNumber(idx) + " | " + stripNewLines(detectedSignatures[key][i]) + "\n";
+                        resultString += checkLength(tmpStr);
                     }
                 }
+            }
+
+            if(resultString.length === 0){
+                resultString = "\n\nNOTHING FOUND";
             }
 
             results.innerText = resultString;
