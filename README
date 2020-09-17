@@ -29,7 +29,7 @@ all attributes when LinkRippr finds a named element, you can use '*' in the ATTR
 
 LinkRippr can also extract 'nested' elements, for example, <input> elements inside a <form> element such as:
 
-    <form method="POST" action="http://evildomain.com/badscript.php">
+    <form method="POST" action="hxxp://evildomain[.]com/badscript.php">
         <input type="text" name="username">
         <input type="text" name="password">
     </form>
