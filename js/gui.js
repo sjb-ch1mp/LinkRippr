@@ -32,9 +32,7 @@ function showSettings(section){
         case 'signatures':
             settingsHtml += buildSignaturesMenu();
     }
-
     settingsPanel.innerHTML = settingsHtml;
-    settingsPanel.style.color = "#54001C";
     setUpGlobalVariables(stylize(section.toUpperCase()));
 }
 
@@ -45,7 +43,20 @@ function buildSettingsMenu(){
     settingsHtml += "<br><br><hr style='color: #54001C'>";
     settingsHtml += "<h2>< Mode /></h2>";
     settingsHtml += "<button class='settings' onclick='changeMode()'>TOGGLE MODE</button><br/>";
-    settingsHtml += "<p class='settings'>LinkRippr is currently in " + userSettings.mode + " mode.</p>";
+    settingsHtml += "<p class='settings'>::: " + userSettings.mode + "_MODE :::<\p>";
+    switch(userSettings.mode){
+        case LRMode.EXTRACTION:
+            settingsHtml += "<p class='settings'><i>LinkRippr will conduct DOM extractions and search for Script signatures</i></p>";
+            break;
+        case LRMode.URL_SEARCH:
+            settingsHtml += "<p class='settings'><i>LinkRippr will search for URLs in the document</i></p>";
+            break;
+        case LRMode.PRETTY_PRINT:
+            settingsHtml += "<p class='settings'><i>LinkRippr will pretty print script blocks in full</i></p>";
+            break;
+        case LRMode.DEBUG_TOKENIZER:
+            settingsHtml += "<p class='settings'><i>LinkRippr will dump tokenizer output for debugging purposes</i></p>";
+    }
     return settingsHtml;
 }
 

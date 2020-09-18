@@ -1,7 +1,19 @@
 function changeMode(){
     if(userSettings != null){
-        userSettings.mode = (userSettings.mode === LRMode.NORMAL) ? LRMode.DEBUG_TOKENIZER : LRMode.NORMAL;
-        showSettings('mode');
+        switch(userSettings.mode){
+            case LRMode.EXTRACTION:
+                userSettings.mode = LRMode.URL_SEARCH;
+                break;
+            case LRMode.URL_SEARCH:
+                userSettings.mode = LRMode.PRETTY_PRINT;
+                break;
+            case LRMode.PRETTY_PRINT:
+                userSettings.mode = LRMode.DEBUG_TOKENIZER;
+                break;
+            case LRMode.DEBUG_TOKENIZER:
+                userSettings.mode = LRMode.EXTRACTION;
+        }
+        showSettings("settings");
     }
 }
 
@@ -64,7 +76,7 @@ class UserSettings{
     constructor(){
         this.extractions = getDefaultDomExtractions();
         this.signatures = getDefaultScriptSignatures();
-        this.mode = LRMode.NORMAL;
+        this.mode = LRMode.EXTRACTION;
     }
 
     addSignature(name, pattern){
@@ -75,7 +87,6 @@ class UserSettings{
             "global":new RegExp(pattern, "g"),
             "sticky":new RegExp(pattern, "y"),
             "user_view":pattern,
-            "deob_result":DeobResult.UNKNOWN,
             "default":false};
     }
 
@@ -192,8 +203,10 @@ class UserSettings{
 }
 
 const LRMode = {
-    NORMAL:"NORMAL",
-    DEBUG_TOKENIZER:"DEBUG_TOKENIZER"
+    EXTRACTION:"EXTRACTION",
+    DEBUG_TOKENIZER:"DEBUG_TOKENIZER",
+    PRETTY_PRINT:"PRETTY_PRINT",
+    URL_SEARCH:"URL_SEARCH"
 }
 
 const DeobResult = {
@@ -207,44 +220,40 @@ function getDefaultDomExtractions(){
     return {
         "base":{"attributes":["href"],"hasNested":false},
         "a":{"attributes":["href"],"hasNested":false},
-        "iframe":{"attributes":["href"],"hasNested":false},
+        "iframe":{"attributes":["href","data-src","src"],"hasNested":false},
         "script":{"attributes":["src"],"hasNested":false},
-        "form":{"attributes":["method", "action"],"hasNested":false},
-        "meta":{"attributes":["http-equiv"],"hasNested":false}
+        "form":{"attributes":["method", "action","[input:name,type]"],"hasNested":true},
+        "meta":{"attributes":["http-equiv"],"hasNested":false},
+        "div":{"attributes":["visibility","display"],"hasNested":false}
     };
 }
 
 function getDefaultScriptSignatures(){
     return {
         "document.write":{
-            "global":new RegExp("document\\.write\\(.*\\)(;|\n| )", "g"),
-            "sticky":new RegExp("document\\.write\\(.*\\)(;|\n| )", "y"),
-            "user_view":"document\\.write\\(.*\\)(;|\\n| )",
-            "deob_result":DeobResult.HTML,
+            "global":new RegExp("document\\.write\\(.*\\)(;|\\s)", "g"),
+            "sticky":new RegExp("document\\.write\\(.*\\)(;|\\s)", "y"),
+            "user_view":"document\\.write\\(.*\\)(;|\\s)",
             "default":true},
         "eval":{
             "global":new RegExp("eval\\(.*\\)", "g"),
             "sticky":new RegExp("eval\\(.*\\)", "y"),
             "user_view":"eval\\(.*\\)",
-            "deob_result":DeobResult.UNKNOWN,
             "default":true},
         "atob":{
             "global":new RegExp("atob\\(.*\\)", "g"),
             "sticky":new RegExp("atob\\(.*\\)", "y"),
             "user_view":"atob\\(.*\\)",
-            "deob_result":DeobResult.STRING,
             "default":true},
         "unescape":{
             "global":new RegExp("unescape\\(.*\\)", "g"),
             "sticky":new RegExp("unescape\\(.*\\)", "y"),
             "user_view":"unescape\\(.*\\)",
-            "deob_result":DeobResult.STRING,
             "default":true},
         "simple-url":{
-            "global":new RegExp("http(s)?://.*\\.(com|net)", "g"),
-            "sticky":new RegExp("http(s)?://.*\\.(com|net)", "y"),
-            "user_view":"http(s)?://.*\\.(com|net)",
-            "deob_result":DeobResult.STRING,
+            "global":new RegExp('http(s)?:\\/\\/.*(;|\\s|")', "g"),
+            "sticky":new RegExp('http(s)?:\\/\\/.*(;|\\s|")', "y"),
+            "user_view":"http(s)?:\\/\\/.*(;|\\s|\")",
             "default":true}
     }
 }

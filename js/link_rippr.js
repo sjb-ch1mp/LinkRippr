@@ -137,7 +137,7 @@ function dropHandler(event){
 
     if(event.dataTransfer.items){
     //items have been dropped
-        if(Object.keys(userSettings.extractions).length === 0 && userSettings.mode === LRMode.NORMAL){
+        if(Object.keys(userSettings.extractions).length === 0 && userSettings.mode === LRMode.EXTRACTION){
             throwError("LinkRippr currently has no extractions defined.")
             return;
         }
@@ -199,12 +199,20 @@ function loadFile(fileInfo) {
     };
     reader.onload = function () {
         file = reader.result;
-        if(userSettings.mode === LRMode.NORMAL){
-            chatter("Ripping links...");
-            ripLinks(fileInfo.name);
-        }else if(userSettings.mode === LRMode.DEBUG_TOKENIZER){
-            chatter("Disassembling DOM...");
-            dumpTokens();
+        switch(userSettings.mode){
+            case LRMode.EXTRACTION:
+                chatter("Ripping links...");
+                ripLinks(fileInfo.name);
+                break;
+            case LRMode.DEBUG_TOKENIZER:
+                chatter("Disassembling DOM...");
+                dumpTokens();
+                break;
+            case LRMode.URL_SEARCH:
+                throwError("Patience, young padawan. URL_SEARCH mode is still in development.")
+                break;
+            case LRMode.PRETTY_PRINT:
+                throwError("Patience, young padawan. PRETTY_PRINT mode is still in development.");
         }
     };
     reader.onerror = function () {

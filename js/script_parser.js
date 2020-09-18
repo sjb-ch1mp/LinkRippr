@@ -155,34 +155,30 @@ class Statement{
     checkForSignatures(signatures){
         for(let key in signatures){
             let global = signatures[key]["global"];
-            let sticky = signatures[key]["sticky"];
-            let tmp = this._raw;
-            while(global.test(tmp)){
-
-                //locate the matching substring
-                let stickyIdx = 0;
-                sticky.lastIndex = stickyIdx;
-                while(!sticky.test(tmp)){
+            if(global.test(this._raw)){
+                //signature exists in the statement
+                let sticky = signatures[key]["sticky"];
+                let stickyIdx = -1;
+                while(stickyIdx < this._raw.length){
+                    //search the entire statement
                     stickyIdx++;
                     sticky.lastIndex = stickyIdx;
+                    if(sticky.test(this._raw)){
+                        //this is the first character of a match
+                        let breakIdx = stickyIdx;
+                        while(breakIdx < this._raw.length){
+                            breakIdx++;
+                            if(global.test(this._raw.substring(stickyIdx, breakIdx))){
+                                //this is the last character of a match
+                                this.signatureHits.push({
+                                    "signature":key,
+                                    "tag":this._raw.substring(stickyIdx, breakIdx)
+                                });
+                                break;
+                            }
+                        }
+                    }
                 }
-                let lastIdx = stickyIdx + 1;
-                let tmpSub = tmp.substring(stickyIdx, lastIdx);
-                while(!sticky.test(tmpSub)){
-                    lastIdx++;
-                    tmpSub = tmp.substring(stickyIdx, lastIdx);
-                }
-
-                //add the substring as a tag to signatureHits
-                this.signatureHits.push({
-                    "signature":key,
-                    "tag":this._raw.substring(stickyIdx, lastIdx),
-                    "deob_success":false,
-                    "deob_content":null
-                });
-
-                //trim tmp
-                tmp = tmp.substring(lastIdx);
             }
         }
     }
