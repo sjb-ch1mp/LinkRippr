@@ -31,11 +31,14 @@ function padNumber(number){
 }
 
 function checkLength(str){
-    if(str.length <= 100 || (str.length === 101 && str.charAt(101) === "\n")){
-        return str;
-    }else{
-        return str.substring(0, 97) + "...\n";
+    if(userSettings.getOption('truncate')){
+        if(str.length <= 100 || (str.length === 101 && str.charAt(101) === "\n")){
+            return str;
+        }else{
+            return str.substring(0, 97) + "...\n";
+        }
     }
+    return str;
 }
 
 function stripNewLines(str){

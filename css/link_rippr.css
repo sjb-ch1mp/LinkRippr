@@ -23,6 +23,12 @@ p.settings{
     font-size: small;
 }
 
+label.settings{
+    color: whitesmoke;
+    font-family: "Courier New";
+    font-size: small;
+}
+
 div.dropdown{
     position: relative;
     display: inline-block;

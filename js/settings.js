@@ -1,17 +1,17 @@
 function changeMode(){
     if(userSettings != null){
-        switch(userSettings.mode){
+        switch(userSettings.getOption('mode')){
             case LRMode.EXTRACTION:
-                userSettings.mode = LRMode.URL_SEARCH;
+                userSettings.setOption('mode', LRMode.URL_SEARCH);
                 break;
             case LRMode.URL_SEARCH:
-                userSettings.mode = LRMode.PRETTY_PRINT;
+                userSettings.setOption('mode', LRMode.PRETTY_PRINT);
                 break;
             case LRMode.PRETTY_PRINT:
-                userSettings.mode = LRMode.DEBUG_TOKENIZER;
+                userSettings.setOption('mode', LRMode.DEBUG_TOKENIZER);
                 break;
             case LRMode.DEBUG_TOKENIZER:
-                userSettings.mode = LRMode.EXTRACTION;
+                userSettings.setOption('mode', LRMode.EXTRACTION);
         }
         showSettings("settings");
     }
@@ -76,7 +76,11 @@ class UserSettings{
     constructor(){
         this.extractions = getDefaultDomExtractions();
         this.signatures = getDefaultScriptSignatures();
-        this.mode = LRMode.EXTRACTION;
+        this.options = {
+            'mode': LRMode.EXTRACTION,
+            'truncate':true,
+            'simpleDeob':true
+        };
     }
 
     addSignature(name, pattern){
@@ -128,6 +132,14 @@ class UserSettings{
         if(tag in this.extractions) {
             delete this.extractions[tag];
         }
+    }
+
+    getOption(option){
+        return this.options[option];
+    }
+
+    setOption(option, value){
+        this.options[option] = value;
     }
 
     processAttributes(attString){
@@ -254,6 +266,21 @@ function getDefaultScriptSignatures(){
             "global":new RegExp('http(s)?:\\/\\/.*(;|\\s|")', "g"),
             "sticky":new RegExp('http(s)?:\\/\\/.*(;|\\s|")', "y"),
             "user_view":"http(s)?:\\/\\/.*(;|\\s|\")",
+            "default":true},
+        "ip-4":{
+            "global":new RegExp('[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}', "g"),
+            "sticky":new RegExp('[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}', "y"),
+            "user_view":'[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}',
+            "default":true},
+        "ajax-post":{
+            "global":new RegExp("\\$\\.ajax\\(\\{.*type:\\s?\\'POST\\'.*\\}\\)", "g"),
+            "sticky":new RegExp("\\$\\.ajax\\(\\{.*type:\\s?\\'POST\\'.*\\}\\)", "y"),
+            "user_view":"\\$\\.ajax\\(\\{.*type:\\s?\\'POST\\'.*\\}\\)",
+            "default":true},
+        "xml-http-request":{
+            "global":new RegExp("new XMLHttpRequest\\(\\)", "g"),
+            "sticky":new RegExp("new XMLHttpRequest\\(\\)", "y"),
+            "user_view":"new XMLHttpRequest\\(\\)",
             "default":true}
     }
 }

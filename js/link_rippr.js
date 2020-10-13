@@ -97,7 +97,7 @@ function ripLinks(fileName){
     }
 }
 
-function dumpTokens(){
+function dumpTokens(fileName){
     try{
         if(file !== null && file !== undefined){
 
@@ -113,10 +113,25 @@ function dumpTokens(){
             }
             results.innerText = resultString;
             padContent();
-            chatter("Done");
+            chatter(stylize(fileName));
         }else{
             throwError("Error importing file");
         }
+    }catch(err){
+        throwError(err);
+    }
+}
+
+function prettyPrint(fileName){
+    try{
+        let prettyPrinter = new PrettyPrintParser(new DOMTokenizer(file.toString()));
+        let resultString = "\n\nPretty Printing\n\nFound " + prettyPrinter.scripts.length + " scripts to sexify.";
+
+
+        results.innerText = resultString;
+        previousResults = new PreviousResults(fileName, resultString);
+        padContent();
+        chatter(stylize(fileName));
     }catch(err){
         throwError(err);
     }
@@ -137,7 +152,7 @@ function dropHandler(event){
 
     if(event.dataTransfer.items){
     //items have been dropped
-        if(Object.keys(userSettings.extractions).length === 0 && userSettings.mode === LRMode.EXTRACTION){
+        if(Object.keys(userSettings.extractions).length === 0 && userSettings.getOption('mode') === LRMode.EXTRACTION){
             throwError("LinkRippr currently has no extractions defined.")
             return;
         }
@@ -199,20 +214,21 @@ function loadFile(fileInfo) {
     };
     reader.onload = function () {
         file = reader.result;
-        switch(userSettings.mode){
+        switch(userSettings.getOption('mode')){
             case LRMode.EXTRACTION:
                 chatter("Ripping links...");
                 ripLinks(fileInfo.name);
                 break;
             case LRMode.DEBUG_TOKENIZER:
                 chatter("Disassembling DOM...");
-                dumpTokens();
+                dumpTokens(fileInfo.name);
                 break;
             case LRMode.URL_SEARCH:
                 throwError("Patience, young padawan. URL_SEARCH mode is still in development.")
                 break;
             case LRMode.PRETTY_PRINT:
-                throwError("Patience, young padawan. PRETTY_PRINT mode is still in development.");
+                chatter("Sexifying...");
+                prettyPrint(fileInfo.name);
         }
     };
     reader.onerror = function () {
@@ -227,6 +243,7 @@ function throwError(err){
         padContent();
     }else{
         chatterBox.innerText = err;
+        padContent();
     }
     chatterBox.setAttribute("style","color: #8E0000; font-weight: bold");
 }

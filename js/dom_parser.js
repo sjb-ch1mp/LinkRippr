@@ -157,7 +157,11 @@ class DomParser{
 
     checkForBase(attName, attVal){
         let urlAttributes = ["data-src","src","href"];
-        if(urlAttributes.includes(attName) && this.unnested_iocs["base"] != null && this.unnested_iocs["base"]["extractions"] != null){
+        if(urlAttributes.includes(attName)
+            && this.unnested_iocs["base"] != null
+            && this.unnested_iocs["base"]["extractions"] !== "NULL"
+            && this.unnested_iocs["base"]["extractions"] !== undefined
+            && this.unnested_iocs["base"]["extractions"] != null){
             if(!(attVal.startsWith(this.unnested_iocs["base"]["extractions"][0]["href"])) &&
                 !(attVal.startsWith("http")) &&
                 !(attVal.startsWith("#"))){

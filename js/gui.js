@@ -33,7 +33,21 @@ function showSettings(section){
             settingsHtml += buildSignaturesMenu();
     }
     settingsPanel.innerHTML = settingsHtml;
+    showUserSettings(section);
     setUpGlobalVariables(stylize(section.toUpperCase()));
+}
+
+function showUserSettings(section){
+    if(section !== "settings"){
+        return;
+    }
+
+    let options = document.getElementsByTagName('input');
+    for(let i in options){
+        if(options[i].type === "checkbox"){
+            options[i].checked = userSettings.getOption(options[i].id);
+        }
+    }
 }
 
 function buildSettingsMenu(){
@@ -43,8 +57,8 @@ function buildSettingsMenu(){
     settingsHtml += "<br><br><hr style='color: #54001C'>";
     settingsHtml += "<h2>< Mode /></h2>";
     settingsHtml += "<button class='settings' onclick='changeMode()'>TOGGLE MODE</button><br/>";
-    settingsHtml += "<p class='settings'>::: " + userSettings.mode + "_MODE :::<\p>";
-    switch(userSettings.mode){
+    settingsHtml += "<p class='settings'>::: " + userSettings.getOption('mode') + "_MODE :::<\p>";
+    switch(userSettings.getOption('mode')){
         case LRMode.EXTRACTION:
             settingsHtml += "<p class='settings'><i>LinkRippr will conduct DOM extractions and search for Script signatures</i></p>";
             break;
@@ -57,6 +71,10 @@ function buildSettingsMenu(){
         case LRMode.DEBUG_TOKENIZER:
             settingsHtml += "<p class='settings'><i>LinkRippr will dump tokenizer output for debugging purposes</i></p>";
     }
+    settingsHtml += "<br><br><hr style='color: #54001C'>";
+    settingsHtml += "<h2>< Options /></h2>";
+    settingsHtml += "<table class='settings'><tr><td><input id='truncate' type='checkbox' onchange='toggleOption(this.id)'></td><td><label class='settings' for='truncate'>Truncate Output</label></td>></tr>";
+    settingsHtml += "<tr><td><input id='simpleDeob' type='checkbox' onchange='toggleOption(this.id)'></td><td><label class='settings' for='simpleDeob'>Attempt Simple Deobfuscation</label></td></tr></table>";
     return settingsHtml;
 }
 
@@ -101,6 +119,11 @@ function buildSignaturesMenu(){
 
 function toggleMenu(){
     document.getElementById("settings-menu").classList.toggle("show");
+}
+
+function toggleOption(id){
+    userSettings.setOption(id, !(userSettings.getOption(id)));
+    showUserSettings('section');
 }
 
 function hideSettings(){
