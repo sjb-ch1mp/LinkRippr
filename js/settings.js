@@ -2,12 +2,6 @@ function changeMode(){
     if(userSettings != null){
         switch(userSettings.getOption('mode')){
             case LRMode.EXTRACTION:
-                userSettings.setOption('mode', LRMode.URL_SEARCH);
-                break;
-            case LRMode.URL_SEARCH:
-                userSettings.setOption('mode', LRMode.PRETTY_PRINT);
-                break;
-            case LRMode.PRETTY_PRINT:
                 userSettings.setOption('mode', LRMode.DEBUG_TOKENIZER);
                 break;
             case LRMode.DEBUG_TOKENIZER:
@@ -217,15 +211,6 @@ class UserSettings{
 const LRMode = {
     EXTRACTION:"EXTRACTION",
     DEBUG_TOKENIZER:"DEBUG_TOKENIZER",
-    PRETTY_PRINT:"PRETTY_PRINT",
-    URL_SEARCH:"URL_SEARCH"
-}
-
-const DeobResult = {
-    HTML:"HTML",
-    SCRIPT:"SCRIPT",
-    UNKNOWN:"UNKNOWN",
-    STRING:"STRING"
 }
 
 function getDefaultDomExtractions(){

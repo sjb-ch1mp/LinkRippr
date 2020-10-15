@@ -149,7 +149,7 @@ class Script{
 class Statement{
     constructor(raw){
         this._raw = raw;
-        this.signatureHits = []; //{"signature":"signature_name","tag":"content","deob_success":false,"deob_content":"deobfuscation"}
+        this.signatureHits = [];
     }
 
     checkForSignatures(signatures){

@@ -62,12 +62,6 @@ function buildSettingsMenu(){
         case LRMode.EXTRACTION:
             settingsHtml += "<p class='settings'><i>LinkRippr will conduct DOM extractions and search for Script signatures</i></p>";
             break;
-        case LRMode.URL_SEARCH:
-            settingsHtml += "<p class='settings'><i>LinkRippr will search for URLs in the document</i></p>";
-            break;
-        case LRMode.PRETTY_PRINT:
-            settingsHtml += "<p class='settings'><i>LinkRippr will pretty print script blocks in full</i></p>";
-            break;
         case LRMode.DEBUG_TOKENIZER:
             settingsHtml += "<p class='settings'><i>LinkRippr will dump tokenizer output for debugging purposes</i></p>";
     }

@@ -122,21 +122,6 @@ function dumpTokens(fileName){
     }
 }
 
-function prettyPrint(fileName){
-    try{
-        let prettyPrinter = new PrettyPrintParser(new DOMTokenizer(file.toString()));
-        let resultString = "\n\nPretty Printing\n\nFound " + prettyPrinter.scripts.length + " scripts to sexify.";
-
-
-        results.innerText = resultString;
-        previousResults = new PreviousResults(fileName, resultString);
-        padContent();
-        chatter(stylize(fileName));
-    }catch(err){
-        throwError(err);
-    }
-}
-
 function setUpGlobalVariables(msg){
     chatterBox = document.getElementById("chatter_box");
     results = document.getElementById("results");
@@ -222,13 +207,6 @@ function loadFile(fileInfo) {
             case LRMode.DEBUG_TOKENIZER:
                 chatter("Disassembling DOM...");
                 dumpTokens(fileInfo.name);
-                break;
-            case LRMode.URL_SEARCH:
-                throwError("Patience, young padawan. URL_SEARCH mode is still in development.")
-                break;
-            case LRMode.PRETTY_PRINT:
-                chatter("Sexifying...");
-                prettyPrint(fileInfo.name);
         }
     };
     reader.onerror = function () {
@@ -239,7 +217,7 @@ function loadFile(fileInfo) {
 function throwError(err){
     if(err instanceof Error){
         chatterBox.innerText = "There was an error";
-        results.innerText = err.message.toUpperCase() + "\n\n" + err.stack;
+        results.innerText = "\n\n" + err.message.toUpperCase() + "\n\n" + err.stack;
         padContent();
     }else{
         chatterBox.innerText = err;
