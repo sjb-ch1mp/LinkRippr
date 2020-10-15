@@ -2,13 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="3c852885-e476-4f29-aa45-36f13ec98356" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LinkRippr.html" beforeDir="false" afterPath="$PROJECT_DIR$/LinkRippr.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/gui.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/gui.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/link_rippr.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/link_rippr.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/pretty_print_parser.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/script_parser.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/script_parser.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/settings.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/settings.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -39,6 +33,19 @@
     </key>
   </component>
   <component name="RunManager">
+    <configuration default="true" type="ArquillianTestNG" factoryName="" nameIsGenerated="true">
+      <option name="arquillianRunConfiguration">
+        <value>
+          <option name="containerStateName" value="" />
+        </value>
+      </option>
+      <option name="TEST_OBJECT" value="CLASS" />
+      <properties />
+      <listeners />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="link_rippr.js" type="NodeJSConfigurationType" temporary="true" nameIsGenerated="true" path-to-js-file="$PROJECT_DIR$/js/link_rippr.js" working-dir="$PROJECT_DIR$/js">
       <method v="2" />
     </configuration>
@@ -88,7 +95,7 @@
       <workItem from="1601172616379" duration="658000" />
       <workItem from="1602319347014" duration="59000" />
       <workItem from="1602579194321" duration="4951000" />
-      <workItem from="1602751713422" duration="8873000" />
+      <workItem from="1602751713422" duration="9500000" />
     </task>
     <servers />
   </component>
