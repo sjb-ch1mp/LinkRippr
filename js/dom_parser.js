@@ -13,12 +13,12 @@ class DomParser{
                 this.nested_iocs[key] = {
                     "attributes":processedTags["attributes"],
                     "nested_tags":processedTags["nestedTags"],
-                    "extractions":null
+                    "extractions":null //[OuterTag, OuterTag, ...]
                 };
             }else{
                 this.unnested_iocs[key] = {
                     "attributes":userSettings.extractions[key]["attributes"],
-                    "extractions":null
+                    "extractions":null //[{attkey:attvalue, attkey:attvalue, ...}, {...}]
                 };
             }
         }

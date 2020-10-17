@@ -13,7 +13,10 @@ class ScriptParser{
         if(this.script.statements != null){
             let statements = this.script.statements
             for(let i in statements){
-                statements[i].checkForSignatures(this.signatures);
+                statements[i].checkForSignatures(this.signatures, false);
+                if(userSettings.getOption('simpleDeob')){
+                    statements[i].checkForSignatures(userSettings.getOption('deobSignatures'), true);
+                }
             }
         }
     }
@@ -150,9 +153,10 @@ class Statement{
     constructor(raw){
         this._raw = raw;
         this.signatureHits = [];
+        this.deobfuscationHits = [];
     }
 
-    checkForSignatures(signatures){
+    checkForSignatures(signatures, attemptDeobfuscation){
         for(let key in signatures){
             let global = signatures[key]["global"];
             if(global.test(this._raw)){
@@ -170,10 +174,17 @@ class Statement{
                             breakIdx++;
                             if(global.test(this._raw.substring(stickyIdx, breakIdx))){
                                 //this is the last character of a match
-                                this.signatureHits.push({
-                                    "signature":key,
-                                    "tag":this._raw.substring(stickyIdx, breakIdx)
-                                });
+                                if(attemptDeobfuscation){
+                                    this.deobfuscationHits.push({
+                                        "signature":key,
+                                        "tag":attemptToDeobfuscate(key, this._raw.substring(stickyIdx, breakIdx))
+                                    });
+                                }else{
+                                    this.signatureHits.push({
+                                        "signature":key,
+                                        "tag":this._raw.substring(stickyIdx, breakIdx)
+                                    });
+                                }
                                 break;
                             }
                         }
@@ -184,10 +195,11 @@ class Statement{
     }
 }
 
-function areSignatureHits(scripts){
+function areSignatureHits(scripts, type){
     for(let i in scripts){
         for(let j in scripts[i].statements){
-            if(scripts[i].statements[j].signatureHits.length > 0){
+            let hits = (type === 'deobfuscation') ? scripts[i].statements[j].deobfuscationHits : scripts[i].statements[j].signatureHits;
+            if(hits.length > 0){
                 return true;
             }
         }
@@ -195,22 +207,40 @@ function areSignatureHits(scripts){
     return false;
 }
 
-function getDetectedSignatures(scripts){
+function getDetectedSignatures(scripts, type){
     let signatures = {};
     for(let i in scripts){
         for(let j in scripts[i].statements){
-            if(scripts[i].statements[j].signatureHits.length > 0){
-                for(let k in scripts[i].statements[j].signatureHits){
-                    let signature = scripts[i].statements[j].signatureHits[k]["signature"];
+            let hits = (type === 'deobfuscation') ? scripts[i].statements[j].deobfuscationHits : scripts[i].statements[j].signatureHits;
+            if(hits.length > 0){
+                for(let k in hits){
+                    let signature = hits[k]["signature"];
                     if(!(signature in signatures)){
                         signatures[signature] = [];
                     }
-                    if(!signatures[signature].includes(scripts[i].statements[j].signatureHits[k]["tag"])){
-                        signatures[signature].push(scripts[i].statements[j].signatureHits[k]["tag"]);
+                    if(!signatures[signature].includes(hits[k]["tag"])){
+                        signatures[signature].push(hits[k]["tag"]);
                     }
                 }
             }
         }
     }
     return signatures;
+}
+
+function attemptToDeobfuscate(key, tag){
+    try{
+        if(key === 'document-write-unescape'){
+            tag = tag.replace(/(^document\.write\(|\)$)/g, '');
+            let dom = eval(tag);
+            let domParser = new DomParser(new DOMTokenizer(dom));
+            if(domParser.hasIocs()){
+                return domParser;
+            }else{
+                return checkLength('[SUCCESS]' + dom, 100);
+            }
+        }
+    }catch(err){
+        return checkLength('[FAIL]' + tag);
+    }
 }

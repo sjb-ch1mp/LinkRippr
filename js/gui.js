@@ -57,13 +57,13 @@ function buildSettingsMenu(){
     settingsHtml += "<br><br><hr style='color: #54001C'>";
     settingsHtml += "<h2>< Mode /></h2>";
     settingsHtml += "<button class='settings' onclick='changeMode()'>TOGGLE MODE</button><br/>";
-    settingsHtml += "<p class='settings'>::: " + userSettings.getOption('mode') + "_MODE :::<\p>";
+    settingsHtml += "<table class='settings'><tr><td align='center'><p class='settings'>" + stylize(userSettings.getOption('mode') + "_MODE") + "</p></td></tr>";
     switch(userSettings.getOption('mode')){
         case LRMode.EXTRACTION:
-            settingsHtml += "<p class='settings'><i>LinkRippr will conduct DOM extractions and search for Script signatures</i></p>";
+            settingsHtml += "<tr><td align='center'><p class='settings'><i>LinkRippr will conduct DOM extractions and search for Script signatures</i></p></td></tr></table>";
             break;
         case LRMode.DEBUG_TOKENIZER:
-            settingsHtml += "<p class='settings'><i>LinkRippr will dump tokenizer output for debugging purposes</i></p>";
+            settingsHtml += "<tr><td align='center'><p class='settings'><i>LinkRippr will dump tokenizer output for debugging purposes</i></p></td></tr></table>";
     }
     settingsHtml += "<br><br><hr style='color: #54001C'>";
     settingsHtml += "<h2>< Options /></h2>";

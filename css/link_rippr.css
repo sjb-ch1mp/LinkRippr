@@ -23,6 +23,14 @@ p.settings{
     font-size: small;
 }
 
+li.settings{
+    color: whitesmoke;
+    font-family: "Courier New";
+    font-size: small;
+    padding-left: 30px;
+    list-style-type: none;
+}
+
 label.settings{
     color: whitesmoke;
     font-family: "Courier New";

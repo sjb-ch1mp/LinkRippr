@@ -6,7 +6,6 @@ let results = null;
 let userSettings = null;
 let settingsVisible = false;
 let previousResults = null;
-let menuShowing = false;
 
 function ripLinks(fileName){
     try{
@@ -24,7 +23,7 @@ function ripLinks(fileName){
                                 let tmpStr = "| " + padNumber(i + 1) + " | "
                                 tmpStr += ((iocs[key]["attributes"].length === 1)?" ":" (" + att + ") ");
                                 tmpStr += stripNewLines(iocs[key]["extractions"][i][att]) + "\n";
-                                resultString += checkLength(tmpStr);
+                                resultString += checkLength(tmpStr, 100);
                             }
                             resultString += (iocs[key]["attributes"].length > 1)?"|" + getDivider("-", 99) + "\n":"";
                         }
@@ -41,7 +40,7 @@ function ripLinks(fileName){
                                     let tmpStr = "| " + padNumber(i + 1) + " | ";
                                     tmpStr += ((iocs[key]["attributes"].length === 1)?" ":" (" + att + ") ");
                                     tmpStr += stripNewLines(iocs[key]["extractions"][i].extractions[att]) + "\n";
-                                    resultString += checkLength(tmpStr);
+                                    resultString += checkLength(tmpStr, 100);
                                 }
                             }
                             if(iocs[key]["extractions"][i].innerTags != null){
@@ -53,7 +52,7 @@ function ripLinks(fileName){
                                             tmpStr += iocs[key]["extractions"][i].innerTags[j].tag.toUpperCase() + " " + padNumber(innerTagCount);
                                             tmpStr += ((iocs[key]["nested_tags"][iocs[key]["extractions"][i].innerTags[j].tag].length === 1)?") ":":" + att + ") ");
                                             tmpStr += stripNewLines(iocs[key]["extractions"][i].innerTags[j].extractions[att]) + "\n";
-                                            resultString += checkLength(tmpStr);
+                                            resultString += checkLength(tmpStr, 100);
                                         }
                                     }
                                     innerTagCount += 1;
@@ -63,18 +62,107 @@ function ripLinks(fileName){
                         }
                     }
                 }
-                //REMOVED
             }
 
-            if(parser.scripts.length > 0 && areSignatureHits(parser.scripts)){
-                let detectedSignatures = getDetectedSignatures(parser.scripts);
+            if(parser.scripts.length > 0 && areSignatureHits(parser.scripts, 'detection')){
+                let detectedSignatures = getDetectedSignatures(parser.scripts, 'detection');
                 for(let key in detectedSignatures){
                     let idx = 0;
                     resultString += "\n\n| " + stylize("SIGNATURE DETECTED: " + key) + "\n|" + getDivider("=", 99) + "\n";
                     for(let i in detectedSignatures[key]){
                         idx++;
                         let tmpStr = "| " + padNumber(idx) + " | " + stripNewLines(detectedSignatures[key][i]) + "\n";
-                        resultString += checkLength(tmpStr);
+                        resultString += checkLength(tmpStr, 100);
+                    }
+                }
+            }
+
+            if(parser.scripts.length > 0 && areSignatureHits(parser.scripts, 'deobfuscation')){
+                let detectedSignatures = getDetectedSignatures(parser.scripts, 'deobfuscation');
+                for(let key in detectedSignatures){
+                    let idx = 0;
+                    resultString += "\n\n| " + stylize("DEOBFUSCATION: " + key) + "\n|" + getDivider("=", 99) + "\n";
+                    for(let i in detectedSignatures[key]){
+                        idx++;
+                        let tag = detectedSignatures[key][i];
+                        if(typeof(tag) === "object" && tag.hasIocs()){
+                            let unnestedIocs = tag.unnested_iocs;
+                            let nestedIocs = tag.nested_iocs;
+                            let extractions = null;
+
+                            //get unnestedIocs
+                            console.log(unnestedIocs);
+                            if(unnestedIocs !== null){
+                                for(let key in unnestedIocs){
+                                    if(unnestedIocs[key]['extractions'] !== null && unnestedIocs[key]['extractions'].length > 0){
+                                        extractions = unnestedIocs[key]['extractions'];
+                                        for(let j=0; j<extractions.length; j++){
+                                            for(let att in extractions[j]){
+                                                resultString += checkLength(
+                                                    "| " + padNumber(idx) + " | (" + key.toUpperCase() + " : " + att.toLowerCase() + ") " + extractions[j][att] + "\n",
+                                                    100
+                                                );
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            //get nestedIocs
+                            console.log(nestedIocs);
+                            if(nestedIocs !== null){
+                                for(let key in nestedIocs){
+                                    if(nestedIocs[key]['extractions'] !== null && nestedIocs[key]['extractions'].length > 0){
+                                        extractions = nestedIocs[key]['extractions'];
+                                        for(let j=0; j<extractions.length; j++){
+                                            if(extractions[j].extractions !== null){
+                                                for(let att in extractions[j].extractions){
+                                                    resultString += checkLength(
+                                                        "| " + padNumber(idx) + " | (" + key.toUpperCase() + " : " + att.toLowerCase() + ") " + extractions[j].extractions[att] + "\n",
+                                                        100
+                                                    );
+                                                }
+                                            }
+                                            if(extractions[j].innerTags !== null){
+                                                for(let k=0; k<extractions[j].innerTags.length; k++){
+                                                    if(extractions[j].innerTags[k].extractions !== null){
+                                                        for(let att in extractions[j].innerTags[k].extractions){
+                                                            resultString += checkLength(
+                                                                "| " + padNumber(idx) + " | (" + key.toUpperCase() + " -> " + extractions[j].innerTags[k].tag.toUpperCase() + " : " + att.toLowerCase() + ") " + extractions[j].innerTags[k].extractions[att] + "\n",
+                                                                100
+                                                            );
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            //get script detections
+                            if(tag.scripts.length > 0 && areSignatureHits(tag.scripts, 'detection')){
+                                console.log("deobfuscation has scripts");
+                                let detectedSignatures = getDetectedSignatures(tag.scripts, 'detection');
+                                for(let key in detectedSignatures){
+                                    for(let j in detectedSignatures[key]){
+                                        resultString += checkLength(
+                                            "| " + padNumber(idx) + " | (SIGNATURE : " + key + ") " + detectedSignatures[key][j] + "\n",
+                                            100
+                                        );
+                                    }
+                                }
+                            }
+                        }else{
+                            if(tag.startsWith("[SUCCESS]")){
+                                resultString += "| " + padNumber(idx) + " | [SUCCESS : NO DETECTIONS]\n";
+                                resultString += checkLength("| " + padNumber(idx) + " | " + tag.replace(/^\[SUCCESS\]/g,'') + "\n", 100);
+                            }else{
+                                resultString += "| " + padNumber(idx) + " | [FAIL]\n";
+                                resultString += checkLength("| " + padNumber(idx) + " | " + tag.replace(/^\[FAIL\]/g,'') + "\n", 100);
+                            }
+                        }
+                        resultString += "|" + getDivider("-", 99) + "\n";
                     }
                 }
             }
@@ -108,7 +196,7 @@ function dumpTokens(fileName){
                 if(tokenizer.current.tokenType === DOMTokenType.SCRIPT){
                     scripts.push(tokenizer.current.value);
                 }
-                resultString += "\n" + tokenizer.current.tokenType + ": " + tokenizer.current.value;
+                resultString += "\n" + tokenizer.current.tokenType + ": " + checkLength(tokenizer.current.value, 100);
                 tokenizer.next();
             }
             results.innerText = resultString;

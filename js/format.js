@@ -30,12 +30,12 @@ function padNumber(number){
     return numStr;
 }
 
-function checkLength(str){
+function checkLength(str, maxLength){
     if(userSettings.getOption('truncate')){
-        if(str.length <= 100 || (str.length === 101 && str.charAt(101) === "\n")){
+        if(str.length <= maxLength || (str.length === (maxLength + 1) && str.charAt(maxLength + 1) === "\n")){
             return str;
         }else{
-            return str.substring(0, 97) + "...\n";
+            return str.substring(0, maxLength - 3) + "...\n";
         }
     }
     return str;

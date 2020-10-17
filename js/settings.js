@@ -73,7 +73,14 @@ class UserSettings{
         this.options = {
             'mode': LRMode.EXTRACTION,
             'truncate':true,
-            'simpleDeob':true
+            'simpleDeob':true,
+            'deobSignatures':{
+                'document-write-unescape':{
+                    'global':new RegExp('document\\.write\\(unescape\\(("|\').*("|\')\\)\\)', 'g'),
+                    'sticky':new RegExp('document\\.write\\(unescape\\(("|\').*("|\')\\)\\)', 'y'),
+                    'user_view':'document\\.write\\(unescape\\(("|\').*("|\')\\)\\)'
+                }
+            }
         };
     }
 

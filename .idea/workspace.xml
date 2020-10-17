@@ -2,7 +2,15 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="3c852885-e476-4f29-aa45-36f13ec98356" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/css/link_rippr.css" beforeDir="false" afterPath="$PROJECT_DIR$/css/link_rippr.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/dom_parser.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/dom_parser.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/format.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/format.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/gui.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/gui.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/link_rippr.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/link_rippr.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/script_parser.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/script_parser.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/settings.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/settings.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/token.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/token.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -33,19 +41,6 @@
     </key>
   </component>
   <component name="RunManager">
-    <configuration default="true" type="ArquillianTestNG" factoryName="" nameIsGenerated="true">
-      <option name="arquillianRunConfiguration">
-        <value>
-          <option name="containerStateName" value="" />
-        </value>
-      </option>
-      <option name="TEST_OBJECT" value="CLASS" />
-      <properties />
-      <listeners />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="link_rippr.js" type="NodeJSConfigurationType" temporary="true" nameIsGenerated="true" path-to-js-file="$PROJECT_DIR$/js/link_rippr.js" working-dir="$PROJECT_DIR$/js">
       <method v="2" />
     </configuration>
@@ -96,6 +91,7 @@
       <workItem from="1602319347014" duration="59000" />
       <workItem from="1602579194321" duration="4951000" />
       <workItem from="1602751713422" duration="9500000" />
+      <workItem from="1602899244131" duration="13078000" />
     </task>
     <servers />
   </component>
@@ -119,10 +115,10 @@
       <screen x="0" y="40" width="2560" height="1400" />
     </state>
     <state x="1061" y="495" key="FileChooserDialogImpl/0.40.2560.1400/-1920.0.1920.1080@0.40.2560.1400" timestamp="1595241420596" />
-    <state x="-1920" y="0" width="1936" height="1167" key="dock-window-1" timestamp="1599830425769">
+    <state x="-1920" y="0" width="1936" height="1167" key="dock-window-1" timestamp="1602911260118">
       <screen x="-1920" y="0" width="1920" height="1080" />
     </state>
-    <state x="-1920" y="0" width="1936" height="1167" key="dock-window-1/0.40.2560.1400/-1920.0.1920.1080@0.40.2560.1400" timestamp="1599830425769" />
+    <state x="-1920" y="0" width="1936" height="1167" key="dock-window-1/0.40.2560.1400/-1920.0.1920.1080@0.40.2560.1400" timestamp="1602911260118" />
     <state x="944" y="359" width="672" height="678" key="search.everywhere.popup" timestamp="1599315940175">
       <screen x="0" y="40" width="2560" height="1400" />
     </state>
