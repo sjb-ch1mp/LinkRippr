@@ -189,14 +189,10 @@ function dumpTokens(fileName){
     try{
         if(file !== null && file !== undefined){
 
-            let resultString = "== TOKENIZED DOM ==\n";
+            let resultString = "\n\n== TOKENIZED DOM ==\n\n";
             let tokenizer = new DOMTokenizer(file.toString());
-            let scripts = [];
             while(tokenizer.hasNext()){
-                if(tokenizer.current.tokenType === DOMTokenType.SCRIPT){
-                    scripts.push(tokenizer.current.value);
-                }
-                resultString += "\n" + tokenizer.current.tokenType + ": " + checkLength(tokenizer.current.value, 100);
+                resultString += stripNewLines(checkLength(tokenizer.current.tokenType + ": " + tokenizer.current.value, 100)) + "\n";
                 tokenizer.next();
             }
             results.innerText = resultString;
@@ -265,16 +261,43 @@ function dragExitHandler(){
 function uploadHandler(input){
     try{
         let file = input.files[0];
-        if(file == undefined){
+        if(file === undefined){
             throw "File didn't upload correctly";
-        }else if(file.type !== "text/html"){
-            throw "LinkRippr can only process .html files";
         }else{
-            hideSettings();
-            loadFile(file);
+            if(input.id === 'import-settings'){
+                if(file.type !== "text/plain"){
+                    throw "LinkRippr settings files must be plain text";
+                }else{
+                    loadSettingsFile(file);
+                }
+            }else{
+                if(file.type !== "text/html"){
+                    throw "LinkRippr can only process .html files";
+                }else{
+                    hideSettings();
+                    loadFile(file);
+                }
+            }
         }
     }catch(err){
         throwError(err);
+    }
+}
+
+function loadSettingsFile(fileInfo){
+    const reader = new FileReader();
+    reader.readAsText(fileInfo);
+    reader.onprogress = function () {
+        chatter("Importing settings file...");
+    }
+    reader.onload = function () {
+        let settingsFile = reader.result;
+        loadSettingsFromFile(settingsFile);
+        hideSettings();
+        chatter("Settings successfully imported!");
+    }
+    reader.onerror = function () {
+        throwError("Error importing settings file");
     }
 }
 
@@ -301,7 +324,6 @@ function loadFile(fileInfo) {
         throwError("Error importing file");
     }
 }
-
 function throwError(err){
     if(err instanceof Error){
         chatterBox.innerText = "There was an error";

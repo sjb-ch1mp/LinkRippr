@@ -55,6 +55,16 @@ function changeSignatures(key){
     }
 }
 
+function clearSignatures(){
+    userSettings.signatures = {};
+    showSettings('signatures');
+}
+
+function clearExtractions(){
+    userSettings.extractions = {};
+    showSettings('extractions');
+}
+
 function resetDomExtractionDefaults(){
     userSettings.extractions = getDefaultDomExtractions();
     showSettings('extractions');
@@ -63,6 +73,78 @@ function resetDomExtractionDefaults(){
 function resetScriptSignatureDefaults(){
     userSettings.signatures = getDefaultScriptSignatures();
     showSettings('signatures');
+}
+
+function exportCurrentSettings(){
+    let exportString = '[EXTRACTIONS]\n';
+    for(let key in userSettings.extractions){
+        exportString += key + " :::: " + userSettings.extractions[key]['attributes'].join(',') + '\n';
+    }
+
+    exportString += '[SIGNATURES]\n';
+    for(let key in userSettings.signatures){
+        exportString += key + " :::: " + userSettings.signatures[key]['user_view'] + '\n';
+    }
+
+    exportString += '[MODE]\n' + userSettings.getOption('mode') + '\n';
+    exportString += '[TRUNCATE]\n' + ((userSettings.getOption('truncate')) ? 'TRUE':'FALSE') + '\n';
+    exportString += '[DEOBFUSCATE]\n' + ((userSettings.getOption('simpleDeob')) ? 'TRUE':'FALSE') + '\n';
+
+    downloadFile(exportString, 'linkrippr_settings.txt');
+}
+
+function downloadFile(contents, fileName){
+    console.log(contents);
+    let blob = new Blob([contents], {type:'text/plain'});
+    if(window.navigator.msSaveOrOpenBlob){
+        window.navigator.msSaveOrOpenBlob(blob, fileName);
+    }else{
+        let element = window.document.createElement('a');
+        element.href = window.URL.createObjectURL(blob);
+        element.download = fileName;
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+    }
+}
+
+function loadSettingsFromFile(settingsFile){
+
+    clearExtractions();
+    clearSignatures();
+
+    let settings = settingsFile.split('\n');
+    let mode = '';
+    for(let i in settings){
+        let line = settings[i].trim();
+        if(line === '[EXTRACTIONS]'){
+            mode = 'extractions';
+        }else if(line === '[SIGNATURES]'){
+            mode = 'signatures';
+        }else if(line === '[MODE]'){
+            mode = 'mode';
+        }else if(line === '[TRUNCATE]') {
+            mode = 'truncate';
+        }else if(line === '[DEOBFUSCATE]'){
+            mode = 'simpleDeob';
+        }else{
+            if(['truncate', 'simpleDeob'].includes(mode)){
+                userSettings.setOption(mode, line === 'TRUE');
+            }else if(mode === 'mode'){
+                userSettings.setOption(mode, line);
+            }else{
+                let key = line.split(' :::: ')[0];
+                let value = line.split(' :::: ')[1];
+                switch(mode){
+                    case 'extractions':
+                        userSettings.addExtraction(key, value);
+                        break;
+                    case 'signatures':
+                        userSettings.addSignature(key, value);
+                }
+            }
+        }
+    }
 }
 
 class UserSettings{
@@ -92,7 +174,8 @@ class UserSettings{
             "global":new RegExp(pattern, "g"),
             "sticky":new RegExp(pattern, "y"),
             "user_view":pattern,
-            "default":false};
+            "default":false
+        };
     }
 
     removeSignature(name){
