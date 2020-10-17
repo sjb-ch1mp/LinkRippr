@@ -16,7 +16,7 @@ function padContent(){
 
 function showSettings(section){
 
-    let settingsPanel = document.getElementById("content");
+    let settingsPanel = document.getElementById("results");
     let settingsHtml = "<br><br><div align='right'>";
     settingsHtml += "<button class='close-button' onclick='hideSettings()'>X</button>";
     settingsHtml += "</div>";
@@ -52,36 +52,26 @@ function showUserSettings(section){
 
 function buildSettingsMenu(){
     let settingsHtml = "<h2>< Upload /></h2>";
-    settingsHtml += "<p class='settings'>Manually upload an HTML file.</p>"
-    settingsHtml += "<input class='settings' id='upload-file' type='file' accept='text/html' onchange='uploadHandler(this)'>";
-    settingsHtml += "<br><hr style='color: #54001C'>";
-    settingsHtml += "<h2>< Mode /></h2>";
-    settingsHtml += "<button class='settings' onclick='changeMode()'>TOGGLE MODE</button><br/>";
-    settingsHtml += "<table class='settings'><tr><td align='center'><p class='settings'>" + stylize(userSettings.getOption('mode') + "_MODE") + "</p></td></tr>";
-    switch(userSettings.getOption('mode')){
-        case LRMode.EXTRACTION:
-            settingsHtml += "<tr><td align='center'><p class='settings'><i>LinkRippr will conduct DOM extractions and search for Script signatures</i></p></td></tr></table>";
-            break;
-        case LRMode.DEBUG_TOKENIZER:
-            settingsHtml += "<tr><td align='center'><p class='settings'><i>LinkRippr will dump tokenizer output for debugging purposes</i></p></td></tr></table>";
-    }
-    settingsHtml += "<br><hr style='color: #54001C'>";
-    settingsHtml += "<h2>< Settings /></h2>";
-    settingsHtml += "<p class='settings'>Import a LinkRippr settings file.</p>"
-    settingsHtml += "<input class='settings' type='file' id='import-settings' accept='text/plain' onchange='uploadHandler(this)'>";
-    settingsHtml += "<br><p class='settings'>Export the current settings to a LinkRippr settings file.</p>"
-    settingsHtml += "<button class='settings' onclick='exportCurrentSettings()'>Export Current Settings</button>";
+    settingsHtml += "<table class='settings'><tr><td><p class='settings'>Manually upload an HTML file.</p></td></tr>"
+    settingsHtml += "<tr><td><input class='settings' id='upload-file' type='file' accept='text/html' onchange='uploadHandler(this)'></td></tr></table>";
     settingsHtml += "<br><hr style='color: #54001C'>";
     settingsHtml += "<h2>< Options /></h2>";
     settingsHtml += "<table class='settings'><tr><td><input id='truncate' type='checkbox' onchange='toggleOption(this.id)'></td><td><label class='settings' for='truncate'>Truncate Output</label></td></tr>";
-    settingsHtml += "<tr><td><input id='simpleDeob' type='checkbox' onchange='toggleOption(this.id)'></td><td><label class='settings' for='simpleDeob'>Attempt Simple Deobfuscation</label></td></tr></table>";
+    settingsHtml += "<tr><td><input id='simpleDeob' type='checkbox' onchange='toggleOption(this.id)'></td><td><label class='settings' for='simpleDeob'>Attempt Simple Deobfuscation</label></td></tr>";
+    settingsHtml += "<tr><td><input id='debugTokenizer' type='checkbox' onchange='toggleOption(this.id)'></td><td><label class='settings' for='debugTokenizer'>Debug Mode</label></td></tr></table>";
+    settingsHtml += "<br><hr style='color: #54001C'>";
+    settingsHtml += "<h2>< Settings /></h2>";
+    settingsHtml += "<table class='settings'><tr><td><p class='settings'>Import a LinkRippr settings file.</p></td></tr>"
+    settingsHtml += "<tr><td><input class='settings' type='file' id='import-settings' accept='text/plain' onchange='uploadHandler(this)'></td></tr></table>";
+    settingsHtml += "<br><table class='settings'><tr><td><p class='settings'>Export the current settings to a LinkRippr settings file.</p></td></tr>"
+    settingsHtml += "<tr><td><button class='settings' onclick='exportCurrentSettings()'>EXPORT SETTINGS</button></td></tr></table>";
     return settingsHtml;
 }
 
 function buildExtractionsMenu(){
     let settingsHtml = "<h2>< DOM Extractions /></h2>";
-    settingsHtml += "<table class='settings'><tr><td><button class='settings' onclick='resetDomExtractionDefaults()'>RESET DEFAULTS</button></td>";
-    settingsHtml += "<td><button class='settings' onclick='clearExtractions()'>CLEAR EXTRACTIONS</button></td></tr></table>";
+    settingsHtml += "<table class='settings'><tr><td align='center'><button class='settings' onclick='resetDomExtractionDefaults()'>RESET DEFAULTS</button></td>";
+    settingsHtml += "<td align='center'><button class='settings' onclick='clearExtractions()'>CLEAR EXTRACTIONS</button></td></tr></table>";
     if(Object.keys(userSettings.extractions).length > 0){
         settingsHtml += "<p class='settings'>LinkRippr is currently extracting the following elements and attributes.</p>";
         settingsHtml += "<table class='settings'><tr><th>TAG</th><th colspan='2'>ATTRIBUTES</th></tr>";
@@ -101,8 +91,8 @@ function buildExtractionsMenu(){
 function buildSignaturesMenu(){
     //Write Script Signatures Section
     let settingsHtml = "<h2>< Script Signatures ></h2>";
-    settingsHtml += "<table class='settings'><tr><td><button class='settings' onclick='resetScriptSignatureDefaults()'>RESET DEFAULTS</button></td>";
-    settingsHtml += "<td><button class='settings' onclick='clearSignatures()'>CLEAR SIGNATURES</button></td></tr></table>";
+    settingsHtml += "<table class='settings'><tr><td align='center'><button class='settings' onclick='resetScriptSignatureDefaults()'>RESET DEFAULTS</button></td>";
+    settingsHtml += "<td align='center'><button class='settings' onclick='clearSignatures()'>CLEAR SIGNATURES</button></td></tr></table>";
     if(Object.keys(userSettings.signatures).length > 0){
         settingsHtml += "<p class='settings'>LinkRippr is currently searching for the following signatures in script blocks.</p>";
         settingsHtml += "<table class='settings'><tr><th>NAME</th><th colspan='2'>PATTERN</th></tr>";

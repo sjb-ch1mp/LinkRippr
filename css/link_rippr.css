@@ -150,6 +150,7 @@ h2{
 table.settings{
     padding: 2px;
     border: solid 1px #0A1926;
+    width: 75%;
 }
 table.menu{
     background-color: #0A1926;

@@ -1,16 +1,3 @@
-function changeMode(){
-    if(userSettings != null){
-        switch(userSettings.getOption('mode')){
-            case LRMode.EXTRACTION:
-                userSettings.setOption('mode', LRMode.DEBUG_TOKENIZER);
-                break;
-            case LRMode.DEBUG_TOKENIZER:
-                userSettings.setOption('mode', LRMode.EXTRACTION);
-        }
-        showSettings("settings");
-    }
-}
-
 function changeExtractions(key){
     if(key!=null){
         userSettings.removeExtraction(key);
@@ -86,7 +73,7 @@ function exportCurrentSettings(){
         exportString += key + " :::: " + userSettings.signatures[key]['user_view'] + '\n';
     }
 
-    exportString += '[MODE]\n' + userSettings.getOption('mode') + '\n';
+    exportString += '[DEBUG]\n' + ((userSettings.getOption('debugTokenizer')) ? 'TRUE':'FALSE') + '\n';
     exportString += '[TRUNCATE]\n' + ((userSettings.getOption('truncate')) ? 'TRUE':'FALSE') + '\n';
     exportString += '[DEOBFUSCATE]\n' + ((userSettings.getOption('simpleDeob')) ? 'TRUE':'FALSE') + '\n';
 
@@ -120,17 +107,15 @@ function loadSettingsFromFile(settingsFile){
             mode = 'extractions';
         }else if(line === '[SIGNATURES]'){
             mode = 'signatures';
-        }else if(line === '[MODE]'){
-            mode = 'mode';
+        }else if(line === '[DEBUG]'){
+            mode = 'debugTokenizer';
         }else if(line === '[TRUNCATE]') {
             mode = 'truncate';
         }else if(line === '[DEOBFUSCATE]'){
             mode = 'simpleDeob';
         }else if(line !== ''){
-            if(['truncate', 'simpleDeob'].includes(mode)){
+            if(['truncate', 'simpleDeob','debugTokenizer'].includes(mode)){
                 userSettings.setOption(mode, line === 'TRUE');
-            }else if(mode === 'mode'){
-                userSettings.setOption(mode, line);
             }else{
                 let key = line.split(' :::: ')[0];
                 let value = line.split(' :::: ')[1];
@@ -152,7 +137,7 @@ class UserSettings{
         this.extractions = getDefaultDomExtractions();
         this.signatures = getDefaultScriptSignatures();
         this.options = {
-            'mode': LRMode.EXTRACTION,
+            'debugTokenizer': false,
             'truncate':true,
             'simpleDeob':true,
             'deobSignatures':{
@@ -295,11 +280,6 @@ class UserSettings{
         }
         return {"attributes":attributes, "hasNested":hasNested};
     }
-}
-
-const LRMode = {
-    EXTRACTION:"EXTRACTION",
-    DEBUG_TOKENIZER:"DEBUG_TOKENIZER",
 }
 
 function getDefaultDomExtractions(){

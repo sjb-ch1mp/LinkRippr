@@ -310,14 +310,12 @@ function loadFile(fileInfo) {
     };
     reader.onload = function () {
         file = reader.result;
-        switch(userSettings.getOption('mode')){
-            case LRMode.EXTRACTION:
-                chatter("Ripping links...");
-                ripLinks(fileInfo.name);
-                break;
-            case LRMode.DEBUG_TOKENIZER:
-                chatter("Disassembling DOM...");
-                dumpTokens(fileInfo.name);
+        if(userSettings.getOption('debugTokenizer')){
+            chatter("Disassembling DOM...");
+            dumpTokens(fileInfo.name);
+        }else{
+            chatter("Ripping links...");
+            ripLinks(fileInfo.name);
         }
     };
     reader.onerror = function () {
