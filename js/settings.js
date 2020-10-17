@@ -94,7 +94,6 @@ function exportCurrentSettings(){
 }
 
 function downloadFile(contents, fileName){
-    console.log(contents);
     let blob = new Blob([contents], {type:'text/plain'});
     if(window.navigator.msSaveOrOpenBlob){
         window.navigator.msSaveOrOpenBlob(blob, fileName);
@@ -127,7 +126,7 @@ function loadSettingsFromFile(settingsFile){
             mode = 'truncate';
         }else if(line === '[DEOBFUSCATE]'){
             mode = 'simpleDeob';
-        }else{
+        }else if(line !== ''){
             if(['truncate', 'simpleDeob'].includes(mode)){
                 userSettings.setOption(mode, line === 'TRUE');
             }else if(mode === 'mode'){
