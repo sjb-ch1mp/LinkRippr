@@ -91,7 +91,6 @@ function ripLinks(fileName){
                             let extractions = null;
 
                             //get unnestedIocs
-                            console.log(unnestedIocs);
                             if(unnestedIocs !== null){
                                 for(let key in unnestedIocs){
                                     if(unnestedIocs[key]['extractions'] !== null && unnestedIocs[key]['extractions'].length > 0){
@@ -109,7 +108,6 @@ function ripLinks(fileName){
                             }
 
                             //get nestedIocs
-                            console.log(nestedIocs);
                             if(nestedIocs !== null){
                                 for(let key in nestedIocs){
                                     if(nestedIocs[key]['extractions'] !== null && nestedIocs[key]['extractions'].length > 0){

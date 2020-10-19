@@ -140,13 +140,7 @@ class UserSettings{
             'debugTokenizer': false,
             'truncate':true,
             'simpleDeob':true,
-            'deobSignatures':{
-                'document-write-unescape':{
-                    'global':new RegExp('document\\.write\\(unescape\\(("|\').*("|\')\\)\\)', 'g'),
-                    'sticky':new RegExp('document\\.write\\(unescape\\(("|\').*("|\')\\)\\)', 'y'),
-                    'user_view':'document\\.write\\(unescape\\(("|\').*("|\')\\)\\)'
-                }
-            }
+            'deobSignatures':getDefaultDeobfuscations()
         };
     }
 
@@ -336,5 +330,22 @@ function getDefaultScriptSignatures(){
             "sticky":new RegExp("new XMLHttpRequest\\(\\)", "y"),
             "user_view":"new XMLHttpRequest\\(\\)",
             "default":true}
-    }
+    };
+}
+
+function getDefaultDeobfuscations(){
+    return {
+        'document-write-unescape':{
+            'global':new RegExp('document\\.write\\(unescape\\(("|\').*("|\')\\)\\)', 'g'),
+            'sticky':new RegExp('document\\.write\\(unescape\\(("|\').*("|\')\\)\\)', 'y'),
+            'user_view':'document\\.write\\(unescape\\(("|\').*("|\')\\)\\)',
+            'unwrap':new RegExp('(^document\\.write\\(|\\)$)','g')
+        },
+        'document-write':{
+            'global':new RegExp('document\\.write\\(("|\').*("|\')\\)', 'g'),
+            'sticky':new RegExp('document\\.write\\(("|\').*("|\')\\)', 'y'),
+            'user_view':'document\\.write\\(("|\').*("|\'))',
+            'unwrap':new RegExp('(^document\\.write\\(|\\)$)','g')
+        }
+    };
 }

@@ -175,9 +175,10 @@ class Statement{
                             if(global.test(this._raw.substring(stickyIdx, breakIdx))){
                                 //this is the last character of a match
                                 if(attemptDeobfuscation){
+                                    let tag = attemptToDeobfuscate(key, this._raw.substring(stickyIdx, breakIdx), signatures[key]["unwrap"]);
                                     this.deobfuscationHits.push({
                                         "signature":key,
-                                        "tag":attemptToDeobfuscate(key, this._raw.substring(stickyIdx, breakIdx))
+                                        "tag":(tag !== undefined)?tag:"[FAIL]" + this._raw.substring(stickyIdx, breakIdx)
                                     });
                                 }else{
                                     this.signatureHits.push({
@@ -228,18 +229,16 @@ function getDetectedSignatures(scripts, type){
     return signatures;
 }
 
-function attemptToDeobfuscate(key, tag){
+function attemptToDeobfuscate(key, tag, unwrap){
     try{
-        if(key === 'document-write-unescape'){
-            tag = tag.replace(/(^document\.write\(|\)$)/g, '');
-            let dom = eval(tag);
-            let domParser = new DomParser(new DOMTokenizer(dom));
-            if(domParser.hasIocs()){
-                return domParser;
-            }else{
-                return checkLength('[SUCCESS]' + dom, 100);
-            }
+        let dom = eval(tag.replace(unwrap, ''));
+        let domParser = new DomParser(new DOMTokenizer(dom));
+        if(domParser.hasIocs()){
+            return domParser;
+        }else{
+            return checkLength('[SUCCESS]' + dom, 100);
         }
+
     }catch(err){
         return checkLength('[FAIL]' + tag);
     }
