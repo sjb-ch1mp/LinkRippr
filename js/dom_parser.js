@@ -23,7 +23,7 @@ class DomParser{
             }
         }
 
-        this.parseDom(true);
+        this.parseDom();
     }
 
     processExtractions(attList) {
@@ -39,7 +39,7 @@ class DomParser{
         return processedTags;
     }
 
-    parseDom(parseScripts){
+    parseDom(){
         //Use the main tokenizer to extract all unnested iocs
         while(this.domTokenizer.hasNext()){
             if(this.domTokenizer.current.tokenType === DOMTokenType.OPEN_TAG_NAME && this.domTokenizer.current.value in this.unnested_iocs){
@@ -59,7 +59,7 @@ class DomParser{
                     }
                     this.unnested_iocs[tag]["extractions"].push(attributesOfInterest);
                 }
-            }else if(this.domTokenizer.current.tokenType === DOMTokenType.SCRIPT && parseScripts){
+            }else if(this.domTokenizer.current.tokenType === DOMTokenType.SCRIPT){
                 let scriptParser = new ScriptParser(this.domTokenizer.current);
                 this.scripts.push(scriptParser.script);
             }
@@ -223,6 +223,9 @@ class DomParser{
     }
 
     hasIocs(){
+        if(areSignatureHits(this.scripts, "deobfuscation") || areSignatureHits(this.scripts, "detection")){
+            return true;
+        }
         for(let key in this.unnested_iocs){
             if(this.unnested_iocs[key]["extractions"] != null && this.unnested_iocs[key]["extractions"].length > 0){
                 return true;

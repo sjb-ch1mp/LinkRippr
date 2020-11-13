@@ -137,7 +137,6 @@ class Script{
                 statement += buffer[CURRENT];
             }
         }
-
     }
 
     setBuffer(currentIdx){
@@ -231,7 +230,7 @@ function getDetectedSignatures(scripts, type){
 
 function attemptToDeobfuscate(key, tag, unwrap){
     try{
-        let dom = eval(tag.replace(unwrap, ''));
+        let dom = unescape(tag.replace(unwrap, '').trim());
         let domParser = new DomParser(new DOMTokenizer(dom));
         if(domParser.hasIocs()){
             return domParser;

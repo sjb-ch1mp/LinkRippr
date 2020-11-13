@@ -52,7 +52,6 @@ function ripLinks(fileName){
                                             tmpStr += iocs[key]["extractions"][i].innerTags[j].tag.toUpperCase() + " " + padNumber(innerTagCount);
                                             tmpStr += ((iocs[key]["nested_tags"][iocs[key]["extractions"][i].innerTags[j].tag].length === 1
                                                 && iocs[key]["nested_tags"][iocs[key]["extractions"][i].innerTags[j].tag][0] !== "*")?") ":":" + att + ") ");
-                                            console.log(iocs[key]["nested_tags"][iocs[key]["extractions"][i].innerTags[j].tag][0]);
                                             tmpStr += stripNewLines(iocs[key]["extractions"][i].innerTags[j].extractions[att]) + "\n";
                                             resultString += checkLength(tmpStr, 100);
                                         }
@@ -142,7 +141,6 @@ function ripLinks(fileName){
 
                             //get script detections
                             if(tag.scripts.length > 0 && areSignatureHits(tag.scripts, 'detection')){
-                                console.log("deobfuscation has scripts");
                                 let detectedSignatures = getDetectedSignatures(tag.scripts, 'detection');
                                 for(let key in detectedSignatures){
                                     for(let j in detectedSignatures[key]){

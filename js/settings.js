@@ -282,8 +282,8 @@ function getDefaultDomExtractions(){
         "a":{"attributes":["href"],"hasNested":false},
         "iframe":{"attributes":["href","data-src","src"],"hasNested":false},
         "script":{"attributes":["src"],"hasNested":false},
-        "form":{"attributes":["method", "action","[input:name,type]"],"hasNested":true},
-        "meta":{"attributes":["http-equiv"],"hasNested":false},
+        "form":{"attributes":["method", "action","data-bind","[input:name,type]"],"hasNested":true},
+        "meta":{"attributes":["http-equiv","content"],"hasNested":false},
         "div":{"attributes":["visibility","display"],"hasNested":false}
     };
 }
@@ -320,10 +320,10 @@ function getDefaultScriptSignatures(){
             "sticky":new RegExp('[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}', "y"),
             "user_view":'[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}',
             "default":true},
-        "ajax-post":{
-            "global":new RegExp("\\$\\.ajax\\(\\{.*type:\\s?\\'POST\\'.*\\}\\)", "g"),
-            "sticky":new RegExp("\\$\\.ajax\\(\\{.*type:\\s?\\'POST\\'.*\\}\\)", "y"),
-            "user_view":"\\$\\.ajax\\(\\{.*type:\\s?\\'POST\\'.*\\}\\)",
+        "ajax-request":{
+            "global":new RegExp("\\$\\.ajax\\(\\{.*type:\\s?(\\'|\")(POST|GET)(\\'|\").*\\}\\)", "g"),
+            "sticky":new RegExp("\\$\\.ajax\\(\\{.*type:\\s?(\\'|\")(POST|GET)(\\'|\").*\\}\\)", "y"),
+            "user_view":"\\$\\.ajax\\(\\{.*type:\\s?(\\'|\")(POST|GET)(\\'|\").*\\}\\)",
             "default":true},
         "xml-http-request":{
             "global":new RegExp("new XMLHttpRequest\\(\\)", "g"),
@@ -339,13 +339,13 @@ function getDefaultDeobfuscations(){
             'global':new RegExp('document\\.write\\(unescape\\(("|\').*("|\')\\)\\)', 'g'),
             'sticky':new RegExp('document\\.write\\(unescape\\(("|\').*("|\')\\)\\)', 'y'),
             'user_view':'document\\.write\\(unescape\\(("|\').*("|\')\\)\\)',
-            'unwrap':new RegExp('(^document\\.write\\(|\\)$)','g')
+            'unwrap':new RegExp('(^document\\.write\\(unescape\\(("|\')|("|\')\\)\\)$)','g')
         },
         'document-write':{
             'global':new RegExp('document\\.write\\(("|\').*("|\')\\)', 'g'),
             'sticky':new RegExp('document\\.write\\(("|\').*("|\')\\)', 'y'),
-            'user_view':'document\\.write\\(("|\').*("|\'))',
-            'unwrap':new RegExp('(^document\\.write\\(|\\)$)','g')
+            'user_view':'document\\.write\\("|\').*("|\'))',
+            'unwrap':new RegExp('(^document\\.write\\(("|\')|("|\')\\)$)','g')
         }
     };
 }
