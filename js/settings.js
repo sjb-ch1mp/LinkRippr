@@ -214,7 +214,7 @@ class UserSettings{
 
         //general check for bad characters
         attString = attString.toLowerCase();
-        if(!(attString.match(new RegExp("^[,\\[\\]:a-z0-9\-]+$")))){
+        if(!(attString.match(new RegExp("^[,\\[\\]:a-z0-9\-\\*]+$")))){
             throw "Attribute string contains illegal values.";
         }
 

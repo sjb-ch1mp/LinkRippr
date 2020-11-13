@@ -21,13 +21,13 @@ function ripLinks(fileName){
                         for(let i=0; i<iocs[key]["extractions"].length; i++){
                             for(let att in iocs[key]["extractions"][i]){
                                 let tmpStr = "| " + padNumber(i + 1) + " | "
-                                tmpStr += ((iocs[key]["attributes"].length === 1)?" ":" (" + att + ") ");
+                                tmpStr += ((iocs[key]["attributes"].length === 1 && iocs[key]["attributes"][0] !== "*")?" ":" (" + att + ") ");
                                 tmpStr += stripNewLines(iocs[key]["extractions"][i][att]) + "\n";
                                 resultString += checkLength(tmpStr, 100);
                             }
-                            resultString += (iocs[key]["attributes"].length > 1)?"|" + getDivider("-", 99) + "\n":"";
+                            resultString += (iocs[key]["attributes"].length > 1 || iocs[key]["attributes"][0] === "*")?"|" + getDivider("-", 99) + "\n":"";
                         }
-                        resultString += (iocs[key]["attributes"].length === 1)?"|" + getDivider("-", 99) + "\n":"\n";
+                        resultString += (iocs[key]["attributes"].length === 1 && iocs[key]["attributes"][0] !== "*")?"|" + getDivider("-", 99) + "\n":"\n";
                     }
                 }
                 iocs = parser.nested_iocs;
@@ -38,7 +38,7 @@ function ripLinks(fileName){
                             if(iocs[key]["extractions"][i].extractions != null){
                                 for(let att in iocs[key]["extractions"][i].extractions){
                                     let tmpStr = "| " + padNumber(i + 1) + " | ";
-                                    tmpStr += ((iocs[key]["attributes"].length === 1)?" ":" (" + att + ") ");
+                                    tmpStr += ((iocs[key]["attributes"].length === 1 && iocs[key]["attributes"][0] !== "*")?" ":" (" + att + ") ");
                                     tmpStr += stripNewLines(iocs[key]["extractions"][i].extractions[att]) + "\n";
                                     resultString += checkLength(tmpStr, 100);
                                 }
@@ -50,7 +50,9 @@ function ripLinks(fileName){
                                         for(let att in iocs[key]["extractions"][i].innerTags[j].extractions){
                                             let tmpStr = "| " + padNumber(i + 1) + " | -> (";
                                             tmpStr += iocs[key]["extractions"][i].innerTags[j].tag.toUpperCase() + " " + padNumber(innerTagCount);
-                                            tmpStr += ((iocs[key]["nested_tags"][iocs[key]["extractions"][i].innerTags[j].tag].length === 1)?") ":":" + att + ") ");
+                                            tmpStr += ((iocs[key]["nested_tags"][iocs[key]["extractions"][i].innerTags[j].tag].length === 1
+                                                && iocs[key]["nested_tags"][iocs[key]["extractions"][i].innerTags[j].tag][0] !== "*")?") ":":" + att + ") ");
+                                            console.log(iocs[key]["nested_tags"][iocs[key]["extractions"][i].innerTags[j].tag][0]);
                                             tmpStr += stripNewLines(iocs[key]["extractions"][i].innerTags[j].extractions[att]) + "\n";
                                             resultString += checkLength(tmpStr, 100);
                                         }

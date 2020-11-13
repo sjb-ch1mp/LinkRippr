@@ -47,8 +47,10 @@ class DomParser{
                 let allAttributes = this.getAttribute("*", this.domTokenizer);
                 let attributesOfInterest = {};
                 for(let key in allAttributes){
-                    if(this.unnested_iocs[tag]["attributes"].includes(key) && !this.alreadyExists(tag, key, allAttributes[key], false, null)){
-                        attributesOfInterest[key] = this.checkForBase(key, allAttributes[key]);
+                    if(this.unnested_iocs[tag]["attributes"][0] === "*" && !this.alreadyExists(tag, key, allAttributes[key], false, null)){
+                        attributesOfInterest[key] = allAttributes[key];
+                    }else if(this.unnested_iocs[tag]["attributes"].includes(key) && !this.alreadyExists(tag, key, allAttributes[key], false, null)){
+                        attributesOfInterest[key] = allAttributes[key];
                     }
                 }
                 if(Object.keys(attributesOfInterest).length > 0){
@@ -111,14 +113,14 @@ class DomParser{
         let allAttributes = this.getAttribute("*", tokenizer);
         let attributesOfInterest = {};
         for(let key in allAttributes){
-            if(outerTagAttributes.includes(key)){
-                attributesOfInterest[key] = this.checkForBase(key, allAttributes[key]);
+            if(outerTagAttributes[0] === "*" || outerTagAttributes.includes(key)){
+                attributesOfInterest[key] = allAttributes[key];
             }
         }
         if(Object.keys(attributesOfInterest).length > 0){
             outerTag.extractions = attributesOfInterest;
         }
-        //!(tokenizer.current.tokenType === DOMTokenType.CLOSE_TAG_NAME && tokenizer.current.value === tag)
+
         let sameTagNameNesting = 1;
         while(tokenizer.hasNext() && sameTagNameNesting > 0){
             if(tokenizer.current.tokenType === DOMTokenType.OPEN_TAG_NAME && tokenizer.current.value in nestedTags){
@@ -131,8 +133,8 @@ class DomParser{
                 allAttributes = this.getAttribute("*", tokenizer);
                 attributesOfInterest = {};
                 for(let key in allAttributes){
-                    if(nestedTags[t].includes(key)){
-                        attributesOfInterest[key] = this.checkForBase(key, allAttributes[key]);
+                    if((nestedTags[t][0] === "*" || nestedTags[t].includes(key))){
+                        attributesOfInterest[key] = allAttributes[key];
                     }
                 }
                 if(Object.keys(attributesOfInterest).length > 0){
@@ -153,22 +155,6 @@ class DomParser{
         }
 
         return outerTag;
-    }
-
-    checkForBase(attName, attVal){
-        let urlAttributes = ["data-src","src","href"];
-        if(urlAttributes.includes(attName)
-            && this.unnested_iocs["base"] != null
-            && this.unnested_iocs["base"]["extractions"] !== "NULL"
-            && this.unnested_iocs["base"]["extractions"] !== undefined
-            && this.unnested_iocs["base"]["extractions"] != null){
-            if(!(attVal.startsWith(this.unnested_iocs["base"]["extractions"][0]["href"])) &&
-                !(attVal.startsWith("http")) &&
-                !(attVal.startsWith("#"))){
-                return this.unnested_iocs["base"]["extractions"][0]["href"] + attVal;
-            }
-        }
-        return attVal;
     }
 
     getAttribute(attributeName, tokenizer){
