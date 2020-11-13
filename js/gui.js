@@ -4,10 +4,14 @@ function padContent(){
     let footerHeight = document.getElementById("footer").clientHeight;
     let content = document.getElementById("content");
     let totalHeight = document.documentElement.scrollHeight;
+    let redoButton = document.getElementById('button-redo');
     if(settingsVisible || document.getElementById("results") == null || document.getElementById("results").innerText == ""){
+        redoButton.setAttribute("style","display: none;");
         content.setAttribute("style", "padding-left: 5%; padding-right: 5%; padding-top: " + (headerHeight*1.05) + "px; padding-bottom: " + (footerHeight*1.15) + "px; height: " + totalHeight + "px;");
         document.getElementById("body").setAttribute("style", "overflow: hidden; height: 100%;");
     }else{
+        redoButton.setAttribute("style","display: inline;");
+        headerHeight += redoButton.clientHeight;
         content.setAttribute("style", "padding-left: 5%; padding-right: 5%; padding-top: " + (headerHeight*1.05) + "px; padding-bottom: " + (footerHeight*1.15) + "px;");
         document.getElementById("body").removeAttribute("style");
     }
@@ -34,6 +38,7 @@ function showSettings(section){
     }
     settingsPanel.innerHTML = settingsHtml;
     showUserSettings(section);
+    settingsVisible = true;
     setUpGlobalVariables(stylize(section.toUpperCase()));
 }
 
@@ -120,7 +125,7 @@ function toggleOption(id){
 
 function hideSettings(){
     settingsVisible = false;
-    document.getElementById("content").innerHTML = "<p id='results'></p>";
+    document.getElementById("content").innerHTML = "<button style='display:none;' id='button-redo' class='close-button' onclick='ripLinks()'>&#11153;</button><p id='results'></p>";
     if(previousResults !== null){
         document.getElementById("results").innerText = previousResults.resultString;
         setUpGlobalVariables(stylize(previousResults.fileName));

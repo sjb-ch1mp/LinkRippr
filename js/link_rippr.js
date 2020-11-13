@@ -1,13 +1,14 @@
 
 //Global variables
 let file = null;
+let fileName = null;
 let chatterBox = null;
 let results = null;
 let userSettings = null;
 let settingsVisible = false;
 let previousResults = null;
 
-function ripLinks(fileName){
+function ripLinks(){
     try{
         if(file !== null && file !== undefined){
 
@@ -183,7 +184,7 @@ function ripLinks(fileName){
     }
 }
 
-function dumpTokens(fileName){
+function dumpTokens(){
     try{
         if(file !== null && file !== undefined){
 
@@ -301,6 +302,7 @@ function loadSettingsFile(fileInfo){
 
 function loadFile(fileInfo) {
     //load file
+    fileName = fileInfo.name;
     const reader = new FileReader();
     reader.readAsText(fileInfo);
     reader.onprogress = function () {
@@ -310,10 +312,10 @@ function loadFile(fileInfo) {
         file = reader.result;
         if(userSettings.getOption('debugTokenizer')){
             chatter("Disassembling DOM...");
-            dumpTokens(fileInfo.name);
+            dumpTokens();
         }else{
             chatter("Ripping links...");
-            ripLinks(fileInfo.name);
+            ripLinks();
         }
     };
     reader.onerror = function () {

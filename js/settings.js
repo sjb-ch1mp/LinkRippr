@@ -291,24 +291,24 @@ function getDefaultDomExtractions(){
 function getDefaultScriptSignatures(){
     return {
         "document.write":{
-            "global":new RegExp("document\\.write\\(.*\\)(;|\\s)", "g"),
-            "sticky":new RegExp("document\\.write\\(.*\\)(;|\\s)", "y"),
-            "user_view":"document\\.write\\(.*\\)(;|\\s)",
+            "global":new RegExp("document\\.write\\(.*\\)(;|\\s|\\n)", "g"),
+            "sticky":new RegExp("document\\.write\\(.*\\)(;|\\s|\\n)", "y"),
+            "user_view":"document\\.write\\(.*\\)(;|\\s|\\n)",
             "default":true},
         "eval":{
-            "global":new RegExp("eval\\(.*\\)", "g"),
-            "sticky":new RegExp("eval\\(.*\\)", "y"),
-            "user_view":"eval\\(.*\\)",
+            "global":new RegExp("eval\\(.*\\)(;|\\s|\\n)", "g"),
+            "sticky":new RegExp("eval\\(.*\\)(;|\\s|\\n)", "y"),
+            "user_view":"eval\\(.*\\)(;|\\s|\\n)",
             "default":true},
         "atob":{
-            "global":new RegExp("atob\\(.*\\)", "g"),
-            "sticky":new RegExp("atob\\(.*\\)", "y"),
-            "user_view":"atob\\(.*\\)",
+            "global":new RegExp("atob\\(.*\\)(;|\\s|\\n)", "g"),
+            "sticky":new RegExp("atob\\(.*\\)(;|\\s|\\n)", "y"),
+            "user_view":"atob\\(.*\\)(;|\\s|\\n)",
             "default":true},
         "unescape":{
-            "global":new RegExp("unescape\\(.*\\)", "g"),
-            "sticky":new RegExp("unescape\\(.*\\)", "y"),
-            "user_view":"unescape\\(.*\\)",
+            "global":new RegExp("unescape\\(.*\\)(;|\\s|\\n)", "g"),
+            "sticky":new RegExp("unescape\\(.*\\)(;|\\s|\\n)", "y"),
+            "user_view":"unescape\\(.*\\)(;|\\s|\\n)",
             "default":true},
         "simple-url":{
             "global":new RegExp('http(s)?:\\/\\/.*(;|\\s|")', "g"),
