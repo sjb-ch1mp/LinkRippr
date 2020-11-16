@@ -66,8 +66,11 @@ class DomParser{
                 this.scripts.push(scriptParser.script);
             }else if(this.domTokenizer.current.tokenType === DOMTokenType.STYLE && userSettings.getOption('checkStyle')){
                 //FIXME
-            }else if(this.domTokenizer.current.tokenType === DOMTokenType.startsWith('CONDITIONAL_HTML') && userSettings.getOption('conditionalComments')){
+            }else if((this.domTokenizer.current.tokenType ===DOMTokenType.CONDITIONAL_HTML_DLH ||
+                this.domTokenizer.current.tokenType === DOMTokenType.CONDITIONAL_HTML_DLR)
+                && userSettings.getOption('conditionalComments')){
                 //FIXME
+                console.log(this.domTokenizer.current.value);
             }
 
             this.domTokenizer.next();
