@@ -76,6 +76,8 @@ function exportCurrentSettings(){
     exportString += '[DEBUG]\n' + ((userSettings.getOption('debugTokenizer')) ? 'TRUE':'FALSE') + '\n';
     exportString += '[TRUNCATE]\n' + ((userSettings.getOption('truncate')) ? 'TRUE':'FALSE') + '\n';
     exportString += '[DEOBFUSCATE]\n' + ((userSettings.getOption('simpleDeob')) ? 'TRUE':'FALSE') + '\n';
+    exportString += '[STYLE]\n' + ((userSettings.getOption('checkStyle')) ? 'TRUE':'FALSE') + '\n';
+    exportString += '[CONDITIONALS]\n' + ((userSettings.getOption('conditionalComments')) ? 'TRUE':'FALSE') + '\n';
 
     downloadFile(exportString, 'linkrippr_settings.txt');
 }
@@ -113,8 +115,12 @@ function loadSettingsFromFile(settingsFile){
             mode = 'truncate';
         }else if(line === '[DEOBFUSCATE]'){
             mode = 'simpleDeob';
+        }else if(line === '[STYLE]'){
+            mode = 'checkStyle'
+        }else if(line === '[CONDITIONALS]'){
+            mode = 'conditionalComments'
         }else if(line !== ''){
-            if(['truncate', 'simpleDeob','debugTokenizer'].includes(mode)){
+            if(['truncate', 'simpleDeob','debugTokenizer', "debugTokenizer", "checkStyle", "conditionalComments"].includes(mode)){
                 userSettings.setOption(mode, line === 'TRUE');
             }else{
                 let key = line.split(' :::: ')[0];
@@ -136,10 +142,13 @@ class UserSettings{
     constructor(){
         this.extractions = getDefaultDomExtractions();
         this.signatures = getDefaultScriptSignatures();
+        this.cssSignatures = getDefaultCssSignatures();
         this.options = {
             'debugTokenizer': false,
             'truncate':true,
             'simpleDeob':true,
+            'checkStyle':true,
+            'conditionalComments':true,
             'deobSignatures':getDefaultDeobfuscations()
         };
     }
@@ -348,4 +357,8 @@ function getDefaultDeobfuscations(){
             'unwrap':new RegExp('(^document\\.write\\(("|\')|("|\')\\)$)','g')
         }
     };
+}
+
+function getDefaultCssSignatures(){
+    //FIXME
 }

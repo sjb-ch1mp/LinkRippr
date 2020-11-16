@@ -15,6 +15,7 @@
     <script src="js/script_parser.js"></script>
     <script src="js/gui.js"></script>
     <script src="js/settings.js"></script>
+    <script src="js/style_parser.js"></script>
 </head>
 
 <body id="body" ondrop="dropHandler(event)" ondragover="dragOverHandler(event)" ondragexit="dragExitHandler()">
@@ -28,7 +29,8 @@
                 <div id="settings-menu" class="dropdown-content">
                     <button id="settings" class="dropdown" onclick="showSettings(this.id)">SETTINGS</button>
                     <button id="extractions" class="dropdown" onclick="showSettings(this.id)">EXTRACTIONS</button>
-                    <button id="signatures" class="dropdown" onclick="showSettings(this.id)">SIGNATURES</button>
+                    <button id="javascript_signatures" class="dropdown" onclick="showSettings(this.id)">JS SIGNATURES</button>
+                    <button id="css_signatures" class="dropdown" onclick="showSettings(this.id)">CSS SIGNATURES</button>
                 </div>
             </div>
             <td width="98%" class="menu"><p id="chatter_box" align="center">Drop an HTML file</p></td>

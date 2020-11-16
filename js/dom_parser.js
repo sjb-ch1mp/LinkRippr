@@ -5,6 +5,8 @@ class DomParser{
 
         //separate extractions into nested and unnested
         this.scripts = []; //[Script, Script, ...]
+        this.conditionalHtml = []; //FIXME
+        this.styleBlocks = []; //FIXME
         this.unnested_iocs = {};
         this.nested_iocs = {};
         for(let key in userSettings.extractions){
@@ -62,6 +64,10 @@ class DomParser{
             }else if(this.domTokenizer.current.tokenType === DOMTokenType.SCRIPT){
                 let scriptParser = new ScriptParser(this.domTokenizer.current);
                 this.scripts.push(scriptParser.script);
+            }else if(this.domTokenizer.current.tokenType === DOMTokenType.STYLE && userSettings.getOption('checkStyle')){
+                //FIXME
+            }else if(this.domTokenizer.current.tokenType === DOMTokenType.startsWith('CONDITIONAL_HTML') && userSettings.getOption('conditionalComments')){
+                //FIXME
             }
 
             this.domTokenizer.next();

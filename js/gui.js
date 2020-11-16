@@ -33,8 +33,11 @@ function showSettings(section){
         case 'extractions':
             settingsHtml += buildExtractionsMenu();
             break;
-        case 'signatures':
-            settingsHtml += buildSignaturesMenu();
+        case 'javascript_signatures':
+            settingsHtml += buildJavaScriptSignaturesMenu();
+            break;
+        case 'css_signatures':
+            settingsHtml += buildCssSignaturesMenu();
     }
     settingsPanel.innerHTML = settingsHtml;
     showUserSettings(section);
@@ -56,20 +59,20 @@ function showUserSettings(section){
 }
 
 function buildSettingsMenu(){
-    let settingsHtml = "<h2>< Upload /></h2>";
-    settingsHtml += "<table class='settings'><tr><td><p class='settings'>Manually upload an HTML file.</p></td></tr>"
+    let settingsHtml = "<h2>< Analyze /></h2>";
+    settingsHtml += "<table class='settings'><th>UPLOAD HTML FILE</th>"
     settingsHtml += "<tr><td><input class='settings' id='upload-file' type='file' accept='text/html' onchange='uploadHandler(this)'></td></tr></table>";
     settingsHtml += "<br><hr style='color: #54001C'>";
     settingsHtml += "<h2>< Options /></h2>";
     settingsHtml += "<table class='settings'><tr><td><input id='truncate' type='checkbox' onchange='toggleOption(this.id)'></td><td><label class='settings' for='truncate'>Truncate Output</label></td></tr>";
     settingsHtml += "<tr><td><input id='simpleDeob' type='checkbox' onchange='toggleOption(this.id)'></td><td><label class='settings' for='simpleDeob'>Attempt Simple Deobfuscation</label></td></tr>";
+    settingsHtml += "<tr><td><input id='conditionalComments' type='checkbox' onchange='toggleOption(this.id)'></td><td><label class='settings' for='conditionalComments'>Extract Conditional HTML</label></td></tr>";
+    settingsHtml += "<tr><td><input id='checkStyle' type='checkbox' onchange='toggleOption(this.id)'></td><td><label class='settings' for='checkStyle'>Analyze Style Elements</label></td></tr>";
     settingsHtml += "<tr><td><input id='debugTokenizer' type='checkbox' onchange='toggleOption(this.id)'></td><td><label class='settings' for='debugTokenizer'>Debug Mode</label></td></tr></table>";
     settingsHtml += "<br><hr style='color: #54001C'>";
-    settingsHtml += "<h2>< Settings /></h2>";
-    settingsHtml += "<table class='settings'><tr><td><p class='settings'>Import a LinkRippr settings file.</p></td></tr>"
-    settingsHtml += "<tr><td><input class='settings' type='file' id='import-settings' accept='text/plain' onchange='uploadHandler(this)'></td></tr></table>";
-    settingsHtml += "<br><table class='settings'><tr><td><p class='settings'>Export the current settings to a LinkRippr settings file.</p></td></tr>"
-    settingsHtml += "<tr><td><button class='settings' onclick='exportCurrentSettings()'>EXPORT SETTINGS</button></td></tr></table>";
+    settingsHtml += "<h2>< Save /></h2>";
+    settingsHtml += "<table class='settings'><th width='50%'>LOAD SETTINGS</th><th width='50%'>SAVE SETTINGS</th>"
+    settingsHtml += "<tr><td><input class='settings' type='file' id='import-settings' accept='text/plain' onchange='uploadHandler(this)'></td><td><button class='settings' onclick='exportCurrentSettings()'>SAVE AS...</button></td></tr></table>";
     return settingsHtml;
 }
 
@@ -93,9 +96,9 @@ function buildExtractionsMenu(){
     return settingsHtml;
 }
 
-function buildSignaturesMenu(){
+function buildJavaScriptSignaturesMenu(){
     //Write Script Signatures Section
-    let settingsHtml = "<h2>< Script Signatures ></h2>";
+    let settingsHtml = "<h2>< JavaScript Signatures ></h2>";
     settingsHtml += "<table class='settings'><tr><td align='center'><button class='settings' onclick='resetScriptSignatureDefaults()'>RESET DEFAULTS</button></td>";
     settingsHtml += "<td align='center'><button class='settings' onclick='clearSignatures()'>CLEAR SIGNATURES</button></td></tr></table>";
     if(Object.keys(userSettings.signatures).length > 0){
@@ -112,6 +115,10 @@ function buildSignaturesMenu(){
         settingsHtml += "<tr><td><input type='text' placeholder='NEW SIGNATURE' id='newFunction'></td><td><input type='text' id='newPattern'></td><td><button class='settings' onclick='changeSignatures(null)'>ADD</button></td></tr>";
     }
     return settingsHtml;
+}
+
+function buildCssSignaturesMenu(){
+    //FIXME
 }
 
 function toggleMenu(){
