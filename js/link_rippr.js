@@ -167,7 +167,7 @@ function ripLinks(){
             }
 
             if(parser.conditionalHtml.length > 0){
-                let types = ['hidden', 'revealed'];
+                let types = ['hidden', 'revealed', 'unknown'];
                 for(let i=0; i<2; i++){
                     if(parser.hasConditionalHtml(types[i])){
                         let idx = 0;
