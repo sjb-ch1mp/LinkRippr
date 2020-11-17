@@ -1,7 +1,7 @@
 function changeExtractions(key){
     if(key!=null){
         userSettings.removeExtraction(key);
-        showSettings('extractions');
+        showSettings('html');
     }else{
         let newTag = document.getElementById("newTag");
         let newAttributes = document.getElementById("newAttributes");
@@ -13,7 +13,7 @@ function changeExtractions(key){
                 throw "Attributes required";
             }
             userSettings.addExtraction(newTag.value, newAttributes.value);
-            showSettings('extractions');
+            showSettings('html');
         }catch(err){
             throwError(err);
         }
@@ -23,7 +23,7 @@ function changeExtractions(key){
 function changeSignatures(key){
     if(key!=null){
         userSettings.removeSignature(key);
-        showSettings('signatures');
+        showSettings('javscript');
     }else{
         let newFunction = document.getElementById("newFunction");
         let newPattern = document.getElementById("newPattern");
@@ -35,31 +35,43 @@ function changeSignatures(key){
                 throw "Pattern is required";
             }
             userSettings.addSignature(newFunction.value, newPattern.value);
-            showSettings('signatures');
+            showSettings('javascript');
         }catch(err){
             throwError(err);
         }
     }
 }
 
+function resetCssSignatureDefaults(){
+    //FIXME
+}
+
+function clearCssSignatures(){
+    //FIXME
+}
+
+function changeCssSignatures(id){
+    FIXME
+}
+
 function clearSignatures(){
     userSettings.signatures = {};
-    showSettings('signatures');
+    showSettings('javascript');
 }
 
 function clearExtractions(){
     userSettings.extractions = {};
-    showSettings('extractions');
+    showSettings('html');
 }
 
 function resetDomExtractionDefaults(){
     userSettings.extractions = getDefaultDomExtractions();
-    showSettings('extractions');
+    showSettings('html');
 }
 
 function resetScriptSignatureDefaults(){
     userSettings.signatures = getDefaultScriptSignatures();
-    showSettings('signatures');
+    showSettings('javascript');
 }
 
 function exportCurrentSettings(){
@@ -361,4 +373,5 @@ function getDefaultDeobfuscations(){
 
 function getDefaultCssSignatures(){
     //FIXME
+    return {};
 }

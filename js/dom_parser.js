@@ -5,8 +5,8 @@ class DomParser{
 
         //separate extractions into nested and unnested
         this.scripts = []; //[Script, Script, ...]
-        this.conditionalHtml = []; //FIXME
-        this.styleBlocks = []; //FIXME
+        this.conditionalHtml = []; //[{type:type, condition:condition, html:html}, ..., ]
+        this.styleBlocks = []; //[StyleBlock, StyleBlock, ...]
         this.unnested_iocs = {};
         this.nested_iocs = {};
         for(let key in userSettings.extractions){
@@ -42,6 +42,9 @@ class DomParser{
     }
 
     parseDom(){
+
+        let holdConditionalTag = null;
+
         //Use the main tokenizer to extract all unnested iocs
         while(this.domTokenizer.hasNext()){
             if(this.domTokenizer.current.tokenType === DOMTokenType.OPEN_TAG_NAME && this.domTokenizer.current.value in this.unnested_iocs){
@@ -65,14 +68,35 @@ class DomParser{
                 let scriptParser = new ScriptParser(this.domTokenizer.current);
                 this.scripts.push(scriptParser.script);
             }else if(this.domTokenizer.current.tokenType === DOMTokenType.STYLE && userSettings.getOption('checkStyle')){
-                //FIXME
-            }else if((this.domTokenizer.current.tokenType ===DOMTokenType.CONDITIONAL_HTML_DLH ||
-                this.domTokenizer.current.tokenType === DOMTokenType.CONDITIONAL_HTML_DLR)
+                let styleParser = new StyleParser(this.domTokenizer.current);
+                this.styleBlocks.push(styleParser.styleBlock);
+            }else if((this.domTokenizer.current.tokenType === DOMTokenType.OPEN_TAG_DLH ||
+                this.domTokenizer.current.tokenType === DOMTokenType.OPEN_TAG_DLR)
                 && userSettings.getOption('conditionalComments')){
-                //FIXME
-                console.log(this.domTokenizer.current.value);
+                let current = this.domTokenizer.current;
+                holdConditionalTag = {
+                    'type':(current.tokenType === DOMTokenType.OPEN_TAG_DLH)?"hidden":"revealed",
+                    'condition':current.value
+                };
+            }else if((this.domTokenizer.current.tokenType === DOMTokenType.CONDITIONAL_HTML_DLH ||
+                this.domTokenizer.current.tokenType === DOMTokenType.CONDITIONAL_HTML_DLR)
+                && userSettings.getOption('conditionalComments')) {
+                let current = this.domTokenizer.current;
+                if(holdConditionalTag !== null){
+                    this.conditionalHtml.push({
+                        'type':holdConditionalTag['type'],
+                        'condition':holdConditionalTag['condition'],
+                        'html':current.value
+                    });
+                    holdConditionalTag = null;
+                }else{
+                    this.conditionalHtml.push({
+                        'type':'unknown',
+                        'condition':'unknown',
+                        'html':current.value
+                    });
+                }
             }
-
             this.domTokenizer.next();
         }
 
@@ -235,6 +259,12 @@ class DomParser{
         if(areSignatureHits(this.scripts, "deobfuscation") || areSignatureHits(this.scripts, "detection")){
             return true;
         }
+        if(this.conditionalHtml.length > 0){
+            return true;
+        }
+        if(areCssSignatureHits(this.styleBlocks)){
+            return true;
+        }
         for(let key in this.unnested_iocs){
             if(this.unnested_iocs[key]["extractions"] != null && this.unnested_iocs[key]["extractions"].length > 0){
                 return true;
@@ -242,6 +272,15 @@ class DomParser{
         }
         for(let key in this.nested_iocs){
             if(this.nested_iocs[key]["extractions"] != null && this.nested_iocs[key]["extractions"].length > 0){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    hasConditionalHtml(type){
+        for(let i=0; i<this.conditionalHtml.length; i++){
+            if(this.conditionalHtml[i]['type'] === type){
                 return true;
             }
         }

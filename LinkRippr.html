@@ -28,9 +28,9 @@
                 <td width="1%" class="menu"><button class="menu-button" onclick="toggleMenu()">&#9776;</button></td>
                 <div id="settings-menu" class="dropdown-content">
                     <button id="settings" class="dropdown" onclick="showSettings(this.id)">SETTINGS</button>
-                    <button id="extractions" class="dropdown" onclick="showSettings(this.id)">EXTRACTIONS</button>
-                    <button id="javascript_signatures" class="dropdown" onclick="showSettings(this.id)">JS SIGNATURES</button>
-                    <button id="css_signatures" class="dropdown" onclick="showSettings(this.id)">CSS SIGNATURES</button>
+                    <button id="html" class="dropdown" onclick="showSettings(this.id)">HTML</button>
+                    <button id="javascript" class="dropdown" onclick="showSettings(this.id)">JAVASCRIPT</button>
+                    <button id="css" class="dropdown" onclick="showSettings(this.id)">CSS</button>
                 </div>
             </div>
             <td width="98%" class="menu"><p id="chatter_box" align="center">Drop an HTML file</p></td>
@@ -38,12 +38,12 @@
     </table>
 </div>
 <div class="content" id="content">
-    <button style='display:none;' id='button-redo' class='close-button' onclick='ripLinks()'>&#11153;</button>
+    <button style='display:none;' id='button-redo' class='close-button' onclick='redo()'>&#11153;</button>
     <p id="results"></p>
 </div>
 
 <div id="footer">
-    <p id="author" align="center">Samuel Brookes : <a href="https://github.com/sjb-ch1mp/LinkRippr" target="_blank">github.com/sjb-ch1mp/LinkRippr</a> : May 2020</p>
+    <p id="author" align="center">Samuel Brookes : <a href="https://github.com/sjb-ch1mp/LinkRippr" target="_blank">github.com/sjb-ch1mp/LinkRippr</a></p>
 </div>
 
 </body>

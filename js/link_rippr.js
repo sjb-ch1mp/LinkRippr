@@ -166,6 +166,24 @@ function ripLinks(){
                 }
             }
 
+            if(parser.conditionalHtml.length > 0){
+                let types = ['hidden', 'revealed'];
+                for(let i=0; i<2; i++){
+                    if(parser.hasConditionalHtml(types[i])){
+                        let idx = 0;
+                        resultString += "\n\n| " + stylize("CONDITIONAL HTML : " + types[i].toLowerCase()) + "\n|" + getDivider("=", 99) + "\n";
+                        for(let j=0; j<parser.conditionalHtml.length; j++){
+                            if(parser.conditionalHtml[j]['type'] === types[i]){
+                                idx++;
+                                resultString += checkLength("| " + padNumber(idx) + " | [" + parser.conditionalHtml[j]['condition'] + "]", 100) + "\n";
+                                resultString += checkLength("| " + padNumber(idx) + " | " + stripNewLines(parser.conditionalHtml[j]['html']), 100);
+                                resultString += "|" + getDivider("-", 99) + "\n";
+                            }
+                        }
+                    }
+                }
+            }
+
             if(resultString.length === 0){
                 resultString = "\n\nNOTHING FOUND";
             }
@@ -195,8 +213,9 @@ function dumpTokens(){
                 tokenizer.next();
             }
             results.innerText = resultString;
-            padContent();
             chatter(stylize(fileName));
+            previousResults = new PreviousResults(fileName, resultString);
+            padContent();
         }else{
             throwError("Error importing file");
         }

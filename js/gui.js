@@ -21,8 +21,8 @@ function padContent(){
 function showSettings(section){
 
     let settingsPanel = document.getElementById("results");
-    let settingsHtml = "<br><br><div align='right'>";
-    settingsHtml += "<button class='close-button' onclick='hideSettings()'>X</button>";
+    let settingsHtml = "<br><br><div align='left'>";
+    settingsHtml += "<button class='close-button' onclick='hideSettings()'>CLOSE</button>";
     settingsHtml += "</div>";
     settingsHtml += "<hr style='color: #54001C'>";
 
@@ -30,13 +30,13 @@ function showSettings(section){
         case 'settings':
             settingsHtml += buildSettingsMenu();
             break;
-        case 'extractions':
+        case 'html':
             settingsHtml += buildExtractionsMenu();
             break;
-        case 'javascript_signatures':
+        case 'javascript':
             settingsHtml += buildJavaScriptSignaturesMenu();
             break;
-        case 'css_signatures':
+        case 'css':
             settingsHtml += buildCssSignaturesMenu();
     }
     settingsPanel.innerHTML = settingsHtml;
@@ -77,7 +77,7 @@ function buildSettingsMenu(){
 }
 
 function buildExtractionsMenu(){
-    let settingsHtml = "<h2>< DOM Extractions /></h2>";
+    let settingsHtml = "<h2>< HTML Detections /></h2>";
     settingsHtml += "<table class='settings'><tr><td align='center'><button class='settings' onclick='resetDomExtractionDefaults()'>RESET DEFAULTS</button></td>";
     settingsHtml += "<td align='center'><button class='settings' onclick='clearExtractions()'>CLEAR EXTRACTIONS</button></td></tr></table>";
     if(Object.keys(userSettings.extractions).length > 0){
@@ -98,11 +98,11 @@ function buildExtractionsMenu(){
 
 function buildJavaScriptSignaturesMenu(){
     //Write Script Signatures Section
-    let settingsHtml = "<h2>< JavaScript Signatures ></h2>";
+    let settingsHtml = "<h2>< JavaScript Detections ></h2>";
     settingsHtml += "<table class='settings'><tr><td align='center'><button class='settings' onclick='resetScriptSignatureDefaults()'>RESET DEFAULTS</button></td>";
     settingsHtml += "<td align='center'><button class='settings' onclick='clearSignatures()'>CLEAR SIGNATURES</button></td></tr></table>";
     if(Object.keys(userSettings.signatures).length > 0){
-        settingsHtml += "<p class='settings'>LinkRippr is currently searching for the following signatures in script blocks.</p>";
+        settingsHtml += "<p class='settings'>LinkRippr is currently searching for the following signatures in script elements.</p>";
         settingsHtml += "<table class='settings'><tr><th>NAME</th><th colspan='2'>PATTERN</th></tr>";
         for(let key in userSettings.signatures){
             settingsHtml += "<tr><td>" + key + "</td><td>" + userSettings.signatures[key]["user_view"] + "</td>";
@@ -110,7 +110,7 @@ function buildJavaScriptSignaturesMenu(){
         }
         settingsHtml += "<tr><td><input type='text' placeholder='NEW SIGNATURE' id='newFunction'></td><td><input type='text' id='newPattern'></td><td><button class='settings' onclick='changeSignatures(null)'>ADD</button></td></tr>";
     }else{
-        settingsHtml += "<p class='settings'>LinkRippr is not searching for any script signatures.</p>";
+        settingsHtml += "<p class='settings'>LinkRippr is not searching for signatures in script elements.</p>";
         settingsHtml += "<table class='settings'><tr><th>NAME</th><th colspan='2'>PATTERN</th></tr>";
         settingsHtml += "<tr><td><input type='text' placeholder='NEW SIGNATURE' id='newFunction'></td><td><input type='text' id='newPattern'></td><td><button class='settings' onclick='changeSignatures(null)'>ADD</button></td></tr>";
     }
@@ -118,7 +118,23 @@ function buildJavaScriptSignaturesMenu(){
 }
 
 function buildCssSignaturesMenu(){
-    //FIXME
+    let settingsHtml = "<h2>< CSS Detections ></h2>";
+    settingsHtml += "<table class='settings'><tr><td align='center'><button class='settings' onclick='resetCssSignatureDefaults()'>RESET DEFAULTS</button></td>";
+    settingsHtml += "<td align='center'><button class='settings' onclick='clearCssSignatures()'>CLEAR SIGNATURES</button></td></tr></table>";
+    if(Object.keys(userSettings.cssSignatures).length > 0){
+        settingsHtml += "<p class='settings'>LinkRippr is currently searching for the following signatures in style elements.</p>";
+        settingsHtml += "<table class='settings'><tr><th>SELECTOR</th><th colspan='2'>KEY/FUNCTION</th></tr>";
+        for(let selector in userSettings.cssSignatures){
+            settingsHtml += "<tr><td>" + selector + "</td><td>" + userSettings.cssSignatures[selector]["keys"].join(",") + "</td>";
+            settingsHtml += "<td><button id='" + key + "' class='settings' onclick='changeCssSignatures(this.id)'>DEL</button></td></tr>";
+        }
+        settingsHtml += "<tr><td><input type='text' placeholder='NEW SELECTOR' id='newSelector'></td><td><input type='text' id='newKeys'></td><td><button class='settings' onclick='changeCssSignatures(null)'>ADD</button></td></tr>";
+    }else{
+        settingsHtml += "<p class='settings'>LinkRippr is not searching for signatures in style elements.</p>";
+        settingsHtml += "<table class='settings'><tr><th>SELECTOR</th><th colspan='2'>KEY/FUNCTION</th></tr>";
+        settingsHtml += "<tr><td><input type='text' placeholder='NEW SELECTOR' id='newSelector'></td><td><input type='text' id='newKeys'></td><td><button class='settings' onclick='changeCssSignatures(null)'>ADD</button></td></tr>";
+    }
+    return settingsHtml;
 }
 
 function toggleMenu(){
@@ -132,12 +148,20 @@ function toggleOption(id){
 
 function hideSettings(){
     settingsVisible = false;
-    document.getElementById("content").innerHTML = "<button style='display:none;' id='button-redo' class='close-button' onclick='ripLinks()'>&#11153;</button><p id='results'></p>";
+    document.getElementById("content").innerHTML = "<button style='display:none;' id='button-redo' class='close-button' onclick='redo()'>&#11153;</button><p id='results'></p>";
     if(previousResults !== null){
         document.getElementById("results").innerText = previousResults.resultString;
         setUpGlobalVariables(stylize(previousResults.fileName));
     }else{
         setUpGlobalVariables( "Drop an HTML file");
+    }
+}
+
+function redo(){
+    if(userSettings.getOption("debugTokenizer")){
+        dumpTokens();
+    }else{
+        ripLinks();
     }
 }
 

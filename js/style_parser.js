@@ -21,3 +21,7 @@ class StyleBlock{
 
     }
 }
+
+function areCssSignatureHits(styleBlocks){
+    //FIXME
+}
