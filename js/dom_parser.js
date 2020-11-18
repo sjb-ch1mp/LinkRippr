@@ -67,7 +67,7 @@ class DomParser{
             }else if(this.domTokenizer.current.tokenType === DOMTokenType.SCRIPT){
                 let scriptParser = new ScriptParser(this.domTokenizer.current);
                 this.scripts.push(scriptParser.script);
-            }else if(this.domTokenizer.current.tokenType === DOMTokenType.STYLE && userSettings.getOption('checkStyle')){
+            }else if(this.domTokenizer.current.tokenType === DOMTokenType.STYLE){
                 let styleParser = new StyleParser(this.domTokenizer.current);
                 this.styleBlocks.push(styleParser.styleBlock);
             }else if((this.domTokenizer.current.tokenType === DOMTokenType.OPEN_TAG_DLH ||
@@ -82,7 +82,7 @@ class DomParser{
                 this.domTokenizer.current.tokenType === DOMTokenType.CONDITIONAL_HTML_DLR)
                 && userSettings.getOption('conditionalComments')) {
                 let current = this.domTokenizer.current;
-                if(holdConditionalTag !== null){
+                if(holdConditionalTag !== null && current.value.trim().length > 0){
                     this.conditionalHtml.push({
                         'type':holdConditionalTag['type'],
                         'condition':holdConditionalTag['condition'],

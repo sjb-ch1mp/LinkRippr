@@ -67,7 +67,6 @@ function buildSettingsMenu(){
     settingsHtml += "<table class='settings'><tr><td><input id='truncate' type='checkbox' onchange='toggleOption(this.id)'></td><td><label class='settings' for='truncate'>Truncate Output</label></td></tr>";
     settingsHtml += "<tr><td><input id='simpleDeob' type='checkbox' onchange='toggleOption(this.id)'></td><td><label class='settings' for='simpleDeob'>Attempt Simple Deobfuscation</label></td></tr>";
     settingsHtml += "<tr><td><input id='conditionalComments' type='checkbox' onchange='toggleOption(this.id)'></td><td><label class='settings' for='conditionalComments'>Extract Conditional HTML</label></td></tr>";
-    settingsHtml += "<tr><td><input id='checkStyle' type='checkbox' onchange='toggleOption(this.id)'></td><td><label class='settings' for='checkStyle'>Analyze Style Elements</label></td></tr>";
     settingsHtml += "<tr><td><input id='debugTokenizer' type='checkbox' onchange='toggleOption(this.id)'></td><td><label class='settings' for='debugTokenizer'>Debug Mode</label></td></tr></table>";
     settingsHtml += "<br><hr style='color: #54001C'>";
     settingsHtml += "<h2>< Save /></h2>";
@@ -108,11 +107,11 @@ function buildJavaScriptSignaturesMenu(){
             settingsHtml += "<tr><td>" + key + "</td><td>" + userSettings.signatures[key]["user_view"] + "</td>";
             settingsHtml += "<td><button id='" + key + "' class='settings' onclick='changeSignatures(this.id)'>DEL</button></td></tr>";
         }
-        settingsHtml += "<tr><td><input type='text' placeholder='NEW SIGNATURE' id='newFunction'></td><td><input type='text' id='newPattern'></td><td><button class='settings' onclick='changeSignatures(null)'>ADD</button></td></tr>";
+        settingsHtml += "<tr><td><input type='text' placeholder='NEW JS SIGNATURE' id='newFunction'></td><td><input type='text' id='newPattern'></td><td><button class='settings' onclick='changeSignatures(null)'>ADD</button></td></tr>";
     }else{
         settingsHtml += "<p class='settings'>LinkRippr is not searching for signatures in script elements.</p>";
         settingsHtml += "<table class='settings'><tr><th>NAME</th><th colspan='2'>PATTERN</th></tr>";
-        settingsHtml += "<tr><td><input type='text' placeholder='NEW SIGNATURE' id='newFunction'></td><td><input type='text' id='newPattern'></td><td><button class='settings' onclick='changeSignatures(null)'>ADD</button></td></tr>";
+        settingsHtml += "<tr><td><input type='text' placeholder='NEW JS SIGNATURE' id='newFunction'></td><td><input type='text' id='newPattern'></td><td><button class='settings' onclick='changeSignatures(null)'>ADD</button></td></tr>";
     }
     return settingsHtml;
 }
@@ -123,16 +122,21 @@ function buildCssSignaturesMenu(){
     settingsHtml += "<td align='center'><button class='settings' onclick='clearCssSignatures()'>CLEAR SIGNATURES</button></td></tr></table>";
     if(Object.keys(userSettings.cssSignatures).length > 0){
         settingsHtml += "<p class='settings'>LinkRippr is currently searching for the following signatures in style elements.</p>";
-        settingsHtml += "<table class='settings'><tr><th>SELECTOR</th><th colspan='2'>KEY/FUNCTION</th></tr>";
-        for(let selector in userSettings.cssSignatures){
-            settingsHtml += "<tr><td>" + selector + "</td><td>" + userSettings.cssSignatures[selector]["keys"].join(",") + "</td>";
+        settingsHtml += "<table class='settings'><tr><th>NAME</th><th>SELECTOR</th><th>ATTRIBUTE</th><th colspan='2'>VALUE</th></tr>";
+        for(let key in userSettings.cssSignatures){
+            settingsHtml += "<tr><td>" + key + "</td><td>" + userSettings.cssSignatures[key]['selector_user_view'] + "</td>";
+            settingsHtml += "<td>" + userSettings.cssSignatures[key]['attribute_user_view'] + "</td><td>" + userSettings.cssSignatures[key]['value_user_view'] + "</td>";
             settingsHtml += "<td><button id='" + key + "' class='settings' onclick='changeCssSignatures(this.id)'>DEL</button></td></tr>";
         }
-        settingsHtml += "<tr><td><input type='text' placeholder='NEW SELECTOR' id='newSelector'></td><td><input type='text' id='newKeys'></td><td><button class='settings' onclick='changeCssSignatures(null)'>ADD</button></td></tr>";
+        settingsHtml += "<tr><td><input type='text' placeholder='NEW CSS SIGNATURE' id='newName'></td><td><input type='text' id='newSelector'></td>";
+        settingsHtml += "<td><input type='text' id='newAttribute'></td><td><input type='text' id='newValue'></td>";
+        settingsHtml += "<td><button class='settings' onclick='changeCssSignatures(null)'>ADD</button></td></tr>";
     }else{
         settingsHtml += "<p class='settings'>LinkRippr is not searching for signatures in style elements.</p>";
-        settingsHtml += "<table class='settings'><tr><th>SELECTOR</th><th colspan='2'>KEY/FUNCTION</th></tr>";
-        settingsHtml += "<tr><td><input type='text' placeholder='NEW SELECTOR' id='newSelector'></td><td><input type='text' id='newKeys'></td><td><button class='settings' onclick='changeCssSignatures(null)'>ADD</button></td></tr>";
+        settingsHtml += "<table class='settings'><tr><th>NAME</th><th>SELECTOR</th><th>ATTRIBUTE</th><th colspan='2'>VALUE</th></tr>";
+        settingsHtml += "<tr><td><input type='text' placeholder='NEW CSS SIGNATURE' id='newName'></td><td><input type='text' id='newSelector'></td>";
+        settingsHtml += "<td><input type='text' id='newAttribute'></td><td><input type='text' id='newValue'></td>";
+        settingsHtml += "<td><button class='settings' onclick='changeCssSignatures(null)'>ADD</button></td></tr>";
     }
     return settingsHtml;
 }

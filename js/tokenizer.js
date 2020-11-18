@@ -116,7 +116,7 @@ class DOMTokenizer{
             if(this.buffer.substring(0, this.getTokenEnd(['</style'])).trim().length === 0){
                 this.current = new DOMToken(DOMTokenType.CLOSE_TAG_START, '</');
             }else{
-                this.current = new DOMToken(DOMTokenType.SCRIPT, this.buffer.substring(0, this.getTokenEnd(['</style'])).trim());
+                this.current = new DOMToken(DOMTokenType.STYLE, this.buffer.substring(0, this.getTokenEnd(['</style'])).trim());
             }
         }else if(firstChar === '<' && secondChar != null && secondChar === '/'){
             this.previous = this.current;

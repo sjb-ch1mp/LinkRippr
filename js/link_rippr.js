@@ -70,7 +70,7 @@ function ripLinks(){
                 let detectedSignatures = getDetectedSignatures(parser.scripts, 'detection');
                 for(let key in detectedSignatures){
                     let idx = 0;
-                    resultString += "\n\n| " + stylize("SIGNATURE DETECTED: " + key) + "\n|" + getDivider("=", 99) + "\n";
+                    resultString += "\n\n| " + stylize("JAVASCRIPT SIGNATURE: " + key) + "\n|" + getDivider("=", 99) + "\n";
                     for(let i in detectedSignatures[key]){
                         idx++;
                         let tmpStr = "| " + padNumber(idx) + " | " + stripNewLines(detectedSignatures[key][i]) + "\n";
@@ -166,6 +166,19 @@ function ripLinks(){
                 }
             }
 
+            if(areCssSignatureHits(parser.styleBlocks)){
+                let cssSignatureHits = getCssSignatureHits(parser.styleBlocks);
+                for(let name in cssSignatureHits){
+                    let idx = 0;
+                    resultString += "\n\n| " + stylize("CSS SIGNATURE: " + name) + "\n|" + getDivider("=", 99) + "\n";
+                    for(let i in cssSignatureHits[name]){
+                        idx++;
+                        let tmpStr = "| " + padNumber(idx) + " | " + cssSignatureHits[name][i]['selector'].toUpperCase() + " { " + cssSignatureHits[name][i]['attribute'].toLowerCase() + " : " + cssSignatureHits[name][i]['value'] + "; }\n";
+                        resultString += checkLength(tmpStr, 100);
+                    }
+                }
+            }
+
             if(parser.conditionalHtml.length > 0){
                 let types = ['hidden', 'revealed', 'unknown'];
                 for(let i=0; i<2; i++){
@@ -175,8 +188,9 @@ function ripLinks(){
                         for(let j=0; j<parser.conditionalHtml.length; j++){
                             if(parser.conditionalHtml[j]['type'] === types[i]){
                                 idx++;
-                                resultString += checkLength("| " + padNumber(idx) + " | [" + parser.conditionalHtml[j]['condition'] + "]", 100) + "\n";
-                                resultString += checkLength("| " + padNumber(idx) + " | " + stripNewLines(parser.conditionalHtml[j]['html']), 100);
+                                let tmpStr =
+                                resultString += checkLength("| " + padNumber(idx) + " | [" + parser.conditionalHtml[j]['condition'] + "]\n", 100);
+                                resultString += checkLength("| " + padNumber(idx) + " | " + stripNewLines(parser.conditionalHtml[j]['html']) + "\n", 100);
                                 resultString += "|" + getDivider("-", 99) + "\n";
                             }
                         }

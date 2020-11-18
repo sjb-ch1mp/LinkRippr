@@ -23,7 +23,7 @@ function changeExtractions(key){
 function changeSignatures(key){
     if(key!=null){
         userSettings.removeSignature(key);
-        showSettings('javscript');
+        showSettings('javascript');
     }else{
         let newFunction = document.getElementById("newFunction");
         let newPattern = document.getElementById("newPattern");
@@ -42,16 +42,34 @@ function changeSignatures(key){
     }
 }
 
-function resetCssSignatureDefaults(){
-    //FIXME
-}
-
-function clearCssSignatures(){
-    //FIXME
-}
-
-function changeCssSignatures(id){
-    FIXME
+function changeCssSignatures(key){
+    if(key!=null){
+        userSettings.removeCssSignature(key);
+        showSettings('css');
+    }else{
+        let name = document.getElementById('newName').value;
+        let selector = document.getElementById('newSelector').value;
+        let attribute = document.getElementById('newAttribute').value;
+        let val = document.getElementById('newValue').value;
+        try{
+            if(name === undefined || name.trim().length === 0){
+                throw "CSS signature name is required";
+            }
+            if(selector === undefined || selector.trim().length === 0){
+                selector = ".*";
+            }
+            if(attribute === undefined || attribute.trim().length === 0){
+                attribute = ".*";
+            }
+            if(val === undefined || val.trim().length === 0){
+                val = ".*";
+            }
+            userSettings.addCssSignature(name, selector, attribute, val);
+            showSettings('css');
+        }catch(err){
+            throwError(err);
+        }
+    }
 }
 
 function clearSignatures(){
@@ -64,6 +82,11 @@ function clearExtractions(){
     showSettings('html');
 }
 
+function clearCssSignatures(){
+    userSettings.cssSignatures = {};
+    showSettings('css');
+}
+
 function resetDomExtractionDefaults(){
     userSettings.extractions = getDefaultDomExtractions();
     showSettings('html');
@@ -72,6 +95,12 @@ function resetDomExtractionDefaults(){
 function resetScriptSignatureDefaults(){
     userSettings.signatures = getDefaultScriptSignatures();
     showSettings('javascript');
+}
+
+
+function resetCssSignatureDefaults(){
+    userSettings.cssSignatures = getDefaultCssSignatures();
+    showSettings('css');
 }
 
 function exportCurrentSettings(){
@@ -167,8 +196,13 @@ class UserSettings{
 
     addSignature(name, pattern){
         if(name in this.signatures){
-            throw "Name \"" + name + "\" is already being used to identify a signature.";
+            throw "Name \"" + name + "\" is already being used to identify a JavaScript signature.";
         }
+
+        if(this.signatureAlreadyExists('javascript', [pattern])){
+            throw "LinkRippr is already searching for this JavaScript signature.";
+        }
+
         this.signatures[name] = {
             "global":new RegExp(pattern, "g"),
             "sticky":new RegExp(pattern, "y"),
@@ -217,6 +251,53 @@ class UserSettings{
         }
     }
 
+    addCssSignature(name, selector, attribute, value){
+        //regex
+        if(name in this.cssSignatures){
+            throw "Name \"" + name + "\" is already being used to identify a CSS signature"
+        }
+
+        if(this.signatureAlreadyExists('css', [selector, attribute, value])){
+            throw "LinkRippr is already looking for this CSS signature.";
+        }
+
+        this.cssSignatures[name] = {
+            'selector':new RegExp(selector, 'g'),
+            'attribute':new RegExp(attribute, 'g'),
+            'value':new RegExp(value, 'g'),
+            'selector_user_view':selector,
+            'attribute_user_view':attribute,
+            'value_user_view':value
+        };
+    }
+
+    signatureAlreadyExists(type, signatures){
+        if(type === 'css'){
+            for(let key in this.cssSignatures){
+                if(this.cssSignatures[key]['selector_user_view'] === signatures[0] &&
+                this.cssSignatures[key]['attribute_user_view'] === signatures[1] &&
+                this.cssSignatures[key]['value_user_view'] === signatures[2]){
+                    return true;
+                }
+            }
+        }else if(type === 'javascript'){
+            for(let key in this.signatures){
+                if(this.signatures[key]['user_view'] === signatures[0]){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    removeCssSignature(selector){
+        if(this.cssSignatures == null || !(selector in this.cssSignatures)){
+            return;
+        }
+        if(selector in this.cssSignatures){
+            delete this.cssSignatures[selector];
+        }
+    }
     getOption(option){
         return this.options[option];
     }
@@ -275,7 +356,6 @@ class UserSettings{
                 }
             }else{
                 if(errChars.includes(attString.charAt(i))){
-                    console.log(attString.charAt(i))
                     buffer = "err";
                     break;
                 }
@@ -285,7 +365,6 @@ class UserSettings{
 
         //check for errors
         if(buffer !== ""){
-            console.log(buffer);
             throw "Incorrect syntax for nested extraction";
         }
 
@@ -295,83 +374,4 @@ class UserSettings{
         }
         return {"attributes":attributes, "hasNested":hasNested};
     }
-}
-
-function getDefaultDomExtractions(){
-    return {
-        "base":{"attributes":["href"],"hasNested":false},
-        "a":{"attributes":["href"],"hasNested":false},
-        "iframe":{"attributes":["href","data-src","src"],"hasNested":false},
-        "script":{"attributes":["src"],"hasNested":false},
-        "form":{"attributes":["method", "action","data-bind","[input:name,type]"],"hasNested":true},
-        "meta":{"attributes":["http-equiv","content"],"hasNested":false},
-        "div":{"attributes":["visibility","display"],"hasNested":false}
-    };
-}
-
-function getDefaultScriptSignatures(){
-    return {
-        "document.write":{
-            "global":new RegExp("document\\.write\\(.*\\)(;|\\s|\\n)", "g"),
-            "sticky":new RegExp("document\\.write\\(.*\\)(;|\\s|\\n)", "y"),
-            "user_view":"document\\.write\\(.*\\)(;|\\s|\\n)",
-            "default":true},
-        "eval":{
-            "global":new RegExp("eval\\(.*\\)(;|\\s|\\n)", "g"),
-            "sticky":new RegExp("eval\\(.*\\)(;|\\s|\\n)", "y"),
-            "user_view":"eval\\(.*\\)(;|\\s|\\n)",
-            "default":true},
-        "atob":{
-            "global":new RegExp("atob\\(.*\\)(;|\\s|\\n)", "g"),
-            "sticky":new RegExp("atob\\(.*\\)(;|\\s|\\n)", "y"),
-            "user_view":"atob\\(.*\\)(;|\\s|\\n)",
-            "default":true},
-        "unescape":{
-            "global":new RegExp("unescape\\(.*\\)(;|\\s|\\n)", "g"),
-            "sticky":new RegExp("unescape\\(.*\\)(;|\\s|\\n)", "y"),
-            "user_view":"unescape\\(.*\\)(;|\\s|\\n)",
-            "default":true},
-        "simple-url":{
-            "global":new RegExp('http(s)?:\\/\\/.*(;|\\s|")', "g"),
-            "sticky":new RegExp('http(s)?:\\/\\/.*(;|\\s|")', "y"),
-            "user_view":"http(s)?:\\/\\/.*(;|\\s|\")",
-            "default":true},
-        "ip-4":{
-            "global":new RegExp('[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}', "g"),
-            "sticky":new RegExp('[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}', "y"),
-            "user_view":'[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}',
-            "default":true},
-        "ajax-request":{
-            "global":new RegExp("\\$\\.ajax\\(\\{.*type:\\s?(\\'|\")(POST|GET)(\\'|\").*\\}\\)", "g"),
-            "sticky":new RegExp("\\$\\.ajax\\(\\{.*type:\\s?(\\'|\")(POST|GET)(\\'|\").*\\}\\)", "y"),
-            "user_view":"\\$\\.ajax\\(\\{.*type:\\s?(\\'|\")(POST|GET)(\\'|\").*\\}\\)",
-            "default":true},
-        "xml-http-request":{
-            "global":new RegExp("new XMLHttpRequest\\(\\)", "g"),
-            "sticky":new RegExp("new XMLHttpRequest\\(\\)", "y"),
-            "user_view":"new XMLHttpRequest\\(\\)",
-            "default":true}
-    };
-}
-
-function getDefaultDeobfuscations(){
-    return {
-        'document-write-unescape':{
-            'global':new RegExp('document\\.write\\(unescape\\(("|\').*("|\')\\)\\)', 'g'),
-            'sticky':new RegExp('document\\.write\\(unescape\\(("|\').*("|\')\\)\\)', 'y'),
-            'user_view':'document\\.write\\(unescape\\(("|\').*("|\')\\)\\)',
-            'unwrap':new RegExp('(^document\\.write\\(unescape\\(("|\')|("|\')\\)\\)$)','g')
-        },
-        'document-write':{
-            'global':new RegExp('document\\.write\\(("|\').*("|\')\\)', 'g'),
-            'sticky':new RegExp('document\\.write\\(("|\').*("|\')\\)', 'y'),
-            'user_view':'document\\.write\\("|\').*("|\'))',
-            'unwrap':new RegExp('(^document\\.write\\(("|\')|("|\')\\)$)','g')
-        }
-    };
-}
-
-function getDefaultCssSignatures(){
-    //FIXME
-    return {};
 }
