@@ -33,9 +33,9 @@ function getDefaultScriptSignatures(){
             "user_view":"unescape\\(.*\\)(;|\\s|\\n)",
             "default":true},
         "simple-url":{
-            "global":new RegExp('http(s)?:\\/\\/[a-zA-Z\\-]+\\..*(;|\\s|")', "g"),
-            "sticky":new RegExp('http(s)?:\\/\\/[a-zA-Z\\-]+\\..*(;|\\s|")', "y"),
-            "user_view":"http(s)?:\\/\\/[a-zA-Z\\-]+\\..*(;|\\s|\")",
+            "global":new RegExp('http(s)?:\\/\\/[a-zA-Z\\-]+\\..*(;|\\s|"|\')', "g"),
+            "sticky":new RegExp('http(s)?:\\/\\/[a-zA-Z\\-]+\\..*(;|\\s|"|\')', "y"),
+            "user_view":"http(s)?:\\/\\/[a-zA-Z\\-]+\\..*(;|\\s|\"|')",
             "default":true},
         "ip-4":{
             "global":new RegExp('[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}', "g"),
@@ -74,13 +74,13 @@ function getDefaultDeobfuscations(){
 
 function getDefaultCssSignatures(){
     return {
-        'url-function':{
+        'external-resource':{
             'selector':new RegExp('.*', 'g'),
             'attribute':new RegExp('.*', 'g'),
-            'value':new RegExp('url\\(.*\\)', 'g'),
+            'value':new RegExp('url\\([\'"]http.*\\)', 'g'),
             'selector_user_view':'.*',
             'attribute_user_view':'.*',
-            'value_user_view':'url\\(.*\\)'
+            'value_user_view':'url\\([\'"]http.*\\)'
         }
     };
 }

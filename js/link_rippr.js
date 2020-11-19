@@ -173,7 +173,7 @@ function ripLinks(){
                     resultString += "\n\n| " + stylize("CSS SIGNATURE: " + name) + "\n|" + getDivider("=", 99) + "\n";
                     for(let i in cssSignatureHits[name]){
                         idx++;
-                        let tmpStr = "| " + padNumber(idx) + " | " + cssSignatureHits[name][i]['selector'].toUpperCase() + " { " + cssSignatureHits[name][i]['attribute'].toLowerCase() + " : " + cssSignatureHits[name][i]['value'] + "; }\n";
+                        let tmpStr = "| " + padNumber(idx) + " | " + ((cssSignatureHits[name][i]['conditional'])?"*CONDITIONAL* ":"") + cssSignatureHits[name][i]['selector'] + " { " + cssSignatureHits[name][i]['attribute'] + " : " + cssSignatureHits[name][i]['value'] + "; }\n";
                         resultString += checkLength(tmpStr, 100);
                     }
                 }
