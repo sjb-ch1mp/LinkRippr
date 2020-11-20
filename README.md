@@ -5,9 +5,9 @@
 Samuel Brookes ([@sjb-ch1mp](https://github.com/sjb-ch1mp))
 
 # Summary
-LinkRippr is a static analysis tool for HTML files. You can search an HTML file for artifacts of interest by specifying element tags and attribute names, or RegExp to search for signatures in `<script>` and `<style>` blocks. LinkRippr will then output a simple summary of any artifacts of interest, as identified by you, that were detected.
+LinkRippr is a static analysis tool for HTML files. You can search a HTML file for artifacts of interest by specifying element tags and attribute names, or RegExp to search for signatures in `<script>` and `<style>` blocks. LinkRippr will then output a simple summary of any artifacts of interest, as identified by you, that were detected in the document.
 
-The original purpose of LinkRippr was to be used by cyber security analysts during investigations that involve HTML files, such as credential harvesting websites or phishing email attachments. Due to its flexibility, however, there likely exists use cases that I have not envisioned.
+The original purpose of LinkRippr was to be used by cyber security analysts during investigations that involve HTML files, such as credential harvesting websites or phishing email attachments. Due to it's flexibility, however, there likely exists use cases that I have not envisioned.
 
 While LinkRippr is limited in many respects when compared with more robust dynamic analysis solutions, it can serve as a first step in the analysis process by quickly identifying those files that require closer examination due to the presence of suspicious artifacts.  As the analyst becomes aware of new methods used by malicious actors, they can create signatures that detect them.
 
