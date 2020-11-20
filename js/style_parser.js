@@ -104,7 +104,9 @@ class StyleBlock{
                 }
             }
             let uncommentedRuleSet = stripNewLines(((containsComments)?cleanRuleSetAry.join(" "):rawRuleSet)).trim();
-            ruleSets.push({'ruleSet':uncommentedRuleSet,'nested':rawRuleSets[i]['nested']});
+            if(uncommentedRuleSet.length > 0){
+                ruleSets.push({'ruleSet':uncommentedRuleSet,'nested':rawRuleSets[i]['nested']});
+            }
         }
 
         return ruleSets;
@@ -116,6 +118,7 @@ class StyleBlock{
         for(let i in ruleSets){
             let container = [];
             ruleSetIdx++;
+            console.log(ruleSets[i]['ruleSet']); //FIXME:
             if(ruleSets[i]['nested']){
                 if(ruleSets[i]['ruleSet'].startsWith("@")){ //FIXME : Currently ignoring any nested rulesets that aren't conditional
                     container = this.unwrapDeclarations(ruleSets[i]['ruleSet']);
