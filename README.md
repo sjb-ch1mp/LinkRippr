@@ -1,5 +1,5 @@
 [![LinkRippr](https://github.com/sjb-ch1mp/LinkRippr/blob/master/img/banner.png)](https://github.com/sjb-ch1mp/LinkRippr/blob/master/README.md)
-> LinkRippr: `CTRL+F` on steroids.
+> `CTRL+F` on steroids.
  
 [![Creative Commons License](https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png)](http://creativecommons.org/licenses/by-nc-sa/4.0/)
 
@@ -20,6 +20,8 @@ LinkRippr does not require any installation. Simply download the ZIP archive fro
 If LinkRippr encounters an error, the error message will be announced in the **chatter box**, and the stack trace will be dumped to the summary panel. If you encounter any bugs or errors while using LinkRippr, please feel free to add them as an issue in the [LinkRippr repository](https://github.com/sjb-ch1mp/LinkRippr/issues). 
 
 My preference is that you use the error message as the issue title and paste the stack trace in the comment section. It would also be helpful if you could add the URL to the website that was being analyzed when the error occurred, if possible.
+
+Alternatively, if you have come across any common tactics or methods used by phishers that you think would make a good addition to the default detections, please feel free to submit your idea/s as an issue as well.
 
 # User Guide
 ### Submitting an HTML file
@@ -78,9 +80,25 @@ This is **incorrect**, but the same end goal can be achieved using the following
 |----|----|
 |div|id,name|
 
-> This may change in the near term (see [Issue #26](https://github.com/sjb-ch1mp/LinkRippr/issues/26))
+##### Wildcards
+LinkRippr supports wildcards for attributes, denoted by an asterisk (`*`). This will extract the values of all attributes of the given element, or nested element.
+
+|Tag|Attribute|`result`|
+|---|---|---|
+|div|*|`This will extract the values of all attributes in every <div> element`|
+|div|[a:*]|`This will extract the values of all attributes of every <a> element that appears within a <div> element`|
+
+Wildcards are currently not supported for tags, but this may change in the near term (see [Issue #26](https://github.com/sjb-ch1mp/LinkRippr/issues/26)). 
 
 ### Defaults
+LinkRippr comes with some default HTML detections defined in the _HTML_ panel. These are just a number of common tactics that I have come across during phishing investigations that are helpful in detecting malicious activity.
+
+|Tag|Attribute|Justification|
+|---|---|---|
+|base|href|The `<base>` element specifies the base URL to use for all relative URLs in a document (see [developer.mozilla.org](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base)). This can be used to hide the true domain of URLs in a HTML file. For example, a HTML file might look like: `<html><base href="http://evil.com/"><!--...lots of other HTML rubbish...--><p>Please <a href="outlook.live.com/owa/">sign into Outlook Live</a> to confirm your identity</p></html>`. If an analyst was to eyeball the href attribute in the `<a>` element of that HTML file, they might be forgiven for thinking that the link leads to a legitimate domain, when in fact the true URL resolves to hxxp://evil.com/outlook.live.com/owa/.|
+|a|href|This simply pulls out the URL of every hyperlink in the HTML file. While this can be extremely noisy for legitimate websites due to the high volume of `<a>` elements, there are some viable use cases. For example, it is easier to spot unusual URLs when they are presented in a single list. Additionally, I have come across cases of scam websites masquerading as news outlets that have a very large DOM with what appear to be hundreds of hyperlinks. When run through LinkRippr, however, it becomes apparent that every hyperlink is pointing at a single URL.|
+|iframe|href,data-src,src|The `<iframe>` element allows content from another source to be embedded within a website (see [developer.mozilla.org](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/iframe)). Actors can be quite creative with their use of `<iframe>` elements, so extracting the URL for the source of the iframe content can be useful in determining where to look next as part of an investigation.|
+
 ### Examples
 
 ## JavaScript Detections
