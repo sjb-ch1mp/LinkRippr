@@ -15,7 +15,7 @@ While LinkRippr is limited in many respects when compared with more robust dynam
 LinkRippr does not require any installation. Simply download the ZIP archive from the [main repository page](https://github.com/sjb-ch1mp/LinkRippr) and extract it onto your local workstation. LinkRippr can then be launched by opening the LinkRippr.html file in a web browser.
 
 # User Guide
-### Submitting a HTML file
+### Submitting an HTML file
 HTML files can be submitted to LinkRippr by uploading the file in the _SETTINGS_ panel, under `< Analyze />`, or can be dragged and dropped into the browser. When submitting a HTML document using the drag-and-drop method, however, you must ensure that LinkRippr has detected the file prior to dropping it so that it doesn't render. LinkRippr will inform you that it is ready to receive the sample by announcing in the top panel (the **chatter box**) the following: 
 > File detected. Bombs away!
 
