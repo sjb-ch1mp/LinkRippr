@@ -258,21 +258,6 @@ For example, in the same `<script>` element, the following JavaScript signature.
 ```
 This is because the double quote character at the end of the JavaScript signature ensures that the string of **least length** that satisfies the regex is the entire URL.
 
-##### Terminating New Line Characters
-Statements in JavaScript sometimes end with a newline character. As such, it is natural that you might wish to terminate a JavaScript signature with a `\n` character. In LinkRippr, however, this will not work as expected because part of the processing of `<script>` elements involves breaking the JavaScript into statement, which in turn clips the redundant new line characters from the end of each statement.
-
-For example, if you were to search the `<script>` element above with the following JavaScript signature... 
-
-|Name|Signature|
-|---|---|
-|urls|http(s)?:\\/\\/.*\n|
-
-...you would be disappointed with the results:
-```
-NOTHING FOUND
-```
-This is because, while the line in the `<script>` element indeed terminates with a `\n` character, after being processed into a statement by LinkRippr, the redundant new line character has been trimmed away. You must therefore think of the content of `<script>` elements as a series of statements.
-
 ### Defaults
 LinkRippr comes with some default JavaScript signatures defined in the _JAVASCRIPT_ panel. These are just a number of common tactics that I have come across during phishing investigations that are helpful in detecting malicious activity.
 
