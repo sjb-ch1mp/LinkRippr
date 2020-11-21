@@ -5,8 +5,7 @@ function getDefaultDomExtractions(){
         "iframe":{"attributes":["href","data-src","src"],"hasNested":false},
         "script":{"attributes":["src"],"hasNested":false},
         "form":{"attributes":["method", "action","data-bind","[input:name,type]"],"hasNested":true},
-        "meta":{"attributes":["http-equiv"],"hasNested":false},
-        "div":{"attributes":["visibility","display"],"hasNested":false}
+        "meta":{"attributes":["http-equiv"],"hasNested":false}
     };
 }
 
