@@ -31,7 +31,7 @@ function getDefaultScriptSignatures(){
             "sticky":new RegExp("unescape\\(.*\\)(;|\\s|\\n)", "y"),
             "user_view":"unescape\\(.*\\)(;|\\s|\\n)",
             "default":true},
-        "simple-url":{
+        "url":{
             "global":new RegExp('http(s)?:\\/\\/[a-zA-Z\\-]+\\..*(;|\\s|"|\')', "g"),
             "sticky":new RegExp('http(s)?:\\/\\/[a-zA-Z\\-]+\\..*(;|\\s|"|\')', "y"),
             "user_view":"http(s)?:\\/\\/[a-zA-Z\\-]+\\..*(;|\\s|\"|')",
