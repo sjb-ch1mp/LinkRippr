@@ -7,25 +7,23 @@
 Samuel Brookes ([@sjb-ch1mp](https://github.com/sjb-ch1mp))
 
 ### Contents
-* **[SUMMARY](#summary)** 
-     * [Installation](#installation)
-     * [Bug Reporting](#bug-reporting)
-* **USER GUIDE**
-    * Submitting an HTML File
-    * User Options
-    * Saving and Loading Settings
-    * **HTML SIGNATURES**
-        * Syntax
-        * Defaults
-        * Examples
-    * **JAVASCRIPT SIGNATURES**
-        * Syntax
-        * Defaults
-        * Examples
-    * **CSS SIGNATURES**
-        * Syntax
-        * Defaults
-        * Examples
+**[SUMMARY](#summary)** 
+> _[Installation](#installation)_ > _[Bug Reporting](#bug-reporting)_
+
+**[USER GUIDE](#user-guide)** 
+> _[Submitting an HTML file](#submitting-an-html-file)_ > _[User options](#user-options)_ > _[Saving and loading settings](#saving-and-loading-settings)_
+>
+> **[HTML SIGNATURES](#html-signatures)**
+> 
+> > _[Syntax](#syntax)_ > _[Defaults](#defaults)_ > _[Examples](#examples)_ 
+>
+> **[JAVASCRIPT SIGNATURES](#javascript-signatures)**
+> 
+> > _[Syntax](#syntax-1)_ > _[Defaults](#defaults-1)_ > _[Examples](#examples-1)_
+>
+> **[CSS SIGNATURES](#css-signatures)**
+> 
+> > _[Syntax](#syntax-2)_ > _[Defaults](#defaults-2)_ > _[Examples](#examples-2)_
 
 # Summary
 LinkRippr is a static analysis tool for HTML files. It was made for cyber security analysts to use during investigations that involve HTML files, such as credential harvesting websites or phishing email attachments. 
