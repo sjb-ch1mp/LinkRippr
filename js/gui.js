@@ -5,6 +5,14 @@ function padContent(){
     let content = document.getElementById("content");
     let totalHeight = document.documentElement.scrollHeight;
     let redoButton = document.getElementById('button-redo');
+
+    //Below code thanks to: https://stackoverflow.com/questions/4210798/how-to-scroll-to-top-of-page-with-javascript-jquery
+    if ('scrollRestoration' in history) {
+        history.scrollRestoration = 'manual';
+    }
+    window.scrollTo(0,0);
+    //Above code thanks to: https://stackoverflow.com/questions/4210798/how-to-scroll-to-top-of-page-with-javascript-jquery
+
     if(settingsVisible || document.getElementById("results") == null || document.getElementById("results").innerText == ""){
         redoButton.setAttribute("style","display: none;");
         content.setAttribute("style", "padding-left: 5%; padding-right: 5%; padding-top: " + (headerHeight*1.05) + "px; padding-bottom: " + (footerHeight*1.15) + "px; height: " + totalHeight + "px;");

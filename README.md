@@ -1,4 +1,4 @@
-[![LinkRippr](https://github.com/sjb-ch1mp/LinkRippr/blob/master/img/banner.png)](https://github.com/sjb-ch1mp/LinkRippr/blob/master/README.md)
+[![LinkRippr](https://github.com/sjb-ch1mp/LinkRippr/blob/readme/img/readme-banner.png)](https://github.com/sjb-ch1mp/LinkRippr/blob/master/README.md)
 > **`CTRL+F` on steroids.**
  
 [![Creative Commons License](https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png)](http://creativecommons.org/licenses/by-nc-sa/4.0/)
@@ -38,7 +38,7 @@ While LinkRippr is limited in many respects when compared with more robust dynam
 LinkRippr does not require any installation. Simply download the ZIP archive from the [main repository page](https://github.com/sjb-ch1mp/LinkRippr) and extract it onto your local workstation. LinkRippr can then be launched by opening the `LinkRippr.html` file in a web browser.
 
 ### Bug Reporting
-If LinkRippr encounters an error, the error message will be announced in the **chatter box**, and the stack trace will be dumped to the summary panel. If you encounter any bugs or errors while using LinkRippr, please feel free to add them as an issue in the [LinkRippr repository](https://github.com/sjb-ch1mp/LinkRippr/issues). 
+If LinkRippr encounters an error, the error message will be announced in the top banner (the **chatter box**), and the stack trace will be dumped to the summary panel. If you encounter any bugs or errors while using LinkRippr, please feel free to add them as an issue in the [LinkRippr repository](https://github.com/sjb-ch1mp/LinkRippr/issues). 
 
 My preference is that you use the error message as the issue title and paste the stack trace in the comment section. It would also be helpful if you could add the URL to the website that was being analyzed when the error occurred, if possible.
 
@@ -46,7 +46,7 @@ Alternatively, if you have come across any common tactics or methods used by phi
 
 # User Guide
 ### Submitting an HTML file
-HTML files can be submitted to LinkRippr by uploading the file in the _SETTINGS_ panel, under `< Analyze />`, or can be dragged and dropped into the browser. When submitting an HTML document using the drag-and-drop method you must ensure that LinkRippr has detected the file prior to dropping it so that it doesn't render. LinkRippr will inform you that it is ready to receive the sample by announcing in the top panel (the **chatter box**) the following:
+HTML files can be submitted to LinkRippr by uploading the file in the _SETTINGS_ panel, under `< Analyze />`, or can be dragged and dropped into the browser. When submitting an HTML document using the drag-and-drop method you must ensure that LinkRippr has detected the file prior to dropping it so that it doesn't render. LinkRippr will inform you that it is ready to receive the sample by announcing in the **chatter box** the following:
  
 > File detected. Bombs away!
 
@@ -107,7 +107,7 @@ The Element column must be a unique value, for example, the following definition
 |div|id|
 |div|name|
 
-This is **incorrect**, but the same end goal can be achieved using any of the following definitions:
+This is **incorrect**, but the same end goal can be achieved using the following definition:
 
 |Element|Attributes|
 |----|----|
@@ -263,8 +263,8 @@ LinkRippr comes with some default JavaScript signatures defined in the _JAVASCRI
 
 |Name|Signature|Justification|
 |---|---|---|
-|document.write|document\\.write\\(.*\\)(;&verbar;\\s&verbar;\\n)||
-|eval|eval\\(.*\\)(;&verbar;\\s&verbar;\\n)||
+|document.write|document\\.write\\(.*\\)(;&verbar;\\s&verbar;\\n)|Often, malicious HTML files will contain content that is obfuscated in `<script>` using complex algorithms. This enables the content to avoid detection by static analysis and the content of the file will only be revealed once it is rendered by a browser. Fortunately, in order to render, the obfuscated content **must** be written to the document at some point. While there are often legitimate uses for the document.write() method, it is useful to detect upon because its presence may suggest that the file has something to hide.|
+|eval|eval\\(.*\\)(;&verbar;\\s&verbar;\\n)|The eval() method |
 |atob|atob\\(.*\\)(;&verbar;\\s&verbar;\\n)||
 |unescape|unescape\\(.*\\)(;&verbar;\\s&verbar;\\n)||
 |url|http(s)?:\\/\\/[a-zA-Z\\-]+\\..*(;&verbar;\\s&verbar;"&verbar;')||
