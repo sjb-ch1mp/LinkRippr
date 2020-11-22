@@ -159,33 +159,47 @@ class Statement{
         for(let key in signatures){
             let global = signatures[key]["global"];
             if(global.test(this._raw)){
+                global.lastIndex = 0;
                 //signature exists in the statement
-                let sticky = signatures[key]["sticky"];
-                let stickyIdx = -1;
-                while(stickyIdx < this._raw.length){
-                    //search the entire statement
-                    stickyIdx++;
-                    sticky.lastIndex = stickyIdx;
-                    if(sticky.test(this._raw)){
-                        //this is the first character of a match
-                        let breakIdx = stickyIdx;
-                        while(breakIdx < this._raw.length){
-                            breakIdx++;
-                            if(global.test(this._raw.substring(stickyIdx, breakIdx))){
-                                //this is the last character of a match
-                                if(attemptDeobfuscation){
-                                    let tag = attemptToDeobfuscate(key, this._raw.substring(stickyIdx, breakIdx), signatures[key]["unwrap"]);
-                                    this.deobfuscationHits.push({
-                                        "signature":key,
-                                        "tag":(tag !== undefined)?tag:"[FAIL]" + this._raw.substring(stickyIdx, breakIdx)
-                                    });
-                                }else{
-                                    this.signatureHits.push({
-                                        "signature":key,
-                                        "tag":this._raw.substring(stickyIdx, breakIdx)
-                                    });
+                if(this._raw.length <= 100 && !attemptDeobfuscation){
+                    if(!(this.alreadyExists(key, this._raw))){
+                        this.signatureHits.push({
+                            "signature":key,
+                            "tag":this._raw
+                        });
+                    }
+                }else{
+                    let sticky = signatures[key]["sticky"];
+                    let stickyIdx = -1;
+                    while(stickyIdx < this._raw.length){
+                        //search the entire statement
+                        stickyIdx++;
+                        sticky.lastIndex = stickyIdx;
+                        if(sticky.test(this._raw)){
+                            //this is the first character of a match
+                            let breakIdx = stickyIdx;
+                            while(breakIdx < this._raw.length){
+                                breakIdx++;
+                                if(global.test(this._raw.substring(stickyIdx, breakIdx))){
+                                    global.lastIndex = 0;
+                                    //this is the last character of a match
+                                    if(attemptDeobfuscation){
+                                        let tag = attemptToDeobfuscate(key, this._raw.substring(stickyIdx, breakIdx), signatures[key]["unwrap"]);
+                                        this.deobfuscationHits.push({
+                                            "signature":key,
+                                            "tag":(tag !== undefined)?tag:"[FAIL]" + this._raw.substring(stickyIdx, breakIdx)
+                                        });
+                                    }else{
+                                        let tag = this._raw.substring(stickyIdx, breakIdx);
+                                        if(!(this.alreadyExists(key, tag))){
+                                            this.signatureHits.push({
+                                                "signature":key,
+                                                "tag":this._raw.substring(stickyIdx, breakIdx)
+                                            });
+                                        }
+                                    }
+                                    break;
                                 }
-                                break;
                             }
                         }
                     }
@@ -193,6 +207,16 @@ class Statement{
             }
         }
     }
+
+    alreadyExists(key, tag){
+        for(let i in this.signatureHits){
+            if(this.signatureHits[i]["signature"] === key && this.signatureHits[i]["tag"].includes(tag)){
+                return true;
+            }
+        }
+        return false;
+    }
+
 }
 
 function areSignatureHits(scripts, type){
