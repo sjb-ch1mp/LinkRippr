@@ -118,7 +118,6 @@ class StyleBlock{
         for(let i in ruleSets){
             let container = [];
             ruleSetIdx++;
-            console.log(ruleSets[i]['ruleSet']); //FIXME:
             if(ruleSets[i]['nested']){
                 if(ruleSets[i]['ruleSet'].startsWith("@")){ //FIXME : Currently ignoring any nested rulesets that aren't conditional
                     container = this.unwrapDeclarations(ruleSets[i]['ruleSet']);

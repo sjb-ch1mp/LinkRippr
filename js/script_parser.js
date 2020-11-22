@@ -159,7 +159,6 @@ class Statement{
         for(let key in signatures){
             let global = signatures[key]["global"];
             if(global.test(this._raw)){
-                global.lastIndex = 0;
                 //signature exists in the statement
                 if(this._raw.length <= 100 && !attemptDeobfuscation){
                     if(!(this.alreadyExists(key, this._raw))){
