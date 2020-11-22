@@ -396,7 +396,7 @@ The results would then look something like:
 Any given name of a CSS signature must be unique. Additionally, any given CSS signature (i.e. Selector, Property and Value regex combination) must be unique as well.
 
 ##### Conditional Rules Not Searchable
-[Conditional Rules](https://www.w3.org/TR/css3-conditional/) such as media queries (`@media`) are not searchable. LinkRippr will simply detect the presence of a conditional rule, 'unwrap' all rule sets from within it and prepend it with the applicable condition.
+[Conditional Rules](https://www.w3.org/TR/css3-conditional/) such as media queries (`@media`) are not searchable. LinkRippr will simply detect the presence of a conditional rule, 'unwrap' all rule sets from within it and prepend them with the applicable condition.
 
 ##### Automatic Wild Cards
 If you leave a field blank when creating a new CSS signature (except the name field, of course) - all other fields will be automatically filled in with the regex value `.*`.
