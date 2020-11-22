@@ -172,8 +172,11 @@ function ripLinks(){
                     let idx = 0;
                     resultString += "\n\n| " + stylize("CSS SIGNATURE: " + name) + "\n|" + getDivider("=", 99) + "\n";
                     for(let i in cssSignatureHits[name]){
+                        let condition = cssSignatureHits[name][i]['condition'];
                         idx++;
-                        let tmpStr = "| " + padNumber(idx) + " | " + ((cssSignatureHits[name][i]['conditional'])?"*CONDITIONAL* ":"") + cssSignatureHits[name][i]['selector'] + " { " + cssSignatureHits[name][i]['attribute'] + " : " + cssSignatureHits[name][i]['value'] + "; }\n";
+                        let tmpStr = "| " + padNumber(idx) + " | " + ((condition !== null)? condition + " { ":"");
+                        tmpStr += cssSignatureHits[name][i]['selector'] + " { " + cssSignatureHits[name][i]['attribute'];
+                        tmpStr += " : " + cssSignatureHits[name][i]['value'] + "; }" + ((condition !== null)? " }\n" : "\n");
                         resultString += checkLength(tmpStr, 100);
                     }
                 }

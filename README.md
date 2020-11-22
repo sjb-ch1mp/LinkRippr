@@ -232,6 +232,9 @@ The JavaScript artifacts that LinkRippr is searching for can be found in the _JA
 LinkRippr uses regex to define Javascript signatures. If you are unfamiliar with regex, there are many free resources available on the internet to learn (here's a good one to get you started: [RegexOne](https://regexone.com/)). Each JavaScript signature must have a unique identifier.  
 
 #### Hints and Gotchas
+##### Signature and Name Uniqueness
+Any given JavaScript signature name must be unique. Additionally, any given JavaScript signature (i.e. the Signature regex) must be unique as well.
+
 ##### Signature Terminators
 When LinkRippr detects a JavaScript signature in a `<script>` element, it will extract the portion of the script block in one of the following two ways: 
 
@@ -355,14 +358,119 @@ LinkRippr will extract the contents of all `<style>` elements in an HTML file, b
 
 The CSS artifacts that LinkRippr is searching for can be found in the _CSS_ panel, under `< CSS Signatures />`. If you accidentally delete a CSS signature, you can click the 'RESET DEFAULTS' button to restore the CSS signatures to the default list. If you do not want LinkRippr to include any detections of CSS signatures in the summary, you can click the 'CLEAR EXTRACTIONS' button to clear the list. 
 ### Syntax
-CSS signatures are defined by the three components that make up CSS rule sets: **SELECTOR**, **PROPERTY**, and **VALUE**. Each component of the CSS signature gets its own regex, and each component of the CSS signature must match each component of the CSS rule set in order to be extracted. That is to say, that the regex in the **SELECTOR** field must match the selector in the CSS rule set, the regex in the **PROPERTY** field must match the property in the CSS rule set and the regex in the **VALUE** field must match the value in the rule set. Only then will the rule set be included in the summary. 
+CSS signatures are defined by the three components that make up CSS rule sets: **SELECTOR**, **PROPERTY**, and **VALUE**, i.e. `selector{property:value;}` Each component of the CSS signature gets its own regex, and each component of the CSS signature must match each component of the CSS rule set in order to be extracted. That is to say, that the regex in the **SELECTOR** field must match the `selector` in the CSS rule set, that in the  **PROPERTY** field must match the `property` in the CSS rule set, and that in the **VALUE** field must match the `value` in the rule set. Only then will the rule set be included in the summary. 
+
+For example, if you were to search the following `<style>` element...
+
+```
+<style>
+...Lots of CSS rubbish...
+.sneaky{
+	src:url('https://totally-legitimate-server.cc/nothing-to-see-here.png')
+}
+...Lots more CSS rubbish...
+</style>
+```
+
+...with the following CSS Signature...
+
+|Name|Selector|Property|Value|
+|---|---|---|---|
+|url-functions|\\.dodgy|.\*|url\\(.*\\)|
+
+...LinkRippr would not find anything. If you are interested in any rule set that is utilising the url() function, you should put 'anything' regex in the Selector and Property fields, e.g.
+
+|Name|Selector|Property|Value|
+|---|---|---|---|
+|url-functions|.\*|.\*|url\\(.*\\)|
+
+The results would then look something like: 
+```
+| < CSS SIGNATURE: url-function />
+|====================================================================================================
+| 001 | .sneaky { src : url('https://totally-legitimate-server.cc/nothing-to-see-here.png'); }
+```
 
 #### Hints and Gotchas
-##### Conditional Rules Not Yet Searchable
-[Conditional Rules](https://www.w3.org/TR/css3-conditional/) such as media queries (`@media`) are not yet searchable. LinkRippr will detect the presence of nested rule sets and 'unwrap' them.
+##### Signature and Name Uniqueness
+Any given name of a CSS signature must be unique. Additionally, any given CSS signature (i.e. Selector, Property and Value regex combination) must be unique as well.
+
+##### Conditional Rules Not Searchable
+[Conditional Rules](https://www.w3.org/TR/css3-conditional/) such as media queries (`@media`) are not searchable. LinkRippr will simply detect the presence of a conditional rule, 'unwrap' all rule sets from within it and prepend it with the applicable condition.
+
+##### Automatic Wild Cards
+If you leave a field blank when creating a new CSS signature (except the name field, of course) - all other fields will be automatically filled in with the regex value `.*`.
 
 ### Defaults
-### Examples
+I have not come across any malicious uses of `<style>` elements myself, but I have heard of very clever uses of CSS for malicious purposes (see this [Security Boulevard article](https://securityboulevard.com/2020/11/css-js-steganography-in-fake-flash-player-update-malware/)). Nonetheless, I figured, what-the-hell, better to have a little extra capability in case the threat landscape changes. As such, LinkRippr only has a single default CSS signature.
 
+|Name|Selector|Property|Value|Justification|
+|---|---|---|---|---|
+|external-resource|.\*|.\*|url\\(\['"]http.\*\\)|I don't really have a strong justification for this one, except to say that I'd like to be informed of all the sources of data being used to render a HTML file in browser.|
+
+### Examples
+The following are some examples of the output generated by CSS signatures. I will be using the HTML document located at the [W3 - Learn HTML](https://www.w3schools.com/html/default.asp) page to generate CSS detections.
+
+##### Example 1: Find all uses of CSS functions
+
+**CSS Signature**
+|Name|Selector|Property|Value|
+|---|---|---|---|
+|all-functions|.\*|.\*|\[a-zA-Z]+\\(.*\\)|
+
+**Output**
+```
+| < CSS SIGNATURE: all-functions />
+|====================================================================================================
+| 001 | @keyframes example { 0% { transform : rotate(0deg); } }
+| 002 | @keyframes example { 100% { transform : rotate(360deg); } }
+| 003 | @keyframes tutpoint { 1% { background-color : rgba(76, 175, 80, 1); } }
+| 004 | @keyframes tutpoint { 29% { background-color : rgba(76, 175, 80, 1); } }
+| 005 | @keyframes quizpoint { 1% { background-color : rgba(44, 156, 202, 1); } }
+| 006 | @keyframes quizpoint { 29% { background-color : rgba(44, 156, 202, 1); } }
+| 007 | .w3-example { box-shadow : 0 2px 4px 0 rgba(0,0,0,0.16),0 2px 10px 0 rgba(0,0,0,0.12)!imp...
+| 008 | .w3-example a:focus,.nextprev a:focus { box-shadow : 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px ...
+| 009 | @media (max-width:992px) { #sidenav { box-shadow : 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px ...
+| 010 | @font-face { src : url('../lib/fonts/fontawesome.eot?14663396#iefix') format('embedded-op...
+| 011 | .fa { transform : translate(0, 0); }
+| 012 | .darktheme .w3-example.w3-light-grey { background-color : rgb(40,44,52)!important; }
+| 013 | a.btnplayit:hover { box-shadow : 0 4px 8px 0 rgba(0,0,0,0.2); }
+| 014 | a.btnsmall:hover { box-shadow : 0 4px 8px 0 rgba(0,0,0,0.2); }
+| 015 | .darktheme .w3-code { background-color : rgb(40,44,52); }
+| 016 | .darktheme .w3-code { border-left-color : rgb(40,44,52); }
+| 017 | .darktheme .w3-codeline { background-color : rgb(40,44,52); }
+| 018 | .darktheme .w3-codeline { border-left-color : rgb(40,44,52); }
+| 019 | .darktheme .w3-example pre { background-color : rgb(40,44,52)!important; }
+| 020 | .darktheme .w3-example pre { border-left-color : rgb(40,44,52); }
+```
+
+##### Example 1: Find all !important property values in selectors that contain `w3`
+
+**CSS Signature**
+|Name|Selector|Property|Value|
+|---|---|---|---|
+|important-w3-values|w3|.\*|!important|
+
+**Output**
+```
+| < CSS SIGNATURE: important-w3-values />
+|====================================================================================================
+| 001 | .topnav .w3-bar a:hover,.topnav .w3-bar a:focus { background-color : #000000 !important; }
+| 002 | .topnav .w3-bar a:hover,.topnav .w3-bar a:focus { color : #ffffff !important; }
+| 003 | .w3-example { box-shadow : 0 2px 4px 0 rgba(0,0,0,0.16),0 2px 10px 0 rgba(0,0,0,0.12)!imp...
+| 004 | .w3-theme { color : #fff !important; }
+| 005 | .w3-theme { background-color : #4CAF50 !important; }
+| 006 | .w3-theme-border { border-color : #4CAF50 !important; }
+| 007 | .darktheme .w3-example.w3-light-grey { background-color : rgb(40,44,52)!important; }
+| 008 | .darktheme .w3-example pre { background-color : rgb(40,44,52)!important; }
+| 009 | .sidesection .w3-left-align { text-align : center!important; }
+| 010 | .w3-example { box-shadow : none!important; }
+| 011 | .w3-btn:hover,.w3-btn:active,.w3-example a:focus,.nextprev a:focus { background-color : #...
+| 012 | .w3-btn:hover.w3-blue,.w3-btn:active.w3-blue,.w3-button:hover.w3-blue,.w3-button:active.w...
+| 013 | .w3-btn:hover.w3-blue,.w3-btn:active.w3-blue,.w3-button:hover.w3-blue,.w3-button:active.w...
+| 014 | .w3-btn:hover.w3-white,.w3-btn:active.w3-white,.w3-button:hover.w3-white,.w3-button:activ...
+| 015 | .nextprev .w3-btn:not(.w3-left):not(.w3-right):hover,.nextprev .w3-btn:not(.w3-left):not(...
+| 016 | .w3-third .bigbtn { text-decoration : none !important; }
+```
 # Attribution
 The banner for LinkRippr was adapted from an image posted at [wallup.net](https://wallup.net/jack-the-ripper-artwork-fantasy-art-digital-art-dark-top-hat-suits-alleyway/), on 29/05/2017, called "_Jack the Ripper, Artwork, Fantasy art, Digital art, Dark, Top hat, Suits, Alleyway HD Wallpaper_". I am grateful for the artist making the image available, and would like to attribute it to them. Unfortunately, no artist was attributed in the post and I have been unable to track down their name or tag using a reverse image using [TinEye](https://tineye.com).

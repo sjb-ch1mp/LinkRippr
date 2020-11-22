@@ -27,7 +27,7 @@ class StyleParser{
                                         'selector': ruleSet['selector'],
                                         'attribute': attribute,
                                         'value': ruleSet['attributes'][attribute],
-                                        'conditional':ruleSet['conditional']
+                                        'condition':ruleSet['condition']
                                     });
                                 }
                             }
@@ -94,11 +94,11 @@ class StyleBlock{
             let containsComments = false;
             let cleanRuleSetAry = [];
             let rawRuleSet = rawRuleSets[i]['ruleSet'];
-            if(/\/\*.*\*\//.test(rawRuleSet)){
+            if(/(\/\*|\*\/)/.test(rawRuleSet)){
                 containsComments = true;
                 let rawRuleSetAry = rawRuleSet.split(/\//g);
                 for(let j in rawRuleSetAry){
-                    if(!(rawRuleSetAry[j].startsWith('*') && rawRuleSetAry[j].endsWith('*'))){
+                    if(rawRuleSetAry[j].trim().length > 0 && !(rawRuleSetAry[j].startsWith('*') || rawRuleSetAry[j].endsWith('*'))){
                         cleanRuleSetAry.push(rawRuleSetAry[j]);
                     }
                 }
@@ -108,7 +108,6 @@ class StyleBlock{
                 ruleSets.push({'ruleSet':uncommentedRuleSet,'nested':rawRuleSets[i]['nested']});
             }
         }
-
         return ruleSets;
     }
 
@@ -117,9 +116,10 @@ class StyleBlock{
         let processedRuleSets = [] //[{selector:'',attributes:{key:'value', ..., key:'value'}, conditional:true}, ...]
         for(let i in ruleSets){
             let container = [];
-            ruleSetIdx++;
+            let condition = null;
             if(ruleSets[i]['nested']){
                 if(ruleSets[i]['ruleSet'].startsWith("@")){ //FIXME : Currently ignoring any nested rulesets that aren't conditional
+                    condition = ruleSets[i]['ruleSet'].split("{")[0].trim();
                     container = this.unwrapDeclarations(ruleSets[i]['ruleSet']);
                 }
             }else{
@@ -131,18 +131,22 @@ class StyleBlock{
                 processedRuleSets.push({
                     'selector':ruleSet.split("{")[0].trim(),
                     'attributes':{},
-                    'conditional':ruleSets[i]['nested']
+                    'condition':condition
                 });
+                ruleSetIdx++;
                 let declarationString = ruleSet.split("{")[1].split("}")[0];
+                let declarations = [];
                 if(declarationString.includes(";")) {
-                    let declarations = declarationString.split(";");
-                    for(let k in declarations){
-                        if(declarations[k].trim().length > 0){
-                            let firstColon = declarations[k].indexOf(":");
-                            let attribute = declarations[k].substring(0, firstColon).trim();
-                            let value = declarations[k].substring(firstColon + 1, declarations[k].length).trim();
-                            processedRuleSets[ruleSetIdx]['attributes'][attribute] = value;
-                        }
+                    declarations = declarationString.split(";");
+                }else{
+                    declarations.push(declarationString);
+                }
+                for(let k in declarations){
+                    if(declarations[k].trim().length > 0){
+                        let firstColon = declarations[k].indexOf(":");
+                        let attribute = declarations[k].substring(0, firstColon).trim();
+                        let value = declarations[k].substring(firstColon + 1, declarations[k].length).trim();
+                        processedRuleSets[ruleSetIdx]['attributes'][attribute] = value;
                     }
                 }
             }
@@ -184,7 +188,7 @@ function getCssSignatureHits(styleBlocks){
                 cssSignatureHits[name] = [];
             }
             for(let j in styleBlocks[i].detections[name]){
-                cssSignatureHits[name].push(styleBlocks[i].detections[name][j])
+                cssSignatureHits[name].push(styleBlocks[i].detections[name][j]);
             }
         }
     }
