@@ -327,9 +327,13 @@ function loadSettingsFile(fileInfo){
     }
     reader.onload = function () {
         let settingsFile = reader.result;
-        loadSettingsFromFile(settingsFile);
-        hideSettings();
-        chatter("Settings successfully imported!");
+        try{
+            loadSettingsFromFile(settingsFile);
+            hideSettings();
+            chatter("Settings successfully imported!");
+        }catch(e){
+            throwError(e);
+        }
     }
     reader.onerror = function () {
         throwError("Error importing settings file");

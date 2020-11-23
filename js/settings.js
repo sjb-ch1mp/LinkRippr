@@ -104,23 +104,7 @@ function resetCssSignatureDefaults(){
 }
 
 function exportCurrentSettings(){
-    let exportString = '[EXTRACTIONS]\n';
-    for(let key in userSettings.extractions){
-        exportString += key + " :::: " + userSettings.extractions[key]['attributes'].join(',') + '\n';
-    }
-
-    exportString += '[SIGNATURES]\n';
-    for(let key in userSettings.signatures){
-        exportString += key + " :::: " + userSettings.signatures[key]['user_view'] + '\n';
-    }
-
-    exportString += '[DEBUG]\n' + ((userSettings.getOption('debugTokenizer')) ? 'TRUE':'FALSE') + '\n';
-    exportString += '[TRUNCATE]\n' + ((userSettings.getOption('truncate')) ? 'TRUE':'FALSE') + '\n';
-    exportString += '[DEOBFUSCATE]\n' + ((userSettings.getOption('simpleDeob')) ? 'TRUE':'FALSE') + '\n';
-    exportString += '[STYLE]\n' + ((userSettings.getOption('checkStyle')) ? 'TRUE':'FALSE') + '\n';
-    exportString += '[CONDITIONALS]\n' + ((userSettings.getOption('conditionalComments')) ? 'TRUE':'FALSE') + '\n';
-
-    downloadFile(exportString, 'linkrippr_settings.txt');
+    downloadFile(userSettings.export(), 'linkrippr_settings.txt');
 }
 
 function downloadFile(contents, fileName){
@@ -138,44 +122,10 @@ function downloadFile(contents, fileName){
 }
 
 function loadSettingsFromFile(settingsFile){
-
     clearExtractions();
     clearSignatures();
-
-    let settings = settingsFile.split('\n');
-    let mode = '';
-    for(let i in settings){
-        let line = settings[i].trim();
-        if(line === '[EXTRACTIONS]'){
-            mode = 'extractions';
-        }else if(line === '[SIGNATURES]'){
-            mode = 'signatures';
-        }else if(line === '[DEBUG]'){
-            mode = 'debugTokenizer';
-        }else if(line === '[TRUNCATE]') {
-            mode = 'truncate';
-        }else if(line === '[DEOBFUSCATE]'){
-            mode = 'simpleDeob';
-        }else if(line === '[STYLE]'){
-            mode = 'checkStyle'
-        }else if(line === '[CONDITIONALS]'){
-            mode = 'conditionalComments'
-        }else if(line !== ''){
-            if(['truncate', 'simpleDeob','debugTokenizer', "debugTokenizer", "checkStyle", "conditionalComments"].includes(mode)){
-                userSettings.setOption(mode, line === 'TRUE');
-            }else{
-                let key = line.split(' :::: ')[0];
-                let value = line.split(' :::: ')[1];
-                switch(mode){
-                    case 'extractions':
-                        userSettings.addExtraction(key, value);
-                        break;
-                    case 'signatures':
-                        userSettings.addSignature(key, value);
-                }
-            }
-        }
-    }
+    clearCssSignatures();
+    userSettings.import(JSON.parse(settingsFile));
 }
 
 class UserSettings{
@@ -192,6 +142,55 @@ class UserSettings{
             'conditionalComments':true,
             'deobSignatures':getDefaultDeobfuscations()
         };
+    }
+
+    export(){
+        let settings = this.options;
+        delete settings['deobSignatures'];
+
+        settings['htmlSignatures'] = {};
+        for(let key in this.extractions){
+            settings['htmlSignatures'][key] = this.extractions[key]['attributes'];
+        }
+
+        settings['jsSignatures'] = {};
+        for(let key in this.signatures){
+            settings['jsSignatures'][key] = this.signatures[key]['user_view'];
+        }
+
+        settings['cssSignatures'] = {};
+        for(let key in this.cssSignatures){
+            settings['cssSignatures'][key] = {};
+            settings['cssSignatures'][key]['selector'] = this.cssSignatures[key]['selector_user_view'];
+            settings['cssSignatures'][key]['property'] = this.cssSignatures[key]['attribute_user_view'];
+            settings['cssSignatures'][key]['value'] = this.cssSignatures[key]['value_user_view'];
+        }
+        return JSON.stringify(settings);
+    }
+
+    import(settings){
+        this.options = settings;
+        this.options['deobSignatures'] = getDefaultDeobfuscations();
+
+        for(let key in this.options['htmlSignatures']){
+            this.addExtraction(key, this.options['htmlSignatures'][key].join(","));
+        }
+        delete this.options['htmlSignatures'];
+
+        for(let key in this.options['jsSignatures']){
+            this.addSignature(key, this.options['jsSignatures'][key]);
+        }
+        delete this.options['jsSignatures'];
+
+        for(let key in this.options['cssSignatures']){
+            this.addCssSignature(
+                key,
+                this.options['cssSignatures'][key]['selector'],
+                this.options['cssSignatures'][key]['property'],
+                this.options['cssSignatures'][key]['value']
+            );
+        }
+        delete this.options['cssSignatures'];
     }
 
     addSignature(name, pattern){
