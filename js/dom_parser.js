@@ -68,7 +68,7 @@ class DomParser{
                 let scriptParser = new ScriptParser(this.domTokenizer.current);
                 this.scripts.push(scriptParser.script);
             }else if(this.domTokenizer.current.tokenType === DOMTokenType.STYLE){
-                let styleParser = new StyleParser(this.domTokenizer.current);
+                let styleParser = new StyleParser(this.domTokenizer.current, "style");
                 this.styleBlocks.push(styleParser.styleBlock);
             }else if((this.domTokenizer.current.tokenType === DOMTokenType.OPEN_TAG_DLH ||
                 this.domTokenizer.current.tokenType === DOMTokenType.OPEN_TAG_DLR)
@@ -115,6 +115,20 @@ class DomParser{
                 }
                 tokenizer.next();
             }
+        }
+
+        //Get all style attributes from all elements
+        let tokenizer = new DOMTokenizer(this.__raw__);
+        while(tokenizer.hasNext()){
+            if(tokenizer.current.tokenType === DOMTokenType.OPEN_TAG_NAME){
+                let tagName = tokenizer.current.value;
+                let attributes = this.getAttribute('*', tokenizer);
+                if(attributes !== null && 'style' in attributes){
+                    let styleParser = new StyleParser(new DOMToken(DOMTokenType.STYLE, attributes['style']), tagName);
+                    this.styleBlocks.push(styleParser.styleBlock);
+                }
+            }
+            tokenizer.next();
         }
     }
 

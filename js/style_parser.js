@@ -1,9 +1,9 @@
 class StyleParser{
-    constructor(styleBlock){
+    constructor(styleBlock, source){
         if(styleBlock.tokenType !== DOMTokenType.STYLE){
-            throw "ScriptParser cannot parse content of DOMTokenType." + styleBlock.tokenType;
+            throw "StyleParser cannot parse content of DOMTokenType." + styleBlock.tokenType;
         }
-        this.styleBlock = new StyleBlock(styleBlock);
+        this.styleBlock = new StyleBlock(styleBlock, source);
         this.parseStyleBlock();
     }
 
@@ -54,7 +54,8 @@ class StyleParser{
 }
 
 class StyleBlock{
-    constructor(styleBlock){
+    constructor(styleBlock, source){
+        this.source = source;
         this._raw = styleBlock.value;
         this.ruleSets = this.processRuleSets(this.breakIntoRuleSets());
         this.detections = {};
@@ -130,12 +131,12 @@ class StyleBlock{
                 let ruleSet = container[j];
                 try{
                     processedRuleSets.push({
-                        'selector':ruleSet.split("{")[0].trim(),
+                        'selector':(this.source === "style") ? ruleSet.split("{")[0].trim() : stylize(this.source),
                         'attributes':{},
                         'condition':condition
                     });
                     ruleSetIdx++;
-                    let declarationString = ruleSet.split("{")[1].split("}")[0];
+                    let declarationString = (this.source === "style") ? ruleSet.split("{")[1].split("}")[0] : ruleSet;
                     let declarations = [];
                     if(declarationString.includes(";")) {
                         declarations = declarationString.split(";");
@@ -192,9 +193,23 @@ function getCssSignatureHits(styleBlocks){
                 cssSignatureHits[name] = [];
             }
             for(let j in styleBlocks[i].detections[name]){
-                cssSignatureHits[name].push(styleBlocks[i].detections[name][j]);
+                if(!alreadyIncludedInOutput(styleBlocks[i].detections[name][j], cssSignatureHits[name])){
+                    cssSignatureHits[name].push(styleBlocks[i].detections[name][j]);
+                }
             }
         }
     }
     return cssSignatureHits;
+}
+
+function alreadyIncludedInOutput(detection, sigHits){
+    for(let i in sigHits){
+        if(sigHits[i]['selector'] === detection['selector']
+        && sigHits[i]['attribute'] === detection['attribute']
+        && sigHits[i]['value'] === detection['value']
+        && sigHits[i]['condition'] === detection['condition']){
+            return true;
+        }
+    }
+    return false;
 }
