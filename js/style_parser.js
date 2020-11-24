@@ -118,7 +118,7 @@ class StyleBlock{
             let container = [];
             let condition = null;
             if(ruleSets[i]['nested']){
-                if(ruleSets[i]['ruleSet'].startsWith("@")){ //FIXME : Currently ignoring any nested rulesets that aren't conditional
+                if(ruleSets[i]['ruleSet'].startsWith("@")){
                     condition = ruleSets[i]['ruleSet'].split("{")[0].trim();
                     container = this.unwrapDeclarations(ruleSets[i]['ruleSet']);
                 }
@@ -128,26 +128,30 @@ class StyleBlock{
 
             for(let j in container){
                 let ruleSet = container[j];
-                processedRuleSets.push({
-                    'selector':ruleSet.split("{")[0].trim(),
-                    'attributes':{},
-                    'condition':condition
-                });
-                ruleSetIdx++;
-                let declarationString = ruleSet.split("{")[1].split("}")[0];
-                let declarations = [];
-                if(declarationString.includes(";")) {
-                    declarations = declarationString.split(";");
-                }else{
-                    declarations.push(declarationString);
-                }
-                for(let k in declarations){
-                    if(declarations[k].trim().length > 0){
-                        let firstColon = declarations[k].indexOf(":");
-                        let attribute = declarations[k].substring(0, firstColon).trim();
-                        let value = declarations[k].substring(firstColon + 1, declarations[k].length).trim();
-                        processedRuleSets[ruleSetIdx]['attributes'][attribute] = value;
+                try{
+                    processedRuleSets.push({
+                        'selector':ruleSet.split("{")[0].trim(),
+                        'attributes':{},
+                        'condition':condition
+                    });
+                    ruleSetIdx++;
+                    let declarationString = ruleSet.split("{")[1].split("}")[0];
+                    let declarations = [];
+                    if(declarationString.includes(";")) {
+                        declarations = declarationString.split(";");
+                    }else{
+                        declarations.push(declarationString);
                     }
+                    for(let k in declarations){
+                        if(declarations[k].trim().length > 0){
+                            let firstColon = declarations[k].indexOf(":");
+                            let attribute = declarations[k].substring(0, firstColon).trim();
+                            let value = declarations[k].substring(firstColon + 1, declarations[k].length).trim();
+                            processedRuleSets[ruleSetIdx]['attributes'][attribute] = value;
+                        }
+                    }
+                }catch(e){
+                    console.log('[ERROR EXTRACTING RULESET] : "' + ruleSet + '"');
                 }
             }
         }
