@@ -15,6 +15,7 @@ class DomParser{
             this.htmlSignatures[name] = {
                 'element': userSettings.htmlSignatures[name]['element'],
                 'attributes': (processedSignature == null) ? userSettings.htmlSignatures[name]['attributes'] : processedSignature['attributes'],
+                'value':userSettings.htmlSignatures[name]['value'],
                 'nested_tags': (userSettings.htmlSignatures[name]['hasNested']) ? processedSignature['nestedTags'] : null,
                 'nested': userSettings.htmlSignatures[name]['hasNested'],
                 'detections': [] //if nested [OuterTag, ...], else [{attkey:attvalue, ...}]
@@ -49,6 +50,7 @@ class DomParser{
             let signatureElement = this.htmlSignatures[name]['element'];
             let signatureAttributes = this.htmlSignatures[name]['attributes'];
             let nested = this.htmlSignatures[name]['nested'];
+            let valueRegex = this.htmlSignatures[name]['value'];
             while(_tokenizer.hasNext()){
                 if(_tokenizer.current.tokenType === DOMTokenType.OPEN_TAG_NAME && (_tokenizer.current.value === signatureElement || signatureElement === "*")){
                     let element = _tokenizer.current.value;
@@ -56,7 +58,8 @@ class DomParser{
                         let currentAttributes = this.getCurrentAttributes(_tokenizer); //{key:val,key:val,...}
                         let detectedAttributes = {};
                         for(let key in currentAttributes){
-                            if(signatureAttributes[0] === "*" || signatureAttributes.includes(key)){
+                            if((signatureAttributes[0] === "*" || signatureAttributes.includes(key)) && valueRegex.test(currentAttributes[key])){
+                                valueRegex.lastIndex = 0;
                                 detectedAttributes[key] = currentAttributes[key]; //{key:val, ..., key:val}
                             }
                         }
@@ -67,7 +70,7 @@ class DomParser{
                             }
                         }
                     }else{
-                        let outerTag = this.parseNestedTag(element, signatureElement, signatureAttributes, this.htmlSignatures[name]['nested_tags'], _tokenizer);
+                        let outerTag = this.parseNestedTag(element, valueRegex, signatureElement, signatureAttributes, this.htmlSignatures[name]['nested_tags'], _tokenizer);
                         if(!(outerTag.detections == null && outerTag.innerTags == null) && !this.detectionExists(name, outerTag)){
                             this.htmlSignatures[name]["detections"].push(outerTag);
                         }
@@ -135,13 +138,14 @@ class DomParser{
         return false;
     }
 
-    parseNestedTag(element, tag, outerTagAttributes, nestedTags, tokenizer){
+    parseNestedTag(element, valueRegex, tag, outerTagAttributes, nestedTags, tokenizer){
         let outerTag = new OuterTag(element, null, null);
 
         let allAttributes = this.getCurrentAttributes(tokenizer);
         let attributesOfInterest = {};
         for(let key in allAttributes){
-            if(outerTagAttributes[0] === "*" || outerTagAttributes.includes(key)){
+            if((outerTagAttributes[0] === "*" || outerTagAttributes.includes(key)) && valueRegex.test(allAttributes[key])){
+                valueRegex.lastIndex = 0;
                 attributesOfInterest[key] = allAttributes[key];
             }
         }

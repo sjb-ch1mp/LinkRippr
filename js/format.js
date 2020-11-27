@@ -83,7 +83,7 @@ class DetectionSummary{
     print(){
         let toPrint = this.header.print();
         toPrint += "<div class='detection-summary' id='" + this.header.signatureType.toLowerCase() + "-" + this.header.signatureName.toLowerCase() + "-content'>";
-        toPrint += "<p class='detections'>" + this.detections.print() + "</p></div>"
+        toPrint += this.detections.print() + "</div>"
         return toPrint;
     }
 }
@@ -94,7 +94,7 @@ class DetectionHeader{
         this.signatureName = signatureName;
     }
     print(){
-        let toPrint = "<button type='button' class='detection-header' id='" + this.signatureType.toLowerCase() + "-" + this.signatureName.toLowerCase() + "' onclick='expandDetectionSummary(this)'>";
+        let toPrint = "<button type='button' class='detection-header' id='" + this.signatureType.toLowerCase() + "-" + this.signatureName.toLowerCase() + "' onclick='toggleDetectionSummary(this)'>";
         toPrint += "<b>[" + this.signatureType.toUpperCase() + "]</b> " + this.signatureName.toLowerCase() + "</button>";
         return toPrint;
     }
@@ -105,7 +105,7 @@ class HtmlDetections{
         this.detections = detections;
     }
     print(){
-        let toPrint = "<table class='detection-table'><tr><th class='dh'>#</th><th class='dh'>ELEMENT</th><th class='dh'>ATTRIBUTE</th><th class='dh'>VALUE</th></tr>";
+        let toPrint = "<table class='detection-table'>"; //<tr><th class='dh'>#</th><th class='dh'>ELEMENT</th><th class='dh'>ATTRIBUTE</th><th class='dh'>VALUE</th></tr>
         let idx = 0;
         for(let i in this.detections){
             idx++;
@@ -137,7 +137,7 @@ class JavaScriptDetections{
     }
     print(){
         console.log(this.detections);
-        let toPrint = "<table class='detection-table'><tr><th class='dh'>#</th><th class='dh'>VALUE</th></tr>";
+        let toPrint = "<table class='detection-table'>"; //<tr><th class='dh'>#</th><th class='dh'>VALUE</th></tr>
         let idx = 0;
         for(let i in this.detections){
             idx++;
@@ -153,7 +153,7 @@ class CssDetections{
         this.detections = detections;
     }
     print(){
-        let toPrint = "<table class='detection-table'><tr><th class='dh'>#</th><th class='dh'>QUERY</th><th class='dh'>SELECTOR</th><th class='dh'>PROPERTY</th><th class='dh'>VALUE</th></tr>";
+        let toPrint = "<table class='detection-table'>"; //<tr><th class='dh'>#</th><th class='dh'>QUERY</th><th class='dh'>SELECTOR</th><th class='dh'>PROPERTY</th><th class='dh'>VALUE</th></tr>
         let idx = 0;
         for(let i in this.detections){
             idx++;
@@ -172,7 +172,7 @@ class DeobfuscationDetections{
         this.detections = detections;
     }
     print(){
-        let toPrint = "<table class='detection-table'><tr><th class='dh'>#</th><th class='dh'>STATUS</th><th class='dh'>SIGNATURE</th><th class='dh'>VALUE</th></tr>";
+        let toPrint = "<table class='detection-table'>"; //<tr><th class='dh'>#</th><th class='dh'>STATUS</th><th class='dh'>SIGNATURE</th><th class='dh'>VALUE</th></tr>
         let idx = 0;
         for(let i in this.detections){
             idx++;
@@ -256,7 +256,7 @@ class ConditionalCommentDetection{
         this.detection = detection;
     }
     print(){
-        let toPrint = "<table class='detection-table'><tr><th class='dh'>CONDITION</th><th class='dh'>HTML</th></tr>";
+        let toPrint = "<table class='detection-table'>"; //<tr><th class='dh'>CONDITION</th><th class='dh'>HTML</th></tr>
         toPrint += "<tr class='detection-row-even'><td>" + this.detection['condition'] + "</td>";
         toPrint += "<td>" + checkLength(safeEscape(stripNewLines(this.detection['html'])) + '\n', 100) + "</td></tr>";
         return toPrint + "</table>";

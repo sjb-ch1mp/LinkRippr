@@ -26,10 +26,9 @@ function padContent(){
 
 }
 
-function expandDetectionSummary(button){
-    let id = button.id + "-content";
-    let div = document.getElementById(id);
-    div.style.display = (div.style.display === "none") ? "block": "none";
+function toggleDetectionSummary(header){
+    let div = document.getElementById(header.id + "-content");
+    div.classList.toggle("show");
 }
 
 function showSettings(section){
@@ -95,19 +94,22 @@ function buildHtmlSignaturesMenu(){
     settingsHtml += "<td align='center'><button class='settings' onclick='clearHtmlSignatures()'>CLEAR SIGNATURES</button></td></tr></table>";
     if(Object.keys(userSettings.htmlSignatures).length > 0){
         settingsHtml += "<p class='settings'>LinkRippr is currently searching for the following HTML javaScriptSignatures.</p>";
-        settingsHtml += "<table class='settings'><tr><th>NAME</th><th>ELEMENT</th><th colspan='2'>ATTRIBUTES</th></tr>";
+        settingsHtml += "<table class='settings'><tr><th>NAME</th><th>ELEMENT</th><th>ATTRIBUTES</th><th colspan='2'>VALUE</th></tr>";
         for(let key in userSettings.htmlSignatures){
-            settingsHtml += "<tr><td>" + key + "</td><td>" + userSettings.htmlSignatures[key]["element"] + "</td><td>" + userSettings.htmlSignatures[key]["attributes"].join(",") + "</td>"
+            settingsHtml += "<tr><td>" + key + "</td><td>" + userSettings.htmlSignatures[key]["element"] + "</td>";
+            settingsHtml += "<td>" + userSettings.htmlSignatures[key]["attributes"].join(",") + "</td><td>" + userSettings.htmlSignatures[key]['value-user-view'] + "</td>"
             settingsHtml += "<td><button id='" + key + "' class='settings' onclick='changeHtmlSignature(this.id)'>DEL</button></td></tr>";
         }
         settingsHtml += "<tr><td><input type='text' placeholder='NEW HTML SIGNATURE' id='newName'></td>";
         settingsHtml += "<td><input type='text' id='newElement'></td><td><input type='text' id='newAttributes'></td>";
+        settingsHtml += "<td><input type='text' id='newHtmlValue'></td>"
         settingsHtml += "<td><button class='settings' onclick='changeHtmlSignature(null)'>ADD</button></td></tr>";
     }else {
         settingsHtml += "<p class='settings'>LinkRippr is not searching for any HTML javaScriptSignatures.</p>";
-        settingsHtml += "<table class='settings'><tr><th>NAME</th><th>ELEMENT</th><th colspan='2'>ATTRIBUTES</th></tr>";
+        settingsHtml += "<table class='settings'><tr><th>NAME</th><th>ELEMENT</th><th>ATTRIBUTES</th><th colspan='2'>VALUE</th></tr>";
         settingsHtml += "<tr><td><input type='text' placeholder='NEW HTML SIGNATURE' id='newName'></td>";
         settingsHtml += "<td><input type='text' id='newElement'></td><td><input type='text' id='newAttributes'></td>";
+        settingsHtml += "<td><input type='text' id='newHtmlValue'></td>"
         settingsHtml += "<td><button class='settings' onclick='changeHtmlSignature(null)'>ADD</button></td></tr>";
     }
     return settingsHtml;

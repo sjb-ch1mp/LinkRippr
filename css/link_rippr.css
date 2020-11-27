@@ -202,6 +202,7 @@ th.menu{
     outline: none;
     font-size: 18px;
     font-family: "Courier New";
+    border-radius: 10px;
 }
 
 .detection-summary {

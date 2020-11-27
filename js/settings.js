@@ -6,6 +6,7 @@ function changeHtmlSignature(key){
         let name = document.getElementById("newName").value;
         let element = document.getElementById("newElement").value;
         let attributes = document.getElementById("newAttributes").value;
+        let val = document.getElementById('newHtmlValue').value;
         try{
             if(name === undefined || name.trim().length === 0){
                 throw "HTML signature name is required";
@@ -16,7 +17,10 @@ function changeHtmlSignature(key){
             if(attributes === undefined || attributes.trim().length === 0){
                 attributes = "*";
             }
-            userSettings.addHtmlSignature(name, element, attributes);
+            if(val === undefined || val.trim().length === 0){
+                val = ".*";
+            }
+            userSettings.addHtmlSignature(name, element, attributes, val);
             showSettings('html');
         }catch(err){
             throwError(err);
@@ -156,6 +160,7 @@ class UserSettings{
             settings['htmlSignatures'][key] = {};
             settings['htmlSignatures'][key]['element'] = this.htmlSignatures[key]['element'];
             settings['htmlSignatures'][key]['attributes'] = this.htmlSignatures[key]['attributes'];
+            settings['htmlSignatures'][key]['value'] = this.htmlSignatures[key]['value-user-view'];
         }
 
         settings['jsSignatures'] = {};
@@ -178,7 +183,12 @@ class UserSettings{
         this.options['deobSignatures'] = getDefaultObfuscationSignatures();
 
         for(let key in this.options['htmlSignatures']){
-            this.addHtmlSignature(key, this.options['htmlSignatures'][key]['element'], this.options['htmlSignatures']['attributes'][key].join(","));
+            this.addHtmlSignature(
+                key,
+                this.options['htmlSignatures'][key]['element'],
+                this.options['htmlSignatures'][key]['attributes'].join(","),
+                this.options['htmlSignatures'][key]['value']
+            );
         }
         delete this.options['htmlSignatures'];
 
@@ -198,14 +208,14 @@ class UserSettings{
         delete this.options['cssSignatures'];
     }
 
-    addHtmlSignature(name, element, attributes){
+    addHtmlSignature(name, element, attributes, value){
 
         //check if tag is already being extracted
         if(name in this.htmlSignatures){
             throw "The name \"" + name + "\" is already being used for another HTML signature.";
         }
 
-        if(this.signatureAlreadyExists('html', [element, attributes.replace(/\s/g, '')])){
+        if(this.signatureAlreadyExists('html', [element, attributes.replace(/\s/g, ''), value])){
             throw "LinkRippr is already searching for this HTML signature";
         }
 
@@ -223,6 +233,8 @@ class UserSettings{
         this.htmlSignatures[name] = {
             'element':element,
             'attributes':attributes['attributes'],
+            'value':new RegExp(value, "g"),
+            'value-user-view':value,
             'hasNested':attributes['hasNested']
         };
     }
@@ -295,7 +307,8 @@ class UserSettings{
         }else if(type === 'html'){
             for(let key in this.htmlSignatures){
                 if(this.htmlSignatures[key]['element'] === signatures[0] &&
-                this.htmlSignatures[key]['attributes'].join(",") === signatures[1]){
+                this.htmlSignatures[key]['attributes'].join(",") === signatures[1] &&
+                this.htmlSignatures[key]['value-user-view'] === signatures[2]){
                     return true;
                 }
             }

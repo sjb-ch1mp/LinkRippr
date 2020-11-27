@@ -1,28 +1,38 @@
 function getDefaultHtmlSignatures(){
     return {
-        "all-hyperlinks":{
+        "external-hyperlinks":{
             "element":"*",
             "attributes":["href","data-src","src"],
+            "value":new RegExp("http(s)?:\\/\\/", "g"),
+            "value-user-view":"http(s)?:\\/\\/",
             "hasNested":false
         },
         "all-iframes":{
             "element":"iframe",
             "attributes":["*"],
+            "value":new RegExp(".*", "g"),
+            "value-user-view":".*",
             "hasNested":false
         },
         "all-forms":{
             "element":"form",
             "attributes":["method","action","[input:name,type]"],
+            "value":new RegExp(".*", "g"),
+            "value-user-view":".*",
             "hasNested":true
         },
         "data-binds":{
             "element":"*",
             "attributes":["data-bind"],
+            "value":new RegExp(".*", "g"),
+            "value-user-view":".*",
             "hasNested":false,
         },
-        "http-equiv":{
+        "refresh":{
             "element":"meta",
             "attributes":["http-equiv"],
+            "value":new RegExp("[rReEfFsShH]{7}", "g"),
+            "value-user-view":"[rReEfFsShH]{7}",
             "hasNested":false
         }
     };
