@@ -1,15 +1,34 @@
-function getDefaultDomExtractions(){
+function getDefaultHtmlSignatures(){
     return {
-        "base":{"attributes":["href"],"hasNested":false},
-        "a":{"attributes":["href"],"hasNested":false},
-        "iframe":{"attributes":["href","data-src","src"],"hasNested":false},
-        "script":{"attributes":["src"],"hasNested":false},
-        "form":{"attributes":["method", "action","data-bind","[input:name,type]"],"hasNested":true},
-        "meta":{"attributes":["http-equiv"],"hasNested":false}
+        "all-hyperlinks":{
+            "element":"*",
+            "attributes":["href","data-src","src"],
+            "hasNested":false
+        },
+        "all-iframes":{
+            "element":"iframe",
+            "attributes":["*"],
+            "hasNested":false
+        },
+        "all-forms":{
+            "element":"form",
+            "attributes":["method","action","[input:name,type]"],
+            "hasNested":true
+        },
+        "data-binds":{
+            "element":"*",
+            "attributes":["data-bind"],
+            "hasNested":false,
+        },
+        "http-equiv":{
+            "element":"meta",
+            "attributes":["http-equiv"],
+            "hasNested":false
+        }
     };
 }
 
-function getDefaultScriptSignatures(){
+function getDefaultJavaScriptSignatures(){
     return {
         "document.write":{
             "global":new RegExp("document\\.write\\(.*\\)[;\s]", "g"),
@@ -52,14 +71,14 @@ function getDefaultScriptSignatures(){
             "user_view":"\\$\\.(post|get)\\(.*\\);",
             "default":true},
         "xml-http-request":{
-            "global":new RegExp("new XMLHttpRequest\\(\\)", "g"),
-            "sticky":new RegExp("new XMLHttpRequest\\(\\)", "y"),
-            "user_view":"new XMLHttpRequest\\(\\)",
+            "global":new RegExp("\\b[a-zA-Z_0-9]+\\.open\\(\\s?[\"']([pPoOsStT]{4}|[gGeEtT]{3})['\"].*http.*\\)[;\\s]", "g"),
+            "sticky":new RegExp("\\b[a-zA-Z_0-9]+\\.open\\(\\s?[\"']([pPoOsStT]{4}|[gGeEtT]{3})['\"].*http.*\\)[;\\s]", "y"),
+            "user_view":"\\b[a-zA-Z_0-9]+\\.open\\(\\s?[\"']([pPoOsStT]{4}|[gGeEtT]{3})['\"].*http.*\\)[;\\s]",
             "default":true}
     };
 }
 
-function getDefaultDeobfuscations(){
+function getDefaultObfuscationSignatures(){
     return {
         'document-write-unescape':{
             'global':new RegExp('document\\.write\\(unescape\\(["\'].*["\']\\)\\)', 'g'),

@@ -1,18 +1,22 @@
-function changeExtractions(key){
+function changeHtmlSignature(key){
     if(key!=null){
-        userSettings.removeExtraction(key);
+        userSettings.removeSignature(key, 'html');
         showSettings('html');
     }else{
-        let newTag = document.getElementById("newTag");
-        let newAttributes = document.getElementById("newAttributes");
+        let name = document.getElementById("newName").value;
+        let element = document.getElementById("newElement").value;
+        let attributes = document.getElementById("newAttributes").value;
         try{
-            if(newTag.value === undefined || newTag.value.trim().length === 0){
-                throw "Tag name required";
+            if(name === undefined || name.trim().length === 0){
+                throw "HTML signature name is required";
             }
-            if(newAttributes.value === undefined || newAttributes.value.trim().length === 0){
-                throw "Attributes required";
+            if(element === undefined || element.trim().length === 0){
+                element = "*";
             }
-            userSettings.addExtraction(newTag.value, newAttributes.value);
+            if(attributes === undefined || attributes.trim().length === 0){
+                attributes = "*";
+            }
+            userSettings.addHtmlSignature(name, element, attributes);
             showSettings('html');
         }catch(err){
             throwError(err);
@@ -20,21 +24,21 @@ function changeExtractions(key){
     }
 }
 
-function changeSignatures(key){
+function changeJavaScriptSignature(key){
     if(key!=null){
-        userSettings.removeSignature(key);
+        userSettings.removeSignature(key, 'javascript');
         showSettings('javascript');
     }else{
-        let newFunction = document.getElementById("newFunction");
-        let newPattern = document.getElementById("newPattern");
+        let name = document.getElementById("newFunction").value;
+        let signature = document.getElementById("newPattern").value;
         try{
-            if(newFunction.value === undefined || newFunction.value.trim().length === 0){
-                throw "Signature name required";
+            if(name === undefined || name.trim().length === 0){
+                throw "JavaScript signature name required";
             }
-            if(newPattern.value === undefined || newPattern.value.trim().length === 0){
-                throw "Pattern is required";
+            if(signature === undefined || signature.trim().length === 0){
+                signature = ".*";
             }
-            userSettings.addSignature(newFunction.value, newPattern.value);
+            userSettings.addJavaScriptSignature(name, signature);
             showSettings('javascript');
         }catch(err){
             throwError(err);
@@ -44,7 +48,7 @@ function changeSignatures(key){
 
 function changeCssSignatures(key){
     if(key!=null){
-        userSettings.removeCssSignature(key);
+        userSettings.removeSignature(key, 'css');
         showSettings('css');
     }else{
         let name = document.getElementById('newName').value;
@@ -72,31 +76,30 @@ function changeCssSignatures(key){
     }
 }
 
-function clearSignatures(){
-    userSettings.signatures = {};
+function clearHtmlSignatures(){
+    userSettings.htmlSignatures = {};
+    showSettings('html');
+}
+
+function resetHtmlSignatureDefaults(){
+    userSettings.htmlSignatures = getDefaultHtmlSignatures();
+    showSettings('html');
+}
+
+function clearJavaScriptSignatures(){
+    userSettings.javaScriptSignatures = {};
     showSettings('javascript');
 }
 
-function clearExtractions(){
-    userSettings.extractions = {};
-    showSettings('html');
+function resetJavaScriptSignatureDefaults(){
+    userSettings.javaScriptSignatures = getDefaultJavaScriptSignatures();
+    showSettings('javascript');
 }
 
 function clearCssSignatures(){
     userSettings.cssSignatures = {};
     showSettings('css');
 }
-
-function resetDomExtractionDefaults(){
-    userSettings.extractions = getDefaultDomExtractions();
-    showSettings('html');
-}
-
-function resetScriptSignatureDefaults(){
-    userSettings.signatures = getDefaultScriptSignatures();
-    showSettings('javascript');
-}
-
 
 function resetCssSignatureDefaults(){
     userSettings.cssSignatures = getDefaultCssSignatures();
@@ -122,8 +125,8 @@ function downloadFile(contents, fileName){
 }
 
 function loadSettingsFromFile(settingsFile){
-    clearExtractions();
-    clearSignatures();
+    clearHtmlSignatures();
+    clearJavaScriptSignatures();
     clearCssSignatures();
     userSettings.import(JSON.parse(settingsFile));
 }
@@ -131,8 +134,8 @@ function loadSettingsFromFile(settingsFile){
 class UserSettings{
 
     constructor(){
-        this.extractions = getDefaultDomExtractions();
-        this.signatures = getDefaultScriptSignatures();
+        this.htmlSignatures = getDefaultHtmlSignatures();
+        this.javaScriptSignatures = getDefaultJavaScriptSignatures();
         this.cssSignatures = getDefaultCssSignatures();
         this.options = {
             'debugTokenizer': false,
@@ -140,7 +143,7 @@ class UserSettings{
             'simpleDeob':true,
             'checkStyle':true,
             'conditionalComments':true,
-            'deobSignatures':getDefaultDeobfuscations()
+            'deobSignatures':getDefaultObfuscationSignatures()
         };
     }
 
@@ -149,13 +152,15 @@ class UserSettings{
         delete settings['deobSignatures'];
 
         settings['htmlSignatures'] = {};
-        for(let key in this.extractions){
-            settings['htmlSignatures'][key] = this.extractions[key]['attributes'];
+        for(let key in this.htmlSignatures){
+            settings['htmlSignatures'][key] = {};
+            settings['htmlSignatures'][key]['element'] = this.htmlSignatures[key]['element'];
+            settings['htmlSignatures'][key]['attributes'] = this.htmlSignatures[key]['attributes'];
         }
 
         settings['jsSignatures'] = {};
-        for(let key in this.signatures){
-            settings['jsSignatures'][key] = this.signatures[key]['user_view'];
+        for(let key in this.javaScriptSignatures){
+            settings['jsSignatures'][key] = this.javaScriptSignatures[key]['user_view'];
         }
 
         settings['cssSignatures'] = {};
@@ -170,15 +175,15 @@ class UserSettings{
 
     import(settings){
         this.options = settings;
-        this.options['deobSignatures'] = getDefaultDeobfuscations();
+        this.options['deobSignatures'] = getDefaultObfuscationSignatures();
 
         for(let key in this.options['htmlSignatures']){
-            this.addExtraction(key, this.options['htmlSignatures'][key].join(","));
+            this.addHtmlSignature(key, this.options['htmlSignatures'][key]['element'], this.options['htmlSignatures']['attributes'][key].join(","));
         }
         delete this.options['htmlSignatures'];
 
         for(let key in this.options['jsSignatures']){
-            this.addSignature(key, this.options['jsSignatures'][key]);
+            this.addJavaScriptSignature(key, this.options['jsSignatures'][key]);
         }
         delete this.options['jsSignatures'];
 
@@ -193,8 +198,37 @@ class UserSettings{
         delete this.options['cssSignatures'];
     }
 
-    addSignature(name, pattern){
-        if(name in this.signatures){
+    addHtmlSignature(name, element, attributes){
+
+        //check if tag is already being extracted
+        if(name in this.htmlSignatures){
+            throw "The name \"" + name + "\" is already being used for another HTML signature.";
+        }
+
+        if(this.signatureAlreadyExists('html', [element, attributes.replace(/\s/g, '')])){
+            throw "LinkRippr is already searching for this HTML signature";
+        }
+
+        if(attributes.includes(",") || attributes.includes("[") || attributes.includes("]")){
+            attributes = this.processAttributes(attributes);
+        }else{
+            attributes = {"attributes":[attributes.replace(/\s/g, "")], "hasNested":false};
+        }
+
+        //check if tag is for a void element and is nested - this is impossible
+        if(getElementFeature(element, Feature.IS_VOID) && attributes["hasNested"]){
+            throw "\"" + element.toUpperCase() + "\" is a void element and can therefore not contain nested elements.";
+        }
+
+        this.htmlSignatures[name] = {
+            'element':element,
+            'attributes':attributes['attributes'],
+            'hasNested':attributes['hasNested']
+        };
+    }
+
+    addJavaScriptSignature(name, pattern){
+        if(name in this.javaScriptSignatures){
             throw "Name \"" + name + "\" is already being used to identify a JavaScript signature.";
         }
 
@@ -202,52 +236,12 @@ class UserSettings{
             throw "LinkRippr is already searching for this JavaScript signature.";
         }
 
-        this.signatures[name] = {
+        this.javaScriptSignatures[name] = {
             "global":new RegExp(pattern, "g"),
             "sticky":new RegExp(pattern, "y"),
             "user_view":pattern,
             "default":false
         };
-    }
-
-    removeSignature(name){
-        if(this.signatures == null || !(name in this.signatures)){
-            return;
-        }
-        if(name in this.signatures){
-            delete this.signatures[name];
-        }
-    }
-
-    addExtraction(tag, attributes){
-
-        //check if tag is already being extracted
-        if(tag in this.extractions){
-            throw "Tag \"" + tag + "\" is already being extracted.";
-        }
-
-        if(attributes.includes(",") || attributes.includes("[") || attributes.includes("]")){
-            attributes = this.processAttributes(attributes);
-        }else{
-            attributes = {"attributes":[attributes.replace(" ", "")], "hasNested":false};
-        }
-
-        //check if tag is for a void element and is nested - this is impossible
-        if(getElementFeature(tag, Feature.IS_VOID) && attributes["hasNested"]){
-            throw "\"" + tag.toUpperCase() + "\" is a void element and can therefore not contain nested elements.";
-        }
-
-        this.extractions[tag] = attributes;
-    }
-
-    removeExtraction(tag){
-        if(this.extractions == null || !(tag in this.extractions)){
-            return;
-        }
-
-        if(tag in this.extractions) {
-            delete this.extractions[tag];
-        }
     }
 
     addCssSignature(name, selector, attribute, value){
@@ -270,6 +264,19 @@ class UserSettings{
         };
     }
 
+    removeSignature(name, type) {
+        switch (type) {
+            case 'javascript':
+                delete this.javaScriptSignatures[name];
+                break;
+            case 'css':
+                delete this.cssSignatures[name];
+                break;
+            case 'html':
+                delete this.htmlSignatures[name];
+        }
+    }
+
     signatureAlreadyExists(type, signatures){
         if(type === 'css'){
             for(let key in this.cssSignatures){
@@ -280,8 +287,15 @@ class UserSettings{
                 }
             }
         }else if(type === 'javascript'){
-            for(let key in this.signatures){
-                if(this.signatures[key]['user_view'] === signatures[0]){
+            for(let key in this.javaScriptSignatures){
+                if(this.javaScriptSignatures[key]['user_view'] === signatures[0]){
+                    return true;
+                }
+            }
+        }else if(type === 'html'){
+            for(let key in this.htmlSignatures){
+                if(this.htmlSignatures[key]['element'] === signatures[0] &&
+                this.htmlSignatures[key]['attributes'].join(",") === signatures[1]){
                     return true;
                 }
             }
@@ -289,14 +303,7 @@ class UserSettings{
         return false;
     }
 
-    removeCssSignature(selector){
-        if(this.cssSignatures == null || !(selector in this.cssSignatures)){
-            return;
-        }
-        if(selector in this.cssSignatures){
-            delete this.cssSignatures[selector];
-        }
-    }
+
     getOption(option){
         return this.options[option];
     }

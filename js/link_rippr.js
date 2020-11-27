@@ -11,210 +11,42 @@ let previousResults = null;
 function ripLinks(){
     try{
         if(file !== null && file !== undefined){
-
-            let resultString = "";
-            let parser = new DomParser(new DOMTokenizer(file.toString()));
-            if(parser.hasIocs()){
-                let iocs = parser.unnested_iocs;
-                for(let key in iocs){
-                    if(iocs[key]["extractions"] != null){
-                        resultString += buildHeader(key, iocs[key]["attributes"], null);
-                        for(let i=0; i<iocs[key]["extractions"].length; i++){
-                            for(let att in iocs[key]["extractions"][i]){
-                                let tmpStr = "| " + padNumber(i + 1) + " | "
-                                tmpStr += ((iocs[key]["attributes"].length === 1 && iocs[key]["attributes"][0] !== "*")?" ":" (" + att + ") ");
-                                tmpStr += stripNewLines(iocs[key]["extractions"][i][att]) + "\n";
-                                resultString += checkLength(tmpStr, 100);
-                            }
-                            resultString += (iocs[key]["attributes"].length > 1 || iocs[key]["attributes"][0] === "*")?"|" + getDivider("-", 99) + "\n":"";
-                        }
-                        resultString += (iocs[key]["attributes"].length === 1 && iocs[key]["attributes"][0] !== "*")?"|" + getDivider("-", 99) + "\n":"\n";
-                    }
-                }
-                iocs = parser.nested_iocs;
-                for(let key in iocs){
-                    if(iocs[key]["extractions"] != null){
-                        resultString += buildHeader(key, iocs[key]["attributes"], iocs[key]["nested_tags"]);
-                        for(let i=0; i<iocs[key]["extractions"].length; i++){
-                            if(iocs[key]["extractions"][i].extractions != null){
-                                for(let att in iocs[key]["extractions"][i].extractions){
-                                    let tmpStr = "| " + padNumber(i + 1) + " | ";
-                                    tmpStr += ((iocs[key]["attributes"].length === 1 && iocs[key]["attributes"][0] !== "*")?" ":" (" + att + ") ");
-                                    tmpStr += stripNewLines(iocs[key]["extractions"][i].extractions[att]) + "\n";
-                                    resultString += checkLength(tmpStr, 100);
-                                }
-                            }
-                            if(iocs[key]["extractions"][i].innerTags != null){
-                                let innerTagCount = 1;
-                                for(let j=0; j<iocs[key]["extractions"][i].innerTags.length; j++){
-                                    if(iocs[key]["extractions"][i].innerTags[j].extractions != null){
-                                        for(let att in iocs[key]["extractions"][i].innerTags[j].extractions){
-                                            let tmpStr = "| " + padNumber(i + 1) + " | -> (";
-                                            tmpStr += iocs[key]["extractions"][i].innerTags[j].tag.toUpperCase() + " " + padNumber(innerTagCount);
-                                            tmpStr += ((iocs[key]["nested_tags"][iocs[key]["extractions"][i].innerTags[j].tag].length === 1
-                                                && iocs[key]["nested_tags"][iocs[key]["extractions"][i].innerTags[j].tag][0] !== "*")?") ":":" + att + ") ");
-                                            tmpStr += stripNewLines(iocs[key]["extractions"][i].innerTags[j].extractions[att]) + "\n";
-                                            resultString += checkLength(tmpStr, 100);
-                                        }
-                                    }
-                                    innerTagCount += 1;
-                                }
-                            }
-                            resultString += "|" + getDivider("-", 99) + "\n";
-                        }
-                    }
-                }
+            let resultPanel = document.getElementById("results");
+            let parser = new DomParser(file.toString());
+            let detections = []; //[DetectionFormatter, DetectionFormatter, ...]
+            if(parser.hasHtmlDetections()){
+                detections.push(new DetectionFormatter(parser.htmlSignatures, "html"));
+            }
+            if(parser.hasJavaScriptDetections()){
+                detections.push(new DetectionFormatter(getDetectedSignatures(parser.scripts, 'detection'), "js"));
+            }
+            if(parser.hasCssDetections()){
+                detections.push(new DetectionFormatter(getCssSignatureHits(parser.styleBlocks), "css"));
+            }
+            if(userSettings.getOption("simpleDeob") && parser.hasObfuscationDetections()){
+                detections.push(new DetectionFormatter(getDetectedSignatures(parser.scripts, 'deobfuscation'), "obf"));
+            }
+            if(userSettings.getOption("conditionalComments") && parser.hasConditionalHtmlDetections()){
+                detections.push(new DetectionFormatter(parser.conditionalHtml, "chtml"));
             }
 
-            if(parser.scripts.length > 0 && areSignatureHits(parser.scripts, 'detection')){
-                let detectedSignatures = getDetectedSignatures(parser.scripts, 'detection');
-                for(let key in detectedSignatures){
-                    let idx = 0;
-                    resultString += "\n\n| " + stylize("JAVASCRIPT SIGNATURE: " + key) + "\n|" + getDivider("=", 99) + "\n";
-                    for(let i in detectedSignatures[key]){
-                        idx++;
-                        let tmpStr = "| " + padNumber(idx) + " | " + stripNewLines(detectedSignatures[key][i]) + "\n";
-                        resultString += checkLength(tmpStr, 100);
-                    }
-                }
-            }
-
-            if(parser.scripts.length > 0 && areSignatureHits(parser.scripts, 'deobfuscation')){
-                let detectedSignatures = getDetectedSignatures(parser.scripts, 'deobfuscation');
-                for(let key in detectedSignatures){
-                    let idx = 0;
-                    resultString += "\n\n| " + stylize("DEOBFUSCATION: " + key) + "\n|" + getDivider("=", 99) + "\n";
-                    for(let i in detectedSignatures[key]){
-                        idx++;
-                        let tag = detectedSignatures[key][i];
-                        if(typeof(tag) === "object" && tag.hasIocs()){
-                            let unnestedIocs = tag.unnested_iocs;
-                            let nestedIocs = tag.nested_iocs;
-                            let extractions = null;
-
-                            //get unnestedIocs
-                            if(unnestedIocs !== null){
-                                for(let key in unnestedIocs){
-                                    if(unnestedIocs[key]['extractions'] !== null && unnestedIocs[key]['extractions'].length > 0){
-                                        extractions = unnestedIocs[key]['extractions'];
-                                        for(let j=0; j<extractions.length; j++){
-                                            for(let att in extractions[j]){
-                                                resultString += checkLength(
-                                                    "| " + padNumber(idx) + " | (" + key.toUpperCase() + " : " + att.toLowerCase() + ") " + extractions[j][att] + "\n",
-                                                    100
-                                                );
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
-                            //get nestedIocs
-                            if(nestedIocs !== null){
-                                for(let key in nestedIocs){
-                                    if(nestedIocs[key]['extractions'] !== null && nestedIocs[key]['extractions'].length > 0){
-                                        extractions = nestedIocs[key]['extractions'];
-                                        for(let j=0; j<extractions.length; j++){
-                                            if(extractions[j].extractions !== null){
-                                                for(let att in extractions[j].extractions){
-                                                    resultString += checkLength(
-                                                        "| " + padNumber(idx) + " | (" + key.toUpperCase() + " : " + att.toLowerCase() + ") " + extractions[j].extractions[att] + "\n",
-                                                        100
-                                                    );
-                                                }
-                                            }
-                                            if(extractions[j].innerTags !== null){
-                                                for(let k=0; k<extractions[j].innerTags.length; k++){
-                                                    if(extractions[j].innerTags[k].extractions !== null){
-                                                        for(let att in extractions[j].innerTags[k].extractions){
-                                                            resultString += checkLength(
-                                                                "| " + padNumber(idx) + " | (" + key.toUpperCase() + " -> " + extractions[j].innerTags[k].tag.toUpperCase() + " : " + att.toLowerCase() + ") " + extractions[j].innerTags[k].extractions[att] + "\n",
-                                                                100
-                                                            );
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
-                            //get script detections
-                            if(tag.scripts.length > 0 && areSignatureHits(tag.scripts, 'detection')){
-                                let detectedSignatures = getDetectedSignatures(tag.scripts, 'detection');
-                                for(let key in detectedSignatures){
-                                    for(let j in detectedSignatures[key]){
-                                        resultString += checkLength(
-                                            "| " + padNumber(idx) + " | (SIGNATURE : " + key + ") " + detectedSignatures[key][j] + "\n",
-                                            100
-                                        );
-                                    }
-                                }
-                            }
-                        }else{
-                            if(tag.startsWith("[SUCCESS]")){
-                                resultString += "| " + padNumber(idx) + " | [SUCCESS : NO DETECTIONS]\n";
-                                resultString += checkLength("| " + padNumber(idx) + " | " + tag.replace(/^\[SUCCESS\]/g,'') + "\n", 100);
-                            }else{
-                                resultString += "| " + padNumber(idx) + " | [FAIL]\n";
-                                resultString += checkLength("| " + padNumber(idx) + " | " + tag.replace(/^\[FAIL\]/g,'') + "\n", 100);
-                            }
-                        }
-                        resultString += "|" + getDivider("-", 99) + "\n";
-                    }
-                }
-            }
-
-            if(areCssSignatureHits(parser.styleBlocks)){
-                let cssSignatureHits = getCssSignatureHits(parser.styleBlocks);
-                for(let name in cssSignatureHits){
-                    let idx = 0;
-                    resultString += "\n\n| " + stylize("CSS SIGNATURE: " + name) + "\n|" + getDivider("=", 99) + "\n";
-                    for(let i in cssSignatureHits[name]){
-                        let condition = cssSignatureHits[name][i]['condition'];
-                        idx++;
-                        let tmpStr = "| " + padNumber(idx) + " | " + ((condition !== null)? condition + " { ":"");
-                        tmpStr += cssSignatureHits[name][i]['selector'] + " { " + cssSignatureHits[name][i]['attribute'];
-                        tmpStr += " : " + cssSignatureHits[name][i]['value'] + "; }" + ((condition !== null)? " }\n" : "\n");
-                        resultString += checkLength(tmpStr, 100);
-                    }
-                }
-            }
-
-            if(parser.conditionalHtml.length > 0){
-                let types = ['hidden', 'revealed', 'unknown'];
-                for(let i=0; i<2; i++){
-                    if(parser.hasConditionalHtml(types[i])){
-                        let idx = 0;
-                        resultString += "\n\n| " + stylize("CONDITIONAL HTML : " + types[i].toLowerCase()) + "\n|" + getDivider("=", 99) + "\n";
-                        for(let j=0; j<parser.conditionalHtml.length; j++){
-                            if(parser.conditionalHtml[j]['type'] === types[i]){
-                                idx++;
-                                let tmpStr =
-                                resultString += checkLength("| " + padNumber(idx) + " | [" + parser.conditionalHtml[j]['condition'] + "]\n", 100);
-                                resultString += checkLength("| " + padNumber(idx) + " | " + stripNewLines(parser.conditionalHtml[j]['html']) + "\n", 100);
-                                resultString += "|" + getDivider("-", 99) + "\n";
-                            }
-                        }
-                    }
-                }
-            }
-
-            if(resultString.length === 0){
-                resultString = "\n\nNOTHING FOUND";
-            }
-
-            results.innerText = resultString;
+            let summary = "";
             chatter(stylize(fileName));
-            previousResults = new PreviousResults(fileName, resultString);
+            if(detections.length === 0){
+                summary += "<p>" + stylize("NO SIGNATURES DETECTED") + "</p>";
+            }else{
+                for(let i in detections){
+                    summary += detections[i].print();
+                }
+            }
+            resultPanel.innerHTML = summary;
+            previousResults = new PreviousResults(fileName, summary);
             padContent();
         }else{
             throwError("Error importing file");
         }
     }catch(err){
         throwError(err);
-
         padContent();
     }
 }
@@ -243,7 +75,7 @@ function dumpTokens(){
 
 function setUpGlobalVariables(msg){
     chatterBox = document.getElementById("chatter_box");
-    results = document.getElementById("results");
+    //results = document.getElementById("results");
     if(userSettings == null){
         userSettings = new UserSettings();
     }
@@ -257,7 +89,7 @@ function dropHandler(event){
     if(event.dataTransfer.items){
     //items have been dropped
         if(Object.keys(userSettings.extractions).length === 0 && userSettings.getOption('mode') === LRMode.EXTRACTION){
-            throwError("LinkRippr currently has no extractions defined.")
+            throwError("LinkRippr currently has no htmlSignatures defined.")
             return;
         }
         if(event.dataTransfer.items.length === 1){

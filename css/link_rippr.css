@@ -190,3 +190,45 @@ th.options{
 th.menu{
     background-color: #0A1926;
 }
+
+.detection-header {
+    background-color: #3E0015;
+    color: navajowhite;
+    cursor: pointer;
+    padding: 10px;
+    width: 100%;
+    border: 1px solid black;
+    text-align: left;
+    outline: none;
+    font-size: 18px;
+    font-family: "Courier New";
+}
+
+.detection-summary {
+    padding: 0 18px;
+    display: none;
+    overflow: hidden;
+    background-color: #00070E;
+}
+
+.detection-row-odd{
+    background-color: #19253d;
+}
+
+.detection-row-even{
+    background-color: #19323d;
+}
+
+.detection-table{
+    padding: 10px;
+}
+
+th.dh{
+    background-color:#3E0015;
+    color: navajowhite;
+    font-family: "Courier New";
+}
+
+span.escape{
+    color:red;
+}

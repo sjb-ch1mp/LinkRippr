@@ -1,34 +1,33 @@
 class DomParser{
-    constructor(domTokenizer) {
-        this.domTokenizer = domTokenizer;
-        this.__raw__ = this.domTokenizer.buffer;
+    constructor(domString) {
+        this.__raw__ = domString;
 
-        //separate extractions into nested and unnested
+        //separate htmlSignatures into nested and unnested
         this.scripts = []; //[Script, Script, ...]
         this.conditionalHtml = []; //[{type:type, condition:condition, html:html}, ..., ]
         this.styleBlocks = []; //[StyleBlock, StyleBlock, ...]
-        this.unnested_iocs = {};
-        this.nested_iocs = {};
-        for(let key in userSettings.extractions){
-            if(userSettings.extractions[key]["hasNested"]){
-                let processedTags = this.processExtractions(userSettings.extractions[key]["attributes"]);
-                this.nested_iocs[key] = {
-                    "attributes":processedTags["attributes"],
-                    "nested_tags":processedTags["nestedTags"],
-                    "extractions":null //[OuterTag, OuterTag, ...]
-                };
-            }else{
-                this.unnested_iocs[key] = {
-                    "attributes":userSettings.extractions[key]["attributes"],
-                    "extractions":null //[{attkey:attvalue, attkey:attvalue, ...}, {...}]
-                };
-            }
+        this.htmlSignatures = {};
+        for(let name in userSettings.htmlSignatures) {
+            let processedSignature = this.processSignature(
+                userSettings.htmlSignatures[name]['hasNested'],
+                userSettings.htmlSignatures[name]['attributes']
+            );
+            this.htmlSignatures[name] = {
+                'element': userSettings.htmlSignatures[name]['element'],
+                'attributes': (processedSignature == null) ? userSettings.htmlSignatures[name]['attributes'] : processedSignature['attributes'],
+                'nested_tags': (userSettings.htmlSignatures[name]['hasNested']) ? processedSignature['nestedTags'] : null,
+                'nested': userSettings.htmlSignatures[name]['hasNested'],
+                'detections': [] //if nested [OuterTag, ...], else [{attkey:attvalue, ...}]
+            };
         }
-
         this.parseDom();
     }
 
-    processExtractions(attList) {
+    processSignature(nested, attList) {
+        if(!nested){
+            return null;
+        }
+
         let processedTags = {"nestedTags": {}, "attributes": []};
         for (let i = 0; i < attList.length; i++) {
             if (attList[i].match(new RegExp("[:,\\[\\]]", "g"))) {
@@ -43,45 +42,63 @@ class DomParser{
 
     parseDom(){
 
-        let holdConditionalTag = null;
+        //1: Search for all HTML Signatures
+        for(let name in this.htmlSignatures){
+            //prepare variables for run
+            let _tokenizer = new DOMTokenizer(this.__raw__);
+            let signatureElement = this.htmlSignatures[name]['element'];
+            let signatureAttributes = this.htmlSignatures[name]['attributes'];
+            let nested = this.htmlSignatures[name]['nested'];
+            while(_tokenizer.hasNext()){
+                if(_tokenizer.current.tokenType === DOMTokenType.OPEN_TAG_NAME && (_tokenizer.current.value === signatureElement || signatureElement === "*")){
+                    let element = _tokenizer.current.value;
+                    if(!nested){
+                        let currentAttributes = this.getCurrentAttributes(_tokenizer); //{key:val,key:val,...}
+                        let detectedAttributes = {};
+                        for(let key in currentAttributes){
+                            if(signatureAttributes[0] === "*" || signatureAttributes.includes(key)){
+                                detectedAttributes[key] = currentAttributes[key]; //{key:val, ..., key:val}
+                            }
+                        }
+                        if(Object.keys(detectedAttributes).length > 0){
+                            let tag = new OuterTag(element, detectedAttributes, null);
+                            if(!this.detectionExists(name, tag)){
+                                this.htmlSignatures[name]['detections'].push(tag);
+                            }
+                        }
+                    }else{
+                        let outerTag = this.parseNestedTag(element, signatureElement, signatureAttributes, this.htmlSignatures[name]['nested_tags'], _tokenizer);
+                        if(!(outerTag.detections == null && outerTag.innerTags == null) && !this.detectionExists(name, outerTag)){
+                            this.htmlSignatures[name]["detections"].push(outerTag);
+                        }
+                    }
+                }
+                _tokenizer.next();
+            }
+        }
 
-        //Use the main tokenizer to extract all unnested iocs
-        while(this.domTokenizer.hasNext()){
-            if(this.domTokenizer.current.tokenType === DOMTokenType.OPEN_TAG_NAME && this.domTokenizer.current.value in this.unnested_iocs){
-                let tag = this.domTokenizer.current.value;
-                let allAttributes = this.getAttribute("*", this.domTokenizer);
-                let attributesOfInterest = {};
-                for(let key in allAttributes){
-                    if(this.unnested_iocs[tag]["attributes"][0] === "*" && !this.alreadyExists(tag, key, allAttributes[key], false, null)){
-                        attributesOfInterest[key] = allAttributes[key];
-                    }else if(this.unnested_iocs[tag]["attributes"].includes(key) && !this.alreadyExists(tag, key, allAttributes[key], false, null)){
-                        attributesOfInterest[key] = allAttributes[key];
-                    }
-                }
-                if(Object.keys(attributesOfInterest).length > 0){
-                    if(this.unnested_iocs[tag]["extractions"] == null){
-                        this.unnested_iocs[tag]["extractions"] = [];
-                    }
-                    this.unnested_iocs[tag]["extractions"].push(attributesOfInterest);
-                }
-            }else if(this.domTokenizer.current.tokenType === DOMTokenType.SCRIPT){
-                let scriptParser = new ScriptParser(this.domTokenizer.current);
+        //2: Extract all SCRIPT elements, all STYLE elements/attributes, and all CONDITIONAL COMMENTS
+        let holdConditionalTag = null;
+        let _tokenizer = new DOMTokenizer(this.__raw__);
+        while(_tokenizer.hasNext()){
+            if(_tokenizer.current.tokenType === DOMTokenType.SCRIPT){
+                let scriptParser = new ScriptParser(_tokenizer.current);
                 this.scripts.push(scriptParser.script);
-            }else if(this.domTokenizer.current.tokenType === DOMTokenType.STYLE){
-                let styleParser = new StyleParser(this.domTokenizer.current, "style");
+            }else if(_tokenizer.current.tokenType === DOMTokenType.STYLE){
+                let styleParser = new StyleParser(_tokenizer.current, "style");
                 this.styleBlocks.push(styleParser.styleBlock);
-            }else if((this.domTokenizer.current.tokenType === DOMTokenType.OPEN_TAG_DLH ||
-                this.domTokenizer.current.tokenType === DOMTokenType.OPEN_TAG_DLR)
+            }else if((_tokenizer.current.tokenType === DOMTokenType.OPEN_TAG_DLH ||
+                _tokenizer.current.tokenType === DOMTokenType.OPEN_TAG_DLR)
                 && userSettings.getOption('conditionalComments')){
-                let current = this.domTokenizer.current;
+                let current = _tokenizer.current;
                 holdConditionalTag = {
                     'type':(current.tokenType === DOMTokenType.OPEN_TAG_DLH)?"hidden":"revealed",
                     'condition':current.value
                 };
-            }else if((this.domTokenizer.current.tokenType === DOMTokenType.CONDITIONAL_HTML_DLH ||
-                this.domTokenizer.current.tokenType === DOMTokenType.CONDITIONAL_HTML_DLR)
+            }else if((_tokenizer.current.tokenType === DOMTokenType.CONDITIONAL_HTML_DLH ||
+                _tokenizer.current.tokenType === DOMTokenType.CONDITIONAL_HTML_DLR)
                 && userSettings.getOption('conditionalComments')) {
-                let current = this.domTokenizer.current;
+                let current = _tokenizer.current;
                 if(holdConditionalTag !== null && current.value.trim().length > 0){
                     this.conditionalHtml.push({
                         'type':holdConditionalTag['type'],
@@ -96,68 +113,32 @@ class DomParser{
                         'html':current.value
                     });
                 }
-            }
-            this.domTokenizer.next();
-        }
-
-        //Use a fresh tokenizer for each nested ioc extraction
-        for(let tag in this.nested_iocs){
-            let tokenizer = new DOMTokenizer(this.__raw__);
-            while(tokenizer.hasNext()){
-                if(tokenizer.current.tokenType === DOMTokenType.OPEN_TAG_NAME && tokenizer.current.value === tag){
-                    let outerTag = this.parseNestedTag(tag, this.nested_iocs[tag]["attributes"], this.nested_iocs[tag]["nested_tags"], tokenizer)
-                    if(!(outerTag.extractions == null && outerTag.innerTags == null) && !this.alreadyExists(tag, null, null, true, outerTag)){
-                        if(this.nested_iocs[tag]["extractions"] == null){
-                            this.nested_iocs[tag]["extractions"] = [];
-                        }
-                        this.nested_iocs[tag]["extractions"].push(outerTag);
-                    }
-                }
-                tokenizer.next();
-            }
-        }
-
-        //Get all style attributes from all elements
-        let tokenizer = new DOMTokenizer(this.__raw__);
-        while(tokenizer.hasNext()){
-            if(tokenizer.current.tokenType === DOMTokenType.OPEN_TAG_NAME){
-                let tagName = tokenizer.current.value;
-                let attributes = this.getAttribute('*', tokenizer);
+            }else if(_tokenizer.current.tokenType === DOMTokenType.OPEN_TAG_NAME){
+                let tagName = _tokenizer.current.value;
+                let attributes = this.getCurrentAttributes(_tokenizer);
                 if(attributes !== null && 'style' in attributes){
                     let styleParser = new StyleParser(new DOMToken(DOMTokenType.STYLE, attributes['style']), tagName);
                     this.styleBlocks.push(styleParser.styleBlock);
                 }
             }
-            tokenizer.next();
+            _tokenizer.next();
         }
     }
 
-    alreadyExists(tag, attName, attValue, nested, outerTag){
-        let iocs = (nested) ? this.nested_iocs : this.unnested_iocs;
-        if(nested){
-            if(iocs[tag]["extractions"] != null){
-                for(let i=0; i<iocs[tag]["extractions"].length; i++){
-                    if(iocs[tag]["extractions"][i].equals(outerTag)){
-                        return true;
-                    }
-                }
-            }
-        }else{
-            if(iocs[tag]["extractions"] != null){
-                for(let i=0; i<iocs[tag]["extractions"].length; i++){
-                    if(attName in iocs[tag]["extractions"][i] && attValue === iocs[tag]["extractions"][i][attName]){
-                        return true;
-                    }
-                }
+    detectionExists(name, tag){
+        let detections = this.htmlSignatures[name]['detections'];
+        for(let i in detections) {
+            if(detections[i].equals(tag)) {
+                return true;
             }
         }
         return false;
     }
 
-    parseNestedTag(tag, outerTagAttributes, nestedTags, tokenizer){
-        let outerTag = new OuterTag(null, null);
+    parseNestedTag(element, tag, outerTagAttributes, nestedTags, tokenizer){
+        let outerTag = new OuterTag(element, null, null);
 
-        let allAttributes = this.getAttribute("*", tokenizer);
+        let allAttributes = this.getCurrentAttributes(tokenizer);
         let attributesOfInterest = {};
         for(let key in allAttributes){
             if(outerTagAttributes[0] === "*" || outerTagAttributes.includes(key)){
@@ -165,7 +146,7 @@ class DomParser{
             }
         }
         if(Object.keys(attributesOfInterest).length > 0){
-            outerTag.extractions = attributesOfInterest;
+            outerTag.detections = attributesOfInterest;
         }
 
         let sameTagNameNesting = 1;
@@ -177,7 +158,7 @@ class DomParser{
 
                 let t = tokenizer.current.value;
                 let innerTag = new InnerTag(t, null);
-                allAttributes = this.getAttribute("*", tokenizer);
+                allAttributes = this.getCurrentAttributes(tokenizer);
                 attributesOfInterest = {};
                 for(let key in allAttributes){
                     if((nestedTags[t][0] === "*" || nestedTags[t].includes(key))){
@@ -185,7 +166,7 @@ class DomParser{
                     }
                 }
                 if(Object.keys(attributesOfInterest).length > 0){
-                    innerTag.extractions = attributesOfInterest;
+                    innerTag.detections = attributesOfInterest;
                     if(outerTag.innerTags == null){
                         outerTag.innerTags = [];
                     }
@@ -204,73 +185,45 @@ class DomParser{
         return outerTag;
     }
 
-    getAttribute(attributeName, tokenizer){
-        if(attributeName === "*"){ //get all attributes
-            let attributes = null;
-            while(tokenizer.hasNext() &&
-                tokenizer.current.tokenType !== DOMTokenType.DEFAULT_TAG_FINISH &&
-                tokenizer.current.tokenType !== DOMTokenType.VOID_TAG_FINISH){
-                if(tokenizer.current.tokenType === DOMTokenType.ATT_KEY){
-                    if(attributes == null){
-                        attributes = {};
-                    }
-                    let att_key = tokenizer.current.value;
+    getCurrentAttributes(tokenizer){
+        let attributes = null;
+        while(tokenizer.hasNext() &&
+            tokenizer.current.tokenType !== DOMTokenType.DEFAULT_TAG_FINISH &&
+            tokenizer.current.tokenType !== DOMTokenType.VOID_TAG_FINISH){
+            if(tokenizer.current.tokenType === DOMTokenType.ATT_KEY){
+                if(attributes == null){
+                    attributes = {};
+                }
+                let att_key = tokenizer.current.value;
 
-                    while(tokenizer.hasNext() && tokenizer.current.tokenType !== DOMTokenType.ATT_VALUE
-                    && tokenizer.current.tokenType !== DOMTokenType.QUOTE){
-                        tokenizer.next();
-                    }
+                while(tokenizer.hasNext() && tokenizer.current.tokenType !== DOMTokenType.ATT_VALUE
+                && tokenizer.current.tokenType !== DOMTokenType.QUOTE){
+                    tokenizer.next();
+                }
 
+                if(tokenizer.current.tokenType === DOMTokenType.QUOTE){
+                    tokenizer.next();
                     if(tokenizer.current.tokenType === DOMTokenType.QUOTE){
-                        tokenizer.next();
-                        if(tokenizer.current.tokenType === DOMTokenType.QUOTE){
-                            attributes[att_key] = "NULL";
-                        }else{
-                            attributes[att_key] = tokenizer.current.value;
-                        }
-                    }else if(tokenizer.current.tokenType === DOMTokenType.ATT_VALUE){
+                        attributes[att_key] = "NULL";
+                    }else{
                         attributes[att_key] = tokenizer.current.value;
                     }
-                }else if(tokenizer.current.tokenType === DOMTokenType.BOOL_ATT){
-                    if(attributes == null){
-                        attributes = {};
-                    }
-                    attributes[tokenizer.current.value] = "True";
+                }else if(tokenizer.current.tokenType === DOMTokenType.ATT_VALUE){
+                    attributes[att_key] = tokenizer.current.value;
                 }
-                tokenizer.next();
-            }
-            return attributes;
-        }else{
-            while(tokenizer.hasNext() &&
-                tokenizer.current.tokenType !== DOMTokenType.DEFAULT_TAG_FINISH &&
-                tokenizer.current.tokenType !== DOMTokenType.VOID_TAG_FINISH){
-                if(tokenizer.current.tokenType === DOMTokenType.ATT_KEY &&
-                    tokenizer.current.value === attributeName){
-                    while(tokenizer.hasNext() && tokenizer.current.tokenType !== DOMTokenType.ATT_VALUE
-                        && tokenizer.current.tokenType !== DOMTokenType.QUOTE){
-                        tokenizer.next();
-                    }
-
-                    if(tokenizer.current.tokenType === DOMTokenType.QUOTE){
-                        tokenizer.next();
-                        if(tokenizer.current.tokenType === DOMTokenType.QUOTE){
-                            return "";
-                        }else{
-                            return tokenizer.current.value;
-                        }
-                    }else if(tokenizer.current.tokenType === DOMTokenType.ATT_VALUE){
-                        return tokenizer.current.value;
-                    }
-                }else if(tokenizer.current.tokenType === DOMTokenType.BOOL_ATT){
-                    return "True";
+            }else if(tokenizer.current.tokenType === DOMTokenType.BOOL_ATT){
+                if(attributes == null){
+                    attributes = {};
                 }
-                tokenizer.next();
+                attributes[tokenizer.current.value] = "True";
             }
+            tokenizer.next();
         }
+        return attributes;
     }
 
-    hasIocs(){
-        if(areSignatureHits(this.scripts, "deobfuscation") || areSignatureHits(this.scripts, "detection")){
+    hasDetections(){
+        if(areJavaScriptSignatureHits(this.scripts, "deobfuscation") || areJavaScriptSignatureHits(this.scripts, "detection")){
             return true;
         }
         if(this.conditionalHtml.length > 0){
@@ -279,48 +232,60 @@ class DomParser{
         if(areCssSignatureHits(this.styleBlocks)){
             return true;
         }
-        for(let key in this.unnested_iocs){
-            if(this.unnested_iocs[key]["extractions"] != null && this.unnested_iocs[key]["extractions"].length > 0){
-                return true;
-            }
-        }
-        for(let key in this.nested_iocs){
-            if(this.nested_iocs[key]["extractions"] != null && this.nested_iocs[key]["extractions"].length > 0){
+        for(let key in this.htmlSignatures){
+            if(this.htmlSignatures[key]["detections"].length > 0){
                 return true;
             }
         }
         return false;
     }
 
-    hasConditionalHtml(type){
-        for(let i=0; i<this.conditionalHtml.length; i++){
-            if(this.conditionalHtml[i]['type'] === type){
+    hasHtmlDetections(){
+        for(let name in this.htmlSignatures){
+            if(this.htmlSignatures[name]['detections'].length > 0){
                 return true;
             }
         }
         return false;
+    }
+
+    hasJavaScriptDetections(){
+        return areJavaScriptSignatureHits(this.scripts, 'detection');
+    }
+
+    hasCssDetections(){
+        return areCssSignatureHits(this.styleBlocks);
+    }
+
+    hasObfuscationDetections(){
+        return areJavaScriptSignatureHits(this.scripts, 'deobfuscation')
+    }
+
+    hasConditionalHtmlDetections(){
+        return this.conditionalHtml.length > 0;
     }
 }
 
 class OuterTag{
-    constructor(extractions, innerTags){
-        this.extractions = extractions; //{att1:val1,att2:val2...}
+    constructor(tag, detections, innerTags){
+        this.tag = tag;
+        this.detections = detections; //{att1:val1,att2:val2...}
         this.innerTags = innerTags; //[InnerTag, InnerTag,...]
     }
 
     equals(outerTag){
-        if(this.extractions != null && outerTag.extractions != null){
-            for(let att in this.extractions){
-                if(!(att in outerTag.extractions) || (att in outerTag.extractions && outerTag.extractions[att] !== this.extractions[att])){
+        if(this.detections != null && outerTag.detections != null){
+            for(let att in this.detections){
+                if(!(att in outerTag.detections) || (att in outerTag.detections && outerTag.detections[att] !== this.detections[att])){
                     return false;
                 }
             }
-            for(let att in outerTag.extractions){
-                if(!(att in this.extractions)){
+            for(let att in outerTag.detections){
+                if(!(att in this.detections)){
                     return false;
                 }
             }
-        }else if((this.extractions == null && outerTag.extractions != null) || (this.extractions != null && outerTag.extractions == null)){
+        }else if((this.detections == null && outerTag.detections != null) || (this.detections != null && outerTag.detections == null)){
             return false;
         }
         if(this.innerTags != null && outerTag.innerTags != null){
@@ -356,24 +321,24 @@ class OuterTag{
 }
 
 class InnerTag{
-    constructor(tag, extractions){
+    constructor(tag, detections){
         this.tag = tag;
-        this.extractions = extractions; //{att1:val1,att2:val2...}
+        this.detections = detections; //{att1:val1,att2:val2...}
     }
 
     equals(innerTag){
-        if(this.extractions != null && innerTag.extractions != null) {
-            for (let key in this.extractions) {
-                if(!(key in innerTag.extractions) || (key in innerTag.extractions && innerTag.extractions[key] !== this.extractions[key])){
+        if(this.detections != null && innerTag.detections != null) {
+            for (let key in this.detections) {
+                if(!(key in innerTag.detections) || (key in innerTag.detections && innerTag.detections[key] !== this.detections[key])){
                     return false;
                 }
             }
-            for(let key in innerTag.extractions){
-                if(!(key in this.extractions) || (key in this.extractions && this.extractions[key] !== innerTag.extractions[key])){
+            for(let key in innerTag.detections){
+                if(!(key in this.detections) || (key in this.detections && this.detections[key] !== innerTag.detections[key])){
                     return false;
                 }
             }
-        }else if((this.extractions != null && innerTag.extractions == null) || (this.extractions == null && innerTag.extractions != null)){
+        }else if((this.detections != null && innerTag.detections == null) || (this.detections == null && innerTag.detections != null)){
             return false;
         }
         return true;

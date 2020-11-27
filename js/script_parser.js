@@ -4,7 +4,7 @@ class ScriptParser{
         if(script.tokenType !== DOMTokenType.SCRIPT){
             throw "ScriptParser cannot parse content of DOMTokenType." + script.tokenType;
         }
-        this.signatures = userSettings.signatures;
+        this.signatures = userSettings.javaScriptSignatures;
         this.script = new Script(script.value);
         this.parseScript();
     }
@@ -151,7 +151,7 @@ class Script{
 class Statement{
     constructor(raw){
         this._raw = raw;
-        this.signatureHits = [];
+        this.detections = [];
         this.deobfuscationHits = [];
     }
 
@@ -162,7 +162,7 @@ class Statement{
                 //signature exists in the statement
                 if(this._raw.length <= 100 && !attemptDeobfuscation){
                     if(!(this.alreadyExists(key, this._raw))){
-                        this.signatureHits.push({
+                        this.detections.push({
                             "signature":key,
                             "tag":this._raw
                         });
@@ -179,7 +179,7 @@ class Statement{
                             let breakIdx = stickyIdx;
                             while(breakIdx < this._raw.length){
                                 breakIdx++;
-                                if(global.test(this._raw.substring(stickyIdx, breakIdx))){
+                                if(global.test(this._raw.substring(stickyIdx, breakIdx)) || breakIdx >= 20000){
                                     global.lastIndex = 0;
                                     //this is the last character of a match
                                     if(attemptDeobfuscation){
@@ -191,7 +191,7 @@ class Statement{
                                     }else{
                                         let tag = this._raw.substring(stickyIdx, breakIdx);
                                         if(!(this.alreadyExists(key, tag))){
-                                            this.signatureHits.push({
+                                            this.detections.push({
                                                 "signature":key,
                                                 "tag":this._raw.substring(stickyIdx, breakIdx)
                                             });
@@ -208,8 +208,8 @@ class Statement{
     }
 
     alreadyExists(key, tag){
-        for(let i in this.signatureHits){
-            if(this.signatureHits[i]["signature"] === key && this.signatureHits[i]["tag"].includes(tag)){
+        for(let i in this.detections){
+            if(this.detections[i]["signature"] === key && this.detections[i]["tag"].includes(tag)){
                 return true;
             }
         }
@@ -218,10 +218,10 @@ class Statement{
 
 }
 
-function areSignatureHits(scripts, type){
+function areJavaScriptSignatureHits(scripts, type){
     for(let i in scripts){
         for(let j in scripts[i].statements){
-            let hits = (type === 'deobfuscation') ? scripts[i].statements[j].deobfuscationHits : scripts[i].statements[j].signatureHits;
+            let hits = (type === 'deobfuscation') ? scripts[i].statements[j].deobfuscationHits : scripts[i].statements[j].detections;
             if(hits.length > 0){
                 return true;
             }
@@ -234,15 +234,15 @@ function getDetectedSignatures(scripts, type){
     let signatures = {};
     for(let i in scripts){
         for(let j in scripts[i].statements){
-            let hits = (type === 'deobfuscation') ? scripts[i].statements[j].deobfuscationHits : scripts[i].statements[j].signatureHits;
-            if(hits.length > 0){
-                for(let k in hits){
-                    let signature = hits[k]["signature"];
+            let detections = (type === 'deobfuscation') ? scripts[i].statements[j].deobfuscationHits : scripts[i].statements[j].detections;
+            if(detections.length > 0){
+                for(let k in detections){
+                    let signature = detections[k]["signature"];
                     if(!(signature in signatures)){
                         signatures[signature] = [];
                     }
-                    if(!signatures[signature].includes(hits[k]["tag"])){
-                        signatures[signature].push(hits[k]["tag"]);
+                    if(!signatures[signature].includes(detections[k]["tag"])){
+                        signatures[signature].push(detections[k]["tag"]);
                     }
                 }
             }
@@ -254,8 +254,8 @@ function getDetectedSignatures(scripts, type){
 function attemptToDeobfuscate(key, tag, unwrap){
     try{
         let dom = unescape(tag.replace(unwrap, '').trim());
-        let domParser = new DomParser(new DOMTokenizer(dom));
-        if(domParser.hasIocs()){
+        let domParser = new DomParser(dom);
+        if(domParser.hasDetections()){
             return domParser;
         }else{
             return checkLength('[SUCCESS]' + dom, 100);
