@@ -40,7 +40,9 @@ function changeJavaScriptSignature(key){
                 throw "JavaScript signature name required";
             }
             if(signature === undefined || signature.trim().length === 0){
-                signature = ".*";
+                throw "JavaScript signature required";
+            }else if(signature === ".*"){
+                throw "Illegal JavaScript signature"
             }
             userSettings.addJavaScriptSignature(name, signature);
             showSettings('javascript');

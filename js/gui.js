@@ -27,8 +27,10 @@ function padContent(){
 }
 
 function toggleDetectionSummary(header){
-    let div = document.getElementById(header.id + "-content");
-    div.classList.toggle("show");
+    if(header.id !== "info-no-signatures-detected"){
+        let div = document.getElementById(header.id + "-content");
+        div.classList.toggle("show");
+    }
 }
 
 function showSettings(section){

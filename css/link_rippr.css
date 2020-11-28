@@ -192,8 +192,8 @@ th.menu{
 }
 
 .detection-header {
-    background-color: #3E0015;
-    color: navajowhite;
+    background-color: #0A1926;
+    color: whitesmoke;
     cursor: pointer;
     padding: 10px;
     width: 100%;
@@ -202,7 +202,7 @@ th.menu{
     outline: none;
     font-size: 18px;
     font-family: "Courier New";
-    border-radius: 10px;
+    border-radius: 8px;
 }
 
 .detection-summary {
@@ -213,11 +213,11 @@ th.menu{
 }
 
 .detection-row-odd{
-    background-color: #19253d;
+    background-color: #000d1a;
 }
 
 .detection-row-even{
-    background-color: #19323d;
+    background-color: #1a0500;
 }
 
 .detection-table{
@@ -226,10 +226,17 @@ th.menu{
 
 th.dh{
     background-color:#3E0015;
-    color: navajowhite;
+    color: whitesmoke;
     font-family: "Courier New";
 }
 
 span.escape{
-    color:red;
+    color:darkred;
+    font-weight: bold;
+}
+
+.detection-icon{
+    width:30px;
+    height:30px;
+    vertical-align: bottom;
 }

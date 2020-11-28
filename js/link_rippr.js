@@ -27,13 +27,13 @@ function ripLinks(){
                 detections.push(new DetectionFormatter(getDetectedSignatures(parser.scripts, 'deobfuscation'), "obf"));
             }
             if(userSettings.getOption("conditionalComments") && parser.hasConditionalHtmlDetections()){
-                detections.push(new DetectionFormatter(parser.conditionalHtml, "chtml"));
+                detections.push(new DetectionFormatter(parser.conditionalHtml, "chtml")); //FIXME : Aggregate conditional comments that are the same type into a single group, use this as the signature 'name'
             }
 
             let summary = "";
-            chatter(stylize(fileName));
+            chatter(stylize(fileName).toUpperCase());
             if(detections.length === 0){
-                summary += "<p>" + stylize("NO SIGNATURES DETECTED") + "</p>";
+                summary += new DetectionHeader("INFO", "no-signatures-detected").print();
             }else{
                 for(let i in detections){
                     summary += detections[i].print();
@@ -75,7 +75,7 @@ function dumpTokens(){
 
 function setUpGlobalVariables(msg){
     chatterBox = document.getElementById("chatter_box");
-    //results = document.getElementById("results");
+    results = document.getElementById("results");
     if(userSettings == null){
         userSettings = new UserSettings();
     }
@@ -88,10 +88,6 @@ function dropHandler(event){
 
     if(event.dataTransfer.items){
     //items have been dropped
-        if(Object.keys(userSettings.extractions).length === 0 && userSettings.getOption('mode') === LRMode.EXTRACTION){
-            throwError("LinkRippr currently has no htmlSignatures defined.")
-            return;
-        }
         if(event.dataTransfer.items.length === 1){
             let fileInfo = event.dataTransfer.files[0];
             if((fileInfo.type === "text/html")){

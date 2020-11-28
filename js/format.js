@@ -1,5 +1,5 @@
 function safeEscape(value){
-    return value.replace(/</g, "<span class='escape'>_lt_</span>");
+    return value.replace(/[<]/g, "<span class='escape'>_</span>");
 }
 
 function padNumber(number){
@@ -15,7 +15,7 @@ function checkLength(str, maxLength){
         if(str.length <= maxLength){
             return str;
         }else{
-            return str.substring(0, maxLength);
+            return str.substring(0, maxLength - 3) + "...";
         }
     }
     return str;
@@ -38,12 +38,20 @@ class DetectionFormatter{
     }
 
     print(){
-        if(this.signatureType === "js"){
-            console.log(this.detections);
-        }
         let toPrint = "";
         for(let name in this.detections){
-            if((this.signatureType === "html") ? this.detections[name]['detections'].length > 0 : this.detections[name].length > 0){
+            let hasDetections = false;
+            switch(this.signatureType){
+                case "chtml":
+                    hasDetections = this.detections.length > 0 && this.detections[name]['type'] !== 'unknown'; //FIXME : remove check once the conditional comments aggregating function is written
+                    break;
+                case "html":
+                    hasDetections = this.detections[name]['detections'].length > 0;
+                    break;
+                default:
+                    hasDetections = this.detections[name].length > 0;
+            }
+            if(hasDetections){
                 let formattedHeader;
                 let formattedDetections;
                 switch(this.signatureType){
@@ -64,7 +72,7 @@ class DetectionFormatter{
                         formattedDetections = new DeobfuscationDetections(this.detections[name]);
                         break;
                     case "chtml":
-                        formattedHeader = new DetectionHeader("CONDITIONAL COMMENTS", this.detections[name]['type']);
+                        formattedHeader = new DetectionHeader("CONDITIONAL COMMENTS", this.detections[name]['type'] + "-" + padNumber(name));
                         formattedDetections = new ConditionalCommentDetection(this.detections[name]);
                 }
                 let detectionSummary = new DetectionSummary(formattedHeader, formattedDetections);
@@ -95,7 +103,7 @@ class DetectionHeader{
     }
     print(){
         let toPrint = "<button type='button' class='detection-header' id='" + this.signatureType.toLowerCase() + "-" + this.signatureName.toLowerCase() + "' onclick='toggleDetectionSummary(this)'>";
-        toPrint += "<b>[" + this.signatureType.toUpperCase() + "]</b> " + this.signatureName.toLowerCase() + "</button>";
+        toPrint += "<span class='escape'>" + this.signatureType.toUpperCase() + " ||</span> " + ((this.signatureType === "CONDITIONAL COMMENTS")?this.signatureName.toLowerCase().split("-")[0]:this.signatureName.toLowerCase()) + "</button>";
         return toPrint;
     }
 }
@@ -113,7 +121,7 @@ class HtmlDetections{
                 toPrint += "<tr class='" + ((idx%2===0)?"detection-row-even":"detection-row-odd") + "'><td>" + padNumber(idx) + "</td>";
                 toPrint += "<td>" + this.detections[i].tag.toUpperCase() + "</td>";
                 toPrint += "<td>" + key.toLowerCase() + "</td>";
-                toPrint += "<td>" + checkLength(safeEscape(stripNewLines(this.detections[i].detections[key])), 100) + "</td></tr>";
+                toPrint += "<td>" + safeEscape(checkLength(stripNewLines(this.detections[i].detections[key]), 100)) + "</td></tr>";
             }
             if(this.detections[i].innerTags !== null){
                 for(let j in this.detections[i].innerTags){
@@ -122,7 +130,7 @@ class HtmlDetections{
                         toPrint += "<td>" + this.detections[i].tag.toUpperCase() + " -> ";
                         toPrint += this.detections[i].innerTags[j].tag.toUpperCase() + "</td>";
                         toPrint += "<td>" + key + "</td>";
-                        toPrint += "<td>" + checkLength(safeEscape(stripNewLines(this.detections[i].innerTags[j].detections[key])), 100) + "</td></tr>";
+                        toPrint += "<td>" + safeEscape(checkLength(stripNewLines(this.detections[i].innerTags[j].detections[key]), 100)) + "</td></tr>";
                     }
                 }
             }
@@ -136,13 +144,12 @@ class JavaScriptDetections{
         this.detections = detections;
     }
     print(){
-        console.log(this.detections);
         let toPrint = "<table class='detection-table'>"; //<tr><th class='dh'>#</th><th class='dh'>VALUE</th></tr>
         let idx = 0;
         for(let i in this.detections){
             idx++;
             toPrint += "<tr class='" + ((idx%2===0)?"detection-row-even":"detection-row-odd") + "'><td>" + padNumber(idx) + "</td>";
-            toPrint += "<td>" + checkLength(safeEscape(stripNewLines(this.detections[i])), 100) + "</td></tr>";
+            toPrint += "<td>" + safeEscape(checkLength(stripNewLines(this.detections[i]), 200)) + "</td></tr>";
         }
         return toPrint + "</table>";
     }
@@ -161,7 +168,7 @@ class CssDetections{
             toPrint += "<td>" + ((this.detections[i]['condition'] == null) ? "-" : this.detections[i]['condition']) + "</td>";
             toPrint += "<td>" + this.detections[i]['selector'] + "</td>";
             toPrint += "<td>" + this.detections[i]['attribute'] + "</td>";
-            toPrint += "<td>" + checkLength(safeEscape(stripNewLines(this.detections[i]['value'])), 100) + "</td></tr>";
+            toPrint += "<td>" + safeEscape(checkLength(stripNewLines(this.detections[i]['value']), 100)) + "</td></tr>";
         }
         return toPrint + "</table>";
     }
@@ -180,7 +187,7 @@ class DeobfuscationDetections{
                 let result = (this.detections[i].startsWith("[FAIL]")) ? "FAIL" : "SUCCESS";
                 let raw = this.detections[i].substring(this.detections[i].indexOf("]") + 1, this.detections[i].length);
                 toPrint += "<tr class='" + ((idx%2===0)?"detection-row-even":"detection-row-odd") + "'><td>" + padNumber(idx) + "</td><td>" + result + '</td><td>-</td>';
-                toPrint += "<td>" + checkLength(safeEscape(stripNewLines(raw)), 100) + "</td></tr>";
+                toPrint += "<td>" + safeEscape(checkLength(stripNewLines(raw), 200)) + "</td></tr>";
             }else if(typeof(this.detections[i] === 'object') && this.detections[i] !== null){
                 //check for html detections
                 if(this.detections[i].hasHtmlDetections()){
@@ -191,7 +198,7 @@ class DeobfuscationDetections{
                                 toPrint += "<tr class='" + ((idx%2===0)?"detection-row-even":"detection-row-odd") + "'><td>" + padNumber(idx) + "</td><td>SUCCESS</td><td>HTML : " + name + "</td>"
                                 let valueStr = "[" + detectionsByName[j].tag.toUpperCase() + " : " + key.toLowerCase() + "] ";
                                 valueStr += detectionsByName[j].detections[key];
-                                toPrint += "<td>" + checkLength(safeEscape(stripNewLines(valueStr)), 100) + "</td></tr>";
+                                toPrint += "<td>" + safeEscape(checkLength(stripNewLines(valueStr), 100)) + "</td></tr>";
                             }
                             if(detectionsByName[j].innerTags !== null){
                                 for(let k in detectionsByName[j].innerTags){
@@ -201,7 +208,7 @@ class DeobfuscationDetections{
                                         valueStr += detectionsByName[j].innerTags[k].tag.toUpperCase() + " : ";
                                         valueStr += key + "] ";
                                         valueStr += detectionsByName[j].innerTags[k].detections[key];
-                                        toPrint += "<td>" + checkLength(safeEscape(stripNewLines(valueStr)), 100) + "</td></tr>";
+                                        toPrint += "<td>" + safeEscape(checkLength(stripNewLines(valueStr), 100)) + "</td></tr>";
                                     }
                                 }
                             }
@@ -215,7 +222,7 @@ class DeobfuscationDetections{
                     for(let name in detectionsByName){
                         for(let j in detectionsByName[name]){
                             toPrint += "<tr class='" + ((idx%2===0)?"detection-row-even":"detection-row-odd") + "'><td>" + padNumber(idx) + "</td><td>SUCCESS</td><td>JAVASCRIPT : " + name + "</td>"
-                            toPrint += "<td>" + checkLength(safeEscape(stripNewLines(detectionsByName[name][j])), 100) + "</td></tr>";
+                            toPrint += "<td>" + safeEscape(checkLength(stripNewLines(detectionsByName[name][j]), 100)) + "</td></tr>";
                         }
                     }
                 }
@@ -231,7 +238,7 @@ class DeobfuscationDetections{
                             valueStr += detectionsByName[name][j]['attribute'] + " : ";
                             valueStr += detectionsByName[name][j]['value'] + "; } ";
                             valueStr += (detectionsByName[name][j]['condition'] == null) ? "" : this.detections[j]['condition'] + "}";
-                            toPrint += "<td>" + checkLength(safeEscape(stripNewLines(valueStr)), 100) + "</td></tr>";
+                            toPrint += "<td>" + safeEscape(checkLength(stripNewLines(valueStr), 100)) + "</td></tr>";
                         }
                     }
                 }
@@ -242,7 +249,7 @@ class DeobfuscationDetections{
                     for(let j in detectionsByIndex){
                         toPrint += "<tr class='" + ((idx%2===0)?"detection-row-even":"detection-row-odd") + "'><td>" + padNumber(idx) + "</td><td>SUCCESS</td><td>CONDITIONAL COMMENTS : " + detectionsByIndex[j]['type'] + "</td>"
                         let valueStr = "[" + detectionsByIndex[j]['condition'] + "] " + detectionsByIndex[j]['html'];
-                        toPrint += "<td>" + checkLength(safeEscape(stripNewLines(valueStr)), 100) + "</td></tr>";
+                        toPrint += "<td>" + safeEscape(checkLength(stripNewLines(valueStr), 100)) + "</td></tr>";
                     }
                 }
             }
@@ -258,7 +265,7 @@ class ConditionalCommentDetection{
     print(){
         let toPrint = "<table class='detection-table'>"; //<tr><th class='dh'>CONDITION</th><th class='dh'>HTML</th></tr>
         toPrint += "<tr class='detection-row-even'><td>" + this.detection['condition'] + "</td>";
-        toPrint += "<td>" + checkLength(safeEscape(stripNewLines(this.detection['html'])) + '\n', 100) + "</td></tr>";
+        toPrint += "<td>" + safeEscape(checkLength(stripNewLines(this.detection['html']), 100)) + "</td></tr>";
         return toPrint + "</table>";
     }
 }
