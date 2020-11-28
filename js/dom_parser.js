@@ -268,6 +268,23 @@ class DomParser{
     hasConditionalHtmlDetections(){
         return this.conditionalHtml.length > 0;
     }
+
+    groupConditionalHtmlDetectionsByCondition(){
+        let detectionsByCondition = {};
+        for(let i in this.conditionalHtml){
+            if(this.conditionalHtml[i]['condition'] !== 'unknown'){ //ignore unknowns for the time being
+                let condition = this.conditionalHtml[i]['condition'].trim().replace(/\s/g, '-');
+                if(!(condition in detectionsByCondition)){
+                    detectionsByCondition[condition] = [];
+                }
+                detectionsByCondition[condition].push({
+                    'type':this.conditionalHtml[i]['type'],
+                    'html':this.conditionalHtml[i]['html']
+                });
+            }
+        }
+        return detectionsByCondition;
+    }
 }
 
 class OuterTag{

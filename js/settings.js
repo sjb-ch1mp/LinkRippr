@@ -145,9 +145,8 @@ class UserSettings{
         this.cssSignatures = getDefaultCssSignatures();
         this.options = {
             'debugTokenizer': false,
-            'truncate':true,
+            'truncate':false,
             'simpleDeob':true,
-            'checkStyle':true,
             'conditionalComments':true,
             'deobSignatures':getDefaultObfuscationSignatures()
         };

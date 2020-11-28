@@ -108,7 +108,7 @@ button.menu-button{
     color: #909EAA;
     alignment: center;
     font-family: "Courier New";
-    font-size: small;
+    font-size: 16px;
     padding-top: 10px;
     padding-bottom: 10px;
     word-wrap: break-word;
@@ -200,7 +200,7 @@ th.menu{
     border: 1px solid black;
     text-align: left;
     outline: none;
-    font-size: 18px;
+    font-size: 14px;
     font-family: "Courier New";
     border-radius: 8px;
 }
@@ -213,11 +213,11 @@ th.menu{
 }
 
 .detection-row-odd{
-    background-color: #000d1a;
+    background-color: #0b1a28;
 }
 
 .detection-row-even{
-    background-color: #1a0500;
+    background-color: #1a0008;
 }
 
 .detection-table{
@@ -225,12 +225,18 @@ th.menu{
 }
 
 th.dh{
-    background-color:#3E0015;
+    background-color:#00070E;
     color: whitesmoke;
     font-family: "Courier New";
+    font-weight: bolder;
 }
 
 span.escape{
+    color:darkred;
+    font-weight: bold;
+}
+
+span.highlight{
     color:darkred;
     font-weight: bold;
 }

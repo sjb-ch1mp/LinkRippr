@@ -61,18 +61,18 @@ function getDefaultJavaScriptSignatures(){
             "user_view":"unescape\\(.*\\)[;\\s]",
             "default":true},
         "url":{
-            "global":new RegExp('http(s)?:\\/\\/[a-zA-Z\\-]+\\..*["\']', "g"),
-            "sticky":new RegExp('http(s)?:\\/\\/[a-zA-Z\\-]+\\..*["\']', "y"),
-            "user_view":"http(s)?:\\/\\/[a-zA-Z\\-]+\\..*[;\\s\"']",
+            "global":new RegExp('http(s)?:\\/\\/[a-zA-Z\\-]+\\..*["\';\s\\)\\(]', "g"),
+            "sticky":new RegExp('http(s)?:\\/\\/[a-zA-Z\\-]+\\..*["\';\s\\)\\(]', "y"),
+            "user_view":"http(s)?:\\/\\/[a-zA-Z\\-]+\\..*[\"\';\\s\\)\\(]",
             "default":true},
         "ip-4":{
             "global":new RegExp('(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)[\'";\s]', "g"),
             "sticky":new RegExp('(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)[\'";\s]', "y"),
-            "user_view":'(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)[\'";\s]',
+            "user_view":'(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)[\'";\\s]',
             "default":true},
         "ajax-request":{
-            "global":new RegExp("\\$\\.ajax\\(\\{.*type:\\s?['\"](POST|GET)['\"].*\\}\\)", "g"),
-            "sticky":new RegExp("\\$\\.ajax\\(\\{.*type:\\s?['\"](POST|GET)['\"].*\\}\\)", "y"),
+            "global":new RegExp("\\$\\.ajax\\(\\{.*type:\s?['\"](POST|GET)['\"].*\\}\\)", "g"),
+            "sticky":new RegExp("\\$\\.ajax\\(\\{.*type:\s?['\"](POST|GET)['\"].*\\}\\)", "y"),
             "user_view":"\\$\\.ajax\\(\\{.*type:\\s?['\"](POST|GET)['\"].*\\}\\)",
             "default":true},
         "jquery-request":{
@@ -81,9 +81,14 @@ function getDefaultJavaScriptSignatures(){
             "user_view":"\\$\\.(post|get)\\(.*\\);",
             "default":true},
         "xml-http-request":{
-            "global":new RegExp("\\b[a-zA-Z_0-9]+\\.open\\(\\s?[\"']([pPoOsStT]{4}|[gGeEtT]{3})['\"].*http.*\\)[;\\s]", "g"),
-            "sticky":new RegExp("\\b[a-zA-Z_0-9]+\\.open\\(\\s?[\"']([pPoOsStT]{4}|[gGeEtT]{3})['\"].*http.*\\)[;\\s]", "y"),
-            "user_view":"\\b[a-zA-Z_0-9]+\\.open\\(\\s?[\"']([pPoOsStT]{4}|[gGeEtT]{3})['\"].*http.*\\)[;\\s]",
+            "global":new RegExp("\b[a-zA-Z_0-9]+\\.open\\(\s?[\"']([pPoOsStT]{4}|[gGeEtT]{3})['\"].*\\)[;\s]", "g"),
+            "sticky":new RegExp("\b[a-zA-Z_0-9]+\\.open\\(\s?[\"']([pPoOsStT]{4}|[gGeEtT]{3})['\"].*\\)[;\s]", "y"),
+            "user_view":"\b[a-zA-Z_0-9]+\\.open\\(\\s?[\"']([pPoOsStT]{4}|[gGeEtT]{3})['\"].*\\)[;\\s]",
+            "default":true},
+        "window-location-replace":{
+            "global":new RegExp("window\\.location\\.replace\\(.*\\)[;\s]", "g"),
+            "sticky":new RegExp("window\\.location\\.replace\\(.*\\)[;\s]", "y"),
+            "user_view":"window\\.location\\.replace\\(.*\\)[;\\s]",
             "default":true}
     };
 }

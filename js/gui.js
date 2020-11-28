@@ -178,8 +178,12 @@ function hideSettings(){
     settingsVisible = false;
     document.getElementById("content").innerHTML = "<button style='display:none;' id='button-redo' class='close-button' onclick='redo()'>&#11153;</button><p id='results'></p>";
     if(previousResults !== null){
-        document.getElementById("results").innerHTML = previousResults.resultString;
-        setUpGlobalVariables(stylize(previousResults.fileName));
+        if(previousResults.debug){
+            document.getElementById("results").innerText = previousResults.resultString;
+        }else{
+            document.getElementById("results").innerHTML = previousResults.resultString;
+        }
+        setUpGlobalVariables(stylize(previousResults.fileName).toUpperCase());
     }else{
         setUpGlobalVariables( "Drop an HTML file");
     }

@@ -6,6 +6,9 @@
 ### Author 
 Samuel Brookes ([@sjb-ch1mp](https://github.com/sjb-ch1mp))
 
+### NOTE
+Unfortunately, this README.md file is mostly applicable to version 1.0.1. I will hopefully get round to updating the README for version 1.2.0 soon!
+
 # Contents
 
 **[SUMMARY](#summary)**
@@ -507,3 +510,4 @@ The banner for LinkRippr was adapted from an image posted at [wallup.net](https:
 |---|---|---|---|
 |2020-11-24 | BUG | 1.0.1 |Added try-catch clause to StyleBlock.processRuleSets() to catch exceptions caused by malformed CSS rule sets ([#Issue 30](https://github.com/sjb-ch1mp/LinkRippr/issues/30)).|
 |2020-11-24 | FEATURE | 1.0.1 | LinkRippr is now checking style attributes of all elements for CSS javaScriptSignatures ([#Issue 23](https://github.com/sjb-ch1mp/LinkRippr/issues/23)).|
+|2020-11-24 | FEATURE | 1.2.0 | Wildcards and Regex implemented for HTML signatures. Significant refactoring. Output simplified and modernised ([#Issue 26](https://github.com/sjb-ch1mp/LinkRippr/issues/26), [#Issue 32](https://github.com/sjb-ch1mp/LinkRippr/issues/32))|

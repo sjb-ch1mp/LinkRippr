@@ -40,18 +40,7 @@ class DetectionFormatter{
     print(){
         let toPrint = "";
         for(let name in this.detections){
-            let hasDetections = false;
-            switch(this.signatureType){
-                case "chtml":
-                    hasDetections = this.detections.length > 0 && this.detections[name]['type'] !== 'unknown'; //FIXME : remove check once the conditional comments aggregating function is written
-                    break;
-                case "html":
-                    hasDetections = this.detections[name]['detections'].length > 0;
-                    break;
-                default:
-                    hasDetections = this.detections[name].length > 0;
-            }
-            if(hasDetections){
+            if((this.signatureType === "html")?this.detections[name]['detections'].length > 0:this.detections[name].length > 0){
                 let formattedHeader;
                 let formattedDetections;
                 switch(this.signatureType){
@@ -72,7 +61,7 @@ class DetectionFormatter{
                         formattedDetections = new DeobfuscationDetections(this.detections[name]);
                         break;
                     case "chtml":
-                        formattedHeader = new DetectionHeader("CONDITIONAL COMMENTS", this.detections[name]['type'] + "-" + padNumber(name));
+                        formattedHeader = new DetectionHeader("CONDITIONAL COMMENTS", name);
                         formattedDetections = new ConditionalCommentDetection(this.detections[name]);
                 }
                 let detectionSummary = new DetectionSummary(formattedHeader, formattedDetections);
@@ -103,7 +92,7 @@ class DetectionHeader{
     }
     print(){
         let toPrint = "<button type='button' class='detection-header' id='" + this.signatureType.toLowerCase() + "-" + this.signatureName.toLowerCase() + "' onclick='toggleDetectionSummary(this)'>";
-        toPrint += "<span class='escape'>" + this.signatureType.toUpperCase() + " ||</span> " + ((this.signatureType === "CONDITIONAL COMMENTS")?this.signatureName.toLowerCase().split("-")[0]:this.signatureName.toLowerCase()) + "</button>";
+        toPrint += "<b>" + this.signatureType.toUpperCase() + "</b><span class='highlight'> || </span>" + this.signatureName.toLowerCase() + "</button>";
         return toPrint;
     }
 }
@@ -113,7 +102,7 @@ class HtmlDetections{
         this.detections = detections;
     }
     print(){
-        let toPrint = "<table class='detection-table'>"; //<tr><th class='dh'>#</th><th class='dh'>ELEMENT</th><th class='dh'>ATTRIBUTE</th><th class='dh'>VALUE</th></tr>
+        let toPrint = "<table class='detection-table'><tr><th class='dh'>#</th><th class='dh'>ELEMENT</th><th class='dh'>ATTRIBUTE</th><th class='dh'>VALUE</th></tr>"; //
         let idx = 0;
         for(let i in this.detections){
             idx++;
@@ -144,7 +133,7 @@ class JavaScriptDetections{
         this.detections = detections;
     }
     print(){
-        let toPrint = "<table class='detection-table'>"; //<tr><th class='dh'>#</th><th class='dh'>VALUE</th></tr>
+        let toPrint = "<table class='detection-table'><tr><th class='dh'>#</th><th class='dh'>VALUE</th></tr>"; //
         let idx = 0;
         for(let i in this.detections){
             idx++;
@@ -160,7 +149,7 @@ class CssDetections{
         this.detections = detections;
     }
     print(){
-        let toPrint = "<table class='detection-table'>"; //<tr><th class='dh'>#</th><th class='dh'>QUERY</th><th class='dh'>SELECTOR</th><th class='dh'>PROPERTY</th><th class='dh'>VALUE</th></tr>
+        let toPrint = "<table class='detection-table'><tr><th class='dh'>#</th><th class='dh'>QUERY</th><th class='dh'>SELECTOR</th><th class='dh'>PROPERTY</th><th class='dh'>VALUE</th></tr>"; //
         let idx = 0;
         for(let i in this.detections){
             idx++;
@@ -179,7 +168,7 @@ class DeobfuscationDetections{
         this.detections = detections;
     }
     print(){
-        let toPrint = "<table class='detection-table'>"; //<tr><th class='dh'>#</th><th class='dh'>STATUS</th><th class='dh'>SIGNATURE</th><th class='dh'>VALUE</th></tr>
+        let toPrint = "<table class='detection-table'><tr><th class='dh'>#</th><th class='dh'>STATUS</th><th class='dh'>SIGNATURE</th><th class='dh'>VALUE</th></tr>";
         let idx = 0;
         for(let i in this.detections){
             idx++;
@@ -259,13 +248,17 @@ class DeobfuscationDetections{
 }
 
 class ConditionalCommentDetection{
-    constructor(detection){
-        this.detection = detection;
+    constructor(detections){
+        this.detections = detections;
     }
     print(){
-        let toPrint = "<table class='detection-table'>"; //<tr><th class='dh'>CONDITION</th><th class='dh'>HTML</th></tr>
-        toPrint += "<tr class='detection-row-even'><td>" + this.detection['condition'] + "</td>";
-        toPrint += "<td>" + safeEscape(checkLength(stripNewLines(this.detection['html']), 100)) + "</td></tr>";
+        let toPrint = "<table class='detection-table'><tr><th class='dh'>#</th><th class='dh'>HTML</th></tr>";
+        let idx = 0;
+        for(let i in this.detections){
+            idx++;
+            toPrint += "<tr class='detection-row-" + ((idx%2===0)?"even":"odd") + "'><td>" + padNumber(idx) + "</td>";
+            toPrint += "<td>" + safeEscape(checkLength(stripNewLines(this.detections[i]['html']), 100)) + "</td></tr>";
+        }
         return toPrint + "</table>";
     }
 }

@@ -27,7 +27,7 @@ function ripLinks(){
                 detections.push(new DetectionFormatter(getDetectedSignatures(parser.scripts, 'deobfuscation'), "obf"));
             }
             if(userSettings.getOption("conditionalComments") && parser.hasConditionalHtmlDetections()){
-                detections.push(new DetectionFormatter(parser.conditionalHtml, "chtml")); //FIXME : Aggregate conditional comments that are the same type into a single group, use this as the signature 'name'
+                detections.push(new DetectionFormatter(parser.groupConditionalHtmlDetectionsByCondition(), "chtml")); //FIXME : Aggregate conditional comments that are the same type into a single group, use this as the signature 'name'
             }
 
             let summary = "";
@@ -40,7 +40,7 @@ function ripLinks(){
                 }
             }
             resultPanel.innerHTML = summary;
-            previousResults = new PreviousResults(fileName, summary);
+            previousResults = new PreviousResults(fileName, summary, false);
             padContent();
         }else{
             throwError("Error importing file");
@@ -62,8 +62,8 @@ function dumpTokens(){
                 tokenizer.next();
             }
             results.innerText = resultString;
-            chatter(stylize(fileName));
-            previousResults = new PreviousResults(fileName, resultString);
+            chatter(stylize(fileName).toUpperCase());
+            previousResults = new PreviousResults(fileName, resultString, true);
             padContent();
         }else{
             throwError("Error importing file");
@@ -208,8 +208,9 @@ function chatter(message){
 }
 
 class PreviousResults{
-    constructor(fileName, resultString){
+    constructor(fileName, resultString, debug){
         this.fileName = fileName;
         this.resultString = resultString;
+        this.debug = debug;
     }
 }
