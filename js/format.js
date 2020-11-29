@@ -63,6 +63,10 @@ class DetectionFormatter{
                     case "chtml":
                         formattedDetections = new ConditionalCommentDetections(this.detections[name]);
                         formattedHeader = new DetectionHeader("CONDITIONAL COMMENTS", name, this.detections[name].length);
+                        break;
+                    case "domains":
+                        formattedDetections = new UniqueDomainsDetections(this.detections[name]);
+                        formattedHeader = new DetectionHeader("DOMAINS", name, this.detections[name].length);
                 }
                 let detectionSummary = new DetectionSummary(formattedHeader, formattedDetections);
                 toPrint += detectionSummary.print();
@@ -95,6 +99,22 @@ class DetectionHeader{
         let toPrint = "<button type='button' class='detection-header' id='" + this.signatureType.toLowerCase() + "-" + this.signatureName.toLowerCase() + "' onclick='toggleDetectionSummary(this)' data-content='"+ this.numDetections + "'>";
         toPrint += "<b>" + this.signatureType.toUpperCase() + "</b><span class='highlight'> || </span>" + this.signatureName.toLowerCase() + "</button>";
         return toPrint;
+    }
+}
+
+class UniqueDomainsDetections{
+    constructor(domains){
+        this.domains = domains;
+    }
+    print(){
+        let toPrint = "<table class='detection-table'><tr><th class='dh'>#</th><th class='dh'>DOMAIN</th></tr>";
+        let idx = 0;
+        for(let i in this.domains){
+            idx++;
+            toPrint += "<tr class='" + ((idx%2===0)?"detection-row-even":"detection-row-odd") + "'><td>" + padNumber(idx) + "</td>";
+            toPrint += "<td>" + this.domains[i].toLowerCase() + "</td></tr>"
+        }
+        return toPrint + "</table>";
     }
 }
 

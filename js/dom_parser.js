@@ -7,6 +7,7 @@ class DomParser{
         this.conditionalHtml = []; //[{type:type, condition:condition, html:html}, ..., ]
         this.styleBlocks = []; //[StyleBlock, StyleBlock, ...]
         this.htmlSignatures = {};
+        this.uniqueDomains = {'unique-domains':[]};
         for(let name in userSettings.htmlSignatures) {
             let processedSignature = this.processSignature(
                 userSettings.htmlSignatures[name]['hasNested'],
@@ -224,6 +225,91 @@ class DomParser{
             tokenizer.next();
         }
         return attributes;
+    }
+
+    extractUniqueDomains(){
+        let domain;
+        let urlLike = /http(s)?(:|%3A)\/\/.*\..*/g;
+        //get url-like detections from html signatures
+        if(this.hasHtmlDetections()){
+            for(let name in this.htmlSignatures){
+                for(let i in this.htmlSignatures[name]['detections']){
+                    let outerTag = this.htmlSignatures[name]['detections'][i];
+                    for(let key in outerTag.detections){
+                        if(urlLike.test(outerTag.detections[key])){
+                            urlLike.lastIndex = 0;
+                            this.addDomain(outerTag.detections[key]);
+                        }
+                    }
+                    if(outerTag.innerTags !== null){
+                        for(let j in outerTag.innerTags){
+                            for(let key in outerTag.innerTags[j]['detections']){
+                                if(urlLike.test(outerTag.innerTags[j]['detections'][key])){
+                                    urlLike.lastIndex = 0;
+                                    this.addDomain(outerTag.innerTags[j]['detections'][key]);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        //get url-like detections from javascript signatures
+        if(this.hasJavaScriptDetections()){
+            let jsDetections = getDetectedSignatures(this.scripts, 'detection');
+            for(let name in jsDetections){
+                for(let i in jsDetections[name]){
+                    if(urlLike.test(jsDetections[name])){
+                        urlLike.lastIndex = 0;
+                        this.addDomain(jsDetections[name][i]);
+                    }
+                }
+            }
+        }
+
+        //get url-like detections from css signatures
+        if(this.hasCssDetections()){
+            let cssDetections = getCssSignatureHits(this.styleBlocks);
+            for(let name in cssDetections){
+                for(let i in cssDetections[name]){
+                    if(urlLike.test(cssDetections[name][i]['value'])){
+                        urlLike.lastIndex = 0;
+                        this.addDomain(cssDetections[name][i]['value']);
+                    }
+                }
+            }
+        }
+
+        this.uniqueDomains['unique-domains'].sort();
+    }
+
+    addDomain(url){
+        let domains = this.extractDomainsFromUrl(url);
+        for(let i in domains){
+            if(!(this.uniqueDomains['unique-domains'].includes(domains[i]))){
+                this.uniqueDomains['unique-domains'].push(domains[i]);
+            }
+        }
+    }
+
+    extractDomainsFromUrl(url){
+        let domains = [];
+        let possibleDomains = url.split('http');
+        for(let i=1; i<possibleDomains.length; i++){
+            if(/^(s)?(:|%3A)\/\//g.test(possibleDomains[i])){
+                let possibleDomain = possibleDomains[i].substring(possibleDomains[i].indexOf('//') + 2, possibleDomains[i].length);
+                let endOfDomain = 0;
+                while(endOfDomain < possibleDomain.length && /[a-zA-Z0-9\-\.]/.test(possibleDomain.charAt(endOfDomain))){
+                    endOfDomain++;
+                }
+                possibleDomain = possibleDomain.substring(0, endOfDomain);
+                if(possibleDomain.trim().length > 0){
+                    domains.push(possibleDomain);
+                }
+            }
+        }
+        return domains;
     }
 
     hasDetections(){

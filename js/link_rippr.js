@@ -14,6 +14,12 @@ function ripLinks(){
             let resultPanel = document.getElementById("results");
             let parser = new DomParser(file.toString());
             let detections = []; //[DetectionFormatter, DetectionFormatter, ...]
+            if(userSettings.getOption("extractDomains")){
+                parser.extractUniqueDomains();
+                if(parser.uniqueDomains['unique-domains'].length > 0){
+                    detections.push(new DetectionFormatter(parser.uniqueDomains, "domains"));
+                }
+            }
             if(parser.hasHtmlDetections()){
                 detections.push(new DetectionFormatter(parser.htmlSignatures, "html"));
             }

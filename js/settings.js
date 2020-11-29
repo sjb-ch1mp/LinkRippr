@@ -147,6 +147,7 @@ class UserSettings{
             'debugTokenizer': false,
             'truncate':false,
             'simpleDeob':true,
+            'extractDomains':true,
             'conditionalComments':true,
             'deobSignatures':getDefaultObfuscationSignatures()
         };
