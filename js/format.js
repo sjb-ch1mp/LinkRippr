@@ -45,24 +45,24 @@ class DetectionFormatter{
                 let formattedDetections;
                 switch(this.signatureType){
                     case "html":
-                        formattedHeader = new DetectionHeader("HTML", name);
                         formattedDetections = new HtmlDetections(this.detections[name]['detections']);
+                        formattedHeader = new DetectionHeader("HTML", name, this.detections[name]['detections'].length);
                         break;
                     case "js":
-                        formattedHeader = new DetectionHeader("JAVASCRIPT", name);
                         formattedDetections = new JavaScriptDetections(this.detections[name]);
+                        formattedHeader = new DetectionHeader("JAVASCRIPT", name, this.detections[name].length);
                         break;
                     case "css":
-                        formattedHeader = new DetectionHeader("CSS", name);
                         formattedDetections = new CssDetections(this.detections[name]);
+                        formattedHeader = new DetectionHeader("CSS", name, this.detections[name].length);
                         break;
                     case "obf":
-                        formattedHeader = new DetectionHeader("DEOBFUSCATION", name);
                         formattedDetections = new DeobfuscationDetections(this.detections[name]);
+                        formattedHeader = new DetectionHeader("DEOBFUSCATION", name, this.detections[name].length);
                         break;
                     case "chtml":
-                        formattedHeader = new DetectionHeader("CONDITIONAL COMMENTS", name);
-                        formattedDetections = new ConditionalCommentDetection(this.detections[name]);
+                        formattedDetections = new ConditionalCommentDetections(this.detections[name]);
+                        formattedHeader = new DetectionHeader("CONDITIONAL COMMENTS", name, this.detections[name].length);
                 }
                 let detectionSummary = new DetectionSummary(formattedHeader, formattedDetections);
                 toPrint += detectionSummary.print();
@@ -80,18 +80,19 @@ class DetectionSummary{
     print(){
         let toPrint = this.header.print();
         toPrint += "<div class='detection-summary' id='" + this.header.signatureType.toLowerCase() + "-" + this.header.signatureName.toLowerCase() + "-content'>";
-        toPrint += this.detections.print() + "</div>"
+        toPrint += this.detections.print() + "</div>";
         return toPrint;
     }
 }
 
 class DetectionHeader{
-    constructor(signatureType, signatureName){
+    constructor(signatureType, signatureName, numDetections){
         this.signatureType = signatureType;
         this.signatureName = signatureName;
+        this.numDetections = numDetections;
     }
     print(){
-        let toPrint = "<button type='button' class='detection-header' id='" + this.signatureType.toLowerCase() + "-" + this.signatureName.toLowerCase() + "' onclick='toggleDetectionSummary(this)'>";
+        let toPrint = "<button type='button' class='detection-header' id='" + this.signatureType.toLowerCase() + "-" + this.signatureName.toLowerCase() + "' onclick='toggleDetectionSummary(this)' data-content='"+ this.numDetections + "'>";
         toPrint += "<b>" + this.signatureType.toUpperCase() + "</b><span class='highlight'> || </span>" + this.signatureName.toLowerCase() + "</button>";
         return toPrint;
     }
@@ -102,7 +103,7 @@ class HtmlDetections{
         this.detections = detections;
     }
     print(){
-        let toPrint = "<table class='detection-table'><tr><th class='dh'>#</th><th class='dh'>ELEMENT</th><th class='dh'>ATTRIBUTE</th><th class='dh'>VALUE</th></tr>"; //
+        let toPrint = "<table class='detection-table'><tr><th class='dh'>#</th><th class='dh'>ELEMENT</th><th class='dh'>ATTRIBUTE</th><th class='dh'>VALUE</th></tr>";
         let idx = 0;
         for(let i in this.detections){
             idx++;
@@ -133,7 +134,7 @@ class JavaScriptDetections{
         this.detections = detections;
     }
     print(){
-        let toPrint = "<table class='detection-table'><tr><th class='dh'>#</th><th class='dh'>VALUE</th></tr>"; //
+        let toPrint = "<table class='detection-table'><tr><th class='dh'>#</th><th class='dh'>VALUE</th></tr>";
         let idx = 0;
         for(let i in this.detections){
             idx++;
@@ -149,7 +150,7 @@ class CssDetections{
         this.detections = detections;
     }
     print(){
-        let toPrint = "<table class='detection-table'><tr><th class='dh'>#</th><th class='dh'>QUERY</th><th class='dh'>SELECTOR</th><th class='dh'>PROPERTY</th><th class='dh'>VALUE</th></tr>"; //
+        let toPrint = "<table class='detection-table'><tr><th class='dh'>#</th><th class='dh'>QUERY</th><th class='dh'>SELECTOR</th><th class='dh'>PROPERTY</th><th class='dh'>VALUE</th></tr>";
         let idx = 0;
         for(let i in this.detections){
             idx++;
@@ -247,7 +248,7 @@ class DeobfuscationDetections{
     }
 }
 
-class ConditionalCommentDetection{
+class ConditionalCommentDetections{
     constructor(detections){
         this.detections = detections;
     }

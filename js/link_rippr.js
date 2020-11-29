@@ -33,7 +33,7 @@ function ripLinks(){
             let summary = "";
             chatter(stylize(fileName).toUpperCase());
             if(detections.length === 0){
-                summary += new DetectionHeader("INFO", "no-signatures-detected").print();
+                summary += new DetectionHeader("INFO", "no-signatures-detected", 0).print();
             }else{
                 for(let i in detections){
                     summary += detections[i].print();

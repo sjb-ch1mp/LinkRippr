@@ -116,7 +116,7 @@ button.menu-button{
 #results{
     background-color: #00070E;
     color: antiquewhite;
-    width: 80%;
+    width: 100%;
     font-family: "Courier New";
     font-size: small;
 }
@@ -165,8 +165,7 @@ td{
     color: white;
     font-family: "Courier New";
     font-size: small;
-    padding-left: 10px;
-    padding-right: 10px;
+    padding: 5px;
 }
 td.menu{
     background-color: #0A1926;
@@ -205,6 +204,15 @@ th.menu{
     border-radius: 8px;
 }
 
+.detection-header:after{
+    content:attr(data-content);
+    float:right;
+    font-size: 16px;
+    font-family: "Courier New";
+    color:darkred;
+    font-weight: bolder;
+}
+
 .detection-summary {
     padding: 0 18px;
     display: none;
@@ -222,6 +230,7 @@ th.menu{
 
 .detection-table{
     padding: 10px;
+    table-layout: fixed;
 }
 
 th.dh{
