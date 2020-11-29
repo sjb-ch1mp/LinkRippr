@@ -95,7 +95,7 @@ function buildHtmlSignaturesMenu(){
     settingsHtml += "<table class='settings'><tr><td align='center'><button class='settings' onclick='resetHtmlSignatureDefaults()'>RESET DEFAULTS</button></td>";
     settingsHtml += "<td align='center'><button class='settings' onclick='clearHtmlSignatures()'>CLEAR SIGNATURES</button></td></tr></table>";
     if(Object.keys(userSettings.htmlSignatures).length > 0){
-        settingsHtml += "<p class='settings'>LinkRippr is currently searching for the following HTML javaScriptSignatures.</p>";
+        settingsHtml += "<p class='settings'>LinkRippr is currently searching for the following HTML Signatures.</p>";
         settingsHtml += "<table class='settings'><tr><th>NAME</th><th>ELEMENT</th><th>ATTRIBUTES</th><th colspan='2'>VALUE</th></tr>";
         for(let key in userSettings.htmlSignatures){
             settingsHtml += "<tr><td>" + key + "</td><td>" + userSettings.htmlSignatures[key]["element"] + "</td>";
@@ -107,7 +107,7 @@ function buildHtmlSignaturesMenu(){
         settingsHtml += "<td><input type='text' id='newHtmlValue'></td>"
         settingsHtml += "<td><button class='settings' onclick='changeHtmlSignature(null)'>ADD</button></td></tr>";
     }else {
-        settingsHtml += "<p class='settings'>LinkRippr is not searching for any HTML javaScriptSignatures.</p>";
+        settingsHtml += "<p class='settings'>LinkRippr is not searching for any HTML signatures.</p>";
         settingsHtml += "<table class='settings'><tr><th>NAME</th><th>ELEMENT</th><th>ATTRIBUTES</th><th colspan='2'>VALUE</th></tr>";
         settingsHtml += "<tr><td><input type='text' placeholder='NEW HTML SIGNATURE' id='newName'></td>";
         settingsHtml += "<td><input type='text' id='newElement'></td><td><input type='text' id='newAttributes'></td>";
@@ -123,7 +123,7 @@ function buildJavaScriptSignaturesMenu(){
     settingsHtml += "<table class='settings'><tr><td align='center'><button class='settings' onclick='resetJavaScriptSignatureDefaults()'>RESET DEFAULTS</button></td>";
     settingsHtml += "<td align='center'><button class='settings' onclick='clearJavaScriptSignatures()'>CLEAR SIGNATURES</button></td></tr></table>";
     if(Object.keys(userSettings.javaScriptSignatures).length > 0){
-        settingsHtml += "<p class='settings'>LinkRippr is currently searching for the following javaScriptSignatures in script elements.</p>";
+        settingsHtml += "<p class='settings'>LinkRippr is currently searching for the following JavaScript signatures in script elements.</p>";
         settingsHtml += "<table class='settings'><tr><th>NAME</th><th colspan='2'>SIGNATURE</th></tr>";
         for(let key in userSettings.javaScriptSignatures){
             settingsHtml += "<tr><td>" + key + "</td><td>" + userSettings.javaScriptSignatures[key]["user_view"] + "</td>";
@@ -132,7 +132,7 @@ function buildJavaScriptSignaturesMenu(){
         settingsHtml += "<tr><td><input type='text' placeholder='NEW JS SIGNATURE' id='newFunction'></td>";
         settingsHtml += "<td><input type='text' id='newPattern'></td><td><button class='settings' onclick='changeJavaScriptSignature(null)'>ADD</button></td></tr>";
     }else{
-        settingsHtml += "<p class='settings'>LinkRippr is not searching for javaScriptSignatures in script elements.</p>";
+        settingsHtml += "<p class='settings'>LinkRippr is not searching for JavaScript signatures in script elements.</p>";
         settingsHtml += "<table class='settings'><tr><th>NAME</th><th colspan='2'>SIGNATURE</th></tr>";
         settingsHtml += "<tr><td><input type='text' placeholder='NEW JS SIGNATURE' id='newFunction'></td>";
         settingsHtml += "<td><input type='text' id='newPattern'></td><td><button class='settings' onclick='changeJavaScriptSignature(null)'>ADD</button></td></tr>";
@@ -145,7 +145,7 @@ function buildCssSignaturesMenu(){
     settingsHtml += "<table class='settings'><tr><td align='center'><button class='settings' onclick='resetCssSignatureDefaults()'>RESET DEFAULTS</button></td>";
     settingsHtml += "<td align='center'><button class='settings' onclick='clearCssSignatures()'>CLEAR SIGNATURES</button></td></tr></table>";
     if(Object.keys(userSettings.cssSignatures).length > 0){
-        settingsHtml += "<p class='settings'>LinkRippr is currently searching for the following javaScriptSignatures in style elements.</p>";
+        settingsHtml += "<p class='settings'>LinkRippr is currently searching for the following CSS signatures in style elements.</p>";
         settingsHtml += "<table class='settings'><tr><th>NAME</th><th>SELECTOR</th><th>PROPERTY</th><th colspan='2'>VALUE</th></tr>";
         for(let key in userSettings.cssSignatures){
             settingsHtml += "<tr><td>" + key + "</td><td>" + userSettings.cssSignatures[key]['selector_user_view'] + "</td>";
@@ -156,7 +156,7 @@ function buildCssSignaturesMenu(){
         settingsHtml += "<td><input type='text' id='newAttribute'></td><td><input type='text' id='newValue'></td>";
         settingsHtml += "<td><button class='settings' onclick='changeCssSignatures(null)'>ADD</button></td></tr>";
     }else{
-        settingsHtml += "<p class='settings'>LinkRippr is not searching for javaScriptSignatures in style elements.</p>";
+        settingsHtml += "<p class='settings'>LinkRippr is not searching for CSS Signatures in style elements.</p>";
         settingsHtml += "<table class='settings'><tr><th>NAME</th><th>SELECTOR</th><th>PROPERTY</th><th colspan='2'>VALUE</th></tr>";
         settingsHtml += "<tr><td><input type='text' placeholder='NEW CSS SIGNATURE' id='newName'></td><td><input type='text' id='newSelector'></td>";
         settingsHtml += "<td><input type='text' id='newAttribute'></td><td><input type='text' id='newValue'></td>";
