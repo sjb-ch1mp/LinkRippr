@@ -13,7 +13,11 @@ function padContent(){
     window.scrollTo(0,0);
     //Above code thanks to: https://stackoverflow.com/questions/4210798/how-to-scroll-to-top-of-page-with-javascript-jquery
 
-    if(settingsVisible || document.getElementById("results") == null || document.getElementById("results").innerText == ""){
+    if(settingsVisible){
+        redoButton.setAttribute("style","display: none;");
+        content.setAttribute("style", "padding-left: 5%; padding-right: 5%; padding-top: " + (headerHeight*1.05) + "px; padding-bottom: " + (footerHeight*1.15) + "px;");
+        document.getElementById("body").removeAttribute("style");
+    }else if(document.getElementById("results") == null || document.getElementById("results").innerText == ""){
         redoButton.setAttribute("style","display: none;");
         content.setAttribute("style", "padding-left: 5%; padding-right: 5%; padding-top: " + (headerHeight*1.05) + "px; padding-bottom: " + (footerHeight*1.15) + "px; height: " + totalHeight + "px;");
         document.getElementById("body").setAttribute("style", "overflow: hidden; height: 100%;");
