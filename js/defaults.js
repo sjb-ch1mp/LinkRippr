@@ -41,53 +41,53 @@ function getDefaultHtmlSignatures(){
 function getDefaultJavaScriptSignatures(){
     return {
         "document.write":{
-            "global":new RegExp("document\\.write\\(.*\\)[;\s]", "g"),
-            "sticky":new RegExp("document\\.write\\(.*\\)[;\s]", "y"),
+            "global":new RegExp("document\\.write\\(.*\\)[;\\s]", "g"),
+            "sticky":new RegExp("document\\.write\\(.*\\)[;\\s]", "y"),
             "user_view":"document\\.write\\(.*\\)[;\\s]",
             "default":true},
         "eval":{
-            "global":new RegExp("eval\\(.*\\)[;\s]", "g"),
-            "sticky":new RegExp("eval\\(.*\\)[;\s]", "y"),
+            "global":new RegExp("eval\\(.*\\)[;\\s]", "g"),
+            "sticky":new RegExp("eval\\(.*\\)[;\\s]", "y"),
             "user_view":"eval\\(.*\\)[;\\s]",
             "default":true},
         "atob":{
-            "global":new RegExp("atob\\(.*\\)[;\s]", "g"),
-            "sticky":new RegExp("atob\\(.*\\)[;\s]", "y"),
+            "global":new RegExp("atob\\(.*\\)[;\\s]", "g"),
+            "sticky":new RegExp("atob\\(.*\\)[;\\s]", "y"),
             "user_view":"atob\\(.*\\)[;\\s]",
             "default":true},
         "unescape":{
-            "global":new RegExp("unescape\\(.*\\)[;\s]", "g"),
-            "sticky":new RegExp("unescape\\(.*\\)[;\s]", "y"),
+            "global":new RegExp("unescape\\(.*\\)[;\\s]", "g"),
+            "sticky":new RegExp("unescape\\(.*\\)[;\\s]", "y"),
             "user_view":"unescape\\(.*\\)[;\\s]",
             "default":true},
         "url":{
-            "global":new RegExp('http(s)?:\\/\\/[a-zA-Z\\-]+\\..*["\';\s\\)\\(]', "g"),
-            "sticky":new RegExp('http(s)?:\\/\\/[a-zA-Z\\-]+\\..*["\';\s\\)\\(]', "y"),
+            "global":new RegExp('http(s)?:\\/\\/[a-zA-Z\\-]+\\..*["\';\\s\\)\\(]', "g"),
+            "sticky":new RegExp('http(s)?:\\/\\/[a-zA-Z\\-]+\\..*["\';\\s\\)\\(]', "y"),
             "user_view":"http(s)?:\\/\\/[a-zA-Z\\-]+\\..*[\"\';\\s\\)\\(]",
             "default":true},
         "ip-4":{
-            "global":new RegExp('(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)[\'";\s]', "g"),
-            "sticky":new RegExp('(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)[\'";\s]', "y"),
+            "global":new RegExp('(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)[\'";\\s]', "g"),
+            "sticky":new RegExp('(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)[\'";\\s]', "y"),
             "user_view":'(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)[\'";\\s]',
             "default":true},
         "ajax-request":{
-            "global":new RegExp("\\$\\.ajax\\(\\{.*type:\s?['\"](POST|GET)['\"].*\\}\\)", "g"),
-            "sticky":new RegExp("\\$\\.ajax\\(\\{.*type:\s?['\"](POST|GET)['\"].*\\}\\)", "y"),
-            "user_view":"\\$\\.ajax\\(\\{.*type:\\s?['\"](POST|GET)['\"].*\\}\\)",
+            "global":new RegExp("\\$\\.ajax\\(\\{.*type:\\s?['\"]([pPoOsStT]{4}|[gGeEtT]{3})['\"].*\\}\\)", "g"),
+            "sticky":new RegExp("\\$\\.ajax\\(\\{.*type:\\s?['\"]([pPoOsStT]{4}|[gGeEtT]{3})['\"].*\\}\\)", "y"),
+            "user_view":"\\$\\.ajax\\(\\{.*type:\\s?['\"]([pPoOsStT]{4}|[gGeEtT]{3})['\"].*\\}\\)",
             "default":true},
         "jquery-request":{
-            "global":new RegExp("\\$\\.(post|get)\\(.*\\);", "g"),
-            "sticky":new RegExp("\\$\\.(post|get)\\(.*\\);", "y"),
-            "user_view":"\\$\\.(post|get)\\(.*\\);",
+            "global":new RegExp("\\$\\.([pPoOsStT]{4}|[gGeEtT]{3})\\(.*\\);", "g"),
+            "sticky":new RegExp("\\$\\.([pPoOsStT]{4}|[gGeEtT]{3})\\(.*\\);", "y"),
+            "user_view":"\\$\\.([pPoOsStT]{4}|[gGeEtT]{3})\\(.*\\);",
             "default":true},
         "xml-http-request":{
-            "global":new RegExp("\b[a-zA-Z_0-9]+\\.open\\(\s?[\"']([pPoOsStT]{4}|[gGeEtT]{3})['\"].*\\)[;\s]", "g"),
-            "sticky":new RegExp("\b[a-zA-Z_0-9]+\\.open\\(\s?[\"']([pPoOsStT]{4}|[gGeEtT]{3})['\"].*\\)[;\s]", "y"),
+            "global":new RegExp("\b[a-zA-Z_0-9]+\\.open\\(\\s?[\"']([pPoOsStT]{4}|[gGeEtT]{3})['\"].*\\)[;\\s]", "g"),
+            "sticky":new RegExp("\b[a-zA-Z_0-9]+\\.open\\(\\s?[\"']([pPoOsStT]{4}|[gGeEtT]{3})['\"].*\\)[;\\s]", "y"),
             "user_view":"\b[a-zA-Z_0-9]+\\.open\\(\\s?[\"']([pPoOsStT]{4}|[gGeEtT]{3})['\"].*\\)[;\\s]",
             "default":true},
         "window-location-replace":{
-            "global":new RegExp("window\\.location\\.replace\\(.*\\)[;\s]", "g"),
-            "sticky":new RegExp("window\\.location\\.replace\\(.*\\)[;\s]", "y"),
+            "global":new RegExp("window\\.location\\.replace\\(.*\\)[;\\s]", "g"),
+            "sticky":new RegExp("window\\.location\\.replace\\(.*\\)[;\\s]", "y"),
             "user_view":"window\\.location\\.replace\\(.*\\)[;\\s]",
             "default":true}
     };
