@@ -3,7 +3,7 @@ function changeHtmlSignature(key){
         userSettings.removeSignature(key, 'html');
         showSettings('html');
     }else{
-        let name = document.getElementById("newName").value;
+        let name = document.getElementById("newName").value.trim().replace(/\s+/g, "-").toLowerCase();
         let element = document.getElementById("newElement").value;
         let attributes = document.getElementById("newAttributes").value;
         let val = document.getElementById('newHtmlValue').value;
@@ -33,7 +33,7 @@ function changeJavaScriptSignature(key){
         userSettings.removeSignature(key, 'javascript');
         showSettings('javascript');
     }else{
-        let name = document.getElementById("newFunction").value;
+        let name = document.getElementById("newFunction").value.trim().replace(/\s+/g, "-").toLowerCase();
         let signature = document.getElementById("newPattern").value;
         try{
             if(name === undefined || name.trim().length === 0){
@@ -57,7 +57,7 @@ function changeCssSignatures(key){
         userSettings.removeSignature(key, 'css');
         showSettings('css');
     }else{
-        let name = document.getElementById('newName').value;
+        let name = document.getElementById('newName').value.trim().replace(/\s+/g, "-").toLowerCase();
         let selector = document.getElementById('newSelector').value;
         let attribute = document.getElementById('newAttribute').value;
         let val = document.getElementById('newValue').value;
