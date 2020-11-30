@@ -1,6 +1,12 @@
 function getDefaultHtmlSignatures(){
     return {
-        "external-hyperlinks":{
+        "base":{
+            "element":"base",
+            "attributes":["*"],
+            "value":new RegExp(".*", "g"),
+            "value-user-view":".*",
+            "hasNested":false
+        },"external-hyperlinks":{
             "element":"*",
             "attributes":["href","data-src","src"],
             "value":new RegExp("http(s)?:\\/\\/", "g"),
@@ -33,6 +39,13 @@ function getDefaultHtmlSignatures(){
             "attributes":["http-equiv"],
             "value":new RegExp("[rReEfFsShH]{7}", "g"),
             "value-user-view":"[rReEfFsShH]{7}",
+            "hasNested":false
+        },
+        "onclick":{
+            "element":"*",
+            "attributes":["onclick"],
+            "value":new RegExp(".*", "g"),
+            "value-user-view":".*",
             "hasNested":false
         }
     };
@@ -85,10 +98,10 @@ function getDefaultJavaScriptSignatures(){
             "sticky":new RegExp("\b[a-zA-Z_0-9]+\\.open\\(\\s?[\"']([pPoOsStT]{4}|[gGeEtT]{3})['\"].*\\)[;\\s]", "y"),
             "user_view":"\b[a-zA-Z_0-9]+\\.open\\(\\s?[\"']([pPoOsStT]{4}|[gGeEtT]{3})['\"].*\\)[;\\s]",
             "default":true},
-        "window-location-replace":{
-            "global":new RegExp("window\\.location\\.replace\\(.*\\)[;\\s]", "g"),
-            "sticky":new RegExp("window\\.location\\.replace\\(.*\\)[;\\s]", "y"),
-            "user_view":"window\\.location\\.replace\\(.*\\)[;\\s]",
+        "browser-redirection":{
+            "global":new RegExp("location\\.(replace\\(.*\\)[;\\s]|href\\s?=.*;)", "g"),
+            "sticky":new RegExp("location\\.(replace\\(.*\\)[;\\s]|href\\s?=.*;)", "y"),
+            "user_view":"location\\.(replace\\(.*\\)[;\\s]|href\\s?=.*;)",
             "default":true}
     };
 }

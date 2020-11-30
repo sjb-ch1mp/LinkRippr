@@ -355,3 +355,4 @@ The banner for LinkRippr was adapted from an image posted at [wallup.net](https:
 |2020-11-24 | FEATURE | 1.0.1 | LinkRippr is now checking style attributes of all elements for CSS signatures ([#Issue 23](https://github.com/sjb-ch1mp/LinkRippr/issues/23)).|
 |2020-11-28 | FEATURE | 1.2.0 | Wildcards and Regex implemented for HTML signatures. Significant refactoring. Output simplified and modernised ([#Issue 26](https://github.com/sjb-ch1mp/LinkRippr/issues/26), [#Issue 32](https://github.com/sjb-ch1mp/LinkRippr/issues/32))|
 |2020-11-29 | FEATURE | 1.2.1 | LinkRippr now compiling a list of unique domains from URL-like signature detections. |
+|2020-11-30 | SIGNATURE | 1.2.1 | Added JS signature `browser-redirection` and HTML signatures `onclick` and `base` ([#Issue 34](https://github.com/sjb-ch1mp/LinkRippr/issues/34) and [#Issue 33](https://github.com/sjb-ch1mp/LinkRippr/issues/33))|
