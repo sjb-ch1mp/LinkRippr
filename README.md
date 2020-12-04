@@ -13,7 +13,7 @@ Samuel Brookes ([@sjb-ch1mp](https://github.com/sjb-ch1mp))
 > _[Installation](#installation)_ > _[Bug Reporting](#bug-reporting)_
 
 **[USER GUIDE](#user-guide)** 
-> _[Submitting an HTML file](#submitting-an-html-file)_ > _[User options](#user-options)_ > _[Saving and loading settings](#saving-and-loading-settings)_
+> _[Submitting an HTML file](#submitting-an-html-file)_ > _[User options](#user-options)_ > _[Saving and loading settings](#saving-and-loading-settings)_ > _[Changing the Default Settings](#changing-the-default-settings)_
 >
 > **[HTML SIGNATURES](#html-signatures)**
 > 
@@ -86,6 +86,9 @@ Note that any results containing HTML are 'defanged' by escaping the first `<` w
 ### Saving and Loading Settings
 You can save your current settings, including all HTML, JavaScript and CSS signatures into a text file. This can then be loaded the next time the you launch LinkRippr so that you don't need to manually enter each signature. This feature is located in the _SETTINGS_ panel under `< Save />`.
 
+### Changing the Default Settings
+If you'd prefer not to load your settings file every time you launch LinkRippr, you can alter the dictionary in the function `defaults.js::getDefaultSettings()`. LinkRippr automatically imports the default settings defined in this function and this will save you the trouble of importing a settings file each time you launch LinkRippr. 
+
 ## HTML Signatures
 LinkRippr will search an HTML file for element:attribute combinations and return the associated values, i.e. `<element attribute='values'>`. The simple syntax defined below also allows LinkRippr to be aware of element nesting, to a maximum depth of 1, e.g. `<outer-element><inner-element></inner-element></outer-element>`.
 
@@ -122,11 +125,13 @@ LinkRippr comes with some default HTML signatures defined in the _HTML_ panel. T
 
 |Name|Element|Attribute|Value|Justification|
 |---|---|---|---|---|
+|base|base|*|.*|The `<base>` element defines the base URL of every other URL in the DOM (see [developer.mozilla.org](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base)). It is sometimes used to hide the true origin of a hyperlink. For example, an analyst might be forgiven in thinking that the following element `<a href="outlook.live.com">` leads to a legitimate domain, however, with a base element of `<base href="http://malicious-domain.cc/">`, the true destination of the hyperlink is hxxp://malicious-domain.cc/outlook.live.com.|
 |external-hyperlinks|*|href,data-src,src|http(s)?:\\/\\/|Finds all URLs in the HTML file that contain a protocol and are most likely to be linking to an external website.|
 |all-iframes|iframe|*|.*|The `<iframe>` element allows content from another source to be embedded within a website (see [developer.mozilla.org](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/iframe)). Actors can be quite creative with their use of `<iframe>` elements, so detecting these can be quite useful.|
-|all-forms|form|method,action,data-bind,[input:name,type]|.*|The `<form>` element frequently appears in credential harvesting sites that are masquerading as legitimate login pages for web services. The method attribute defines how the data will be submitted to the web server when the user presses 'Submit', and is most often set to "POST". The action attribute defines the destination of the data. You will often come across `<form>` elements that have an action attribute pointing to a remote server that is collecting the credentials. It is also useful to extract nested `<input>` elements from forms as they often have names such as 'username' or 'password', which will stand out as potential phishing.|
+|all-forms|form|method,action,data-bind,\[input:name,type]|.*|The `<form>` element frequently appears in credential harvesting sites that are masquerading as legitimate login pages for web services. The method attribute defines how the data will be submitted to the web server when the user presses 'Submit', and is most often set to "POST". The action attribute defines the destination of the data. You will often come across `<form>` elements that have an action attribute pointing to a remote server that is collecting the credentials. It is also useful to extract nested `<input>` elements from forms as they often have names such as 'username' or 'password', which will stand out as potential phishing.|
 |data-binds|*|data-bind|.*|Actors will sometimes avoid using traditional attributes, and instead 'bind' additional data to an element using [data-*](https://developer.mozilla.org/en-US/docs/Learn/HTML/Howto/Use_data_attributes). A common tactic I've come across is the 'data-bind' attribute being used to bind a value to the `action` of a `<form>` element.|
 |refresh|meta|http-equiv|\[rReEfFsShH]{7}|Some phishers will include a `<meta>` element that causes the browser to automatically refresh to a malicious URL, either taking the user to a malicious web site, or downloading a malicious file. This can be defined in the following way: `<meta http-equiv="Refresh" content="http://evil.com/bad-file.zip">`.|
+|onclick|*|onclick|.*|The onclick attribute may contain a function call that redirects the webpage elsewhere and will not be detected by the external-hyperlinks signature.|
 
 ### Examples
 The following are some examples of the output generated by HTML signatures. I will be using the HTML document located at the [W3 - Learn HTML](https://www.w3schools.com/html/default.asp) page to generate HTML detections.
@@ -218,12 +223,13 @@ LinkRippr comes with some default JavaScript signatures defined in the _JAVASCRI
 |eval|eval\\(.*\\)\[;\\s]|The [eval()](https://www.w3schools.com/jsref/jsref_eval.asp) method can be used to evaluate or execute expressions that are passed as a string. This method is commonly used in malicious HTML files to obfuscate the purpose of JavaScript inside a `<script>` element.|
 |atob|atob\\(.*\\)\[;\\s]|The [atob()](https://www.w3schools.com/jsref/met_win_atob.asp) method decodes a base64 string and is often used in obfuscation of malicious JavaScript. |
 |unescape|unescape\\(.*\\)\[;\\s]|The [unescape()](https://www.w3schools.com/jsref/jsref_unescape.asp) method decodes a URL encoded string and is often used in obfuscation of malicious JavaScript.|
-|url|http(s)?:\\/\\/\[a-zA-Z\\-]+\\..*\[;\\s"'\\)\\(]|Any URLs in `<script>` elements may be of interest to a cyber security analyst; possibly revealing the source or destination of data.|
+|url|http(s)?\[\\W3A2F]{3,9}\[a-zA-Z0-9\\-]+\\..*\["';\\s\\)\\(]|Any URLs in `<script>` elements may be of interest to a cyber security analyst; possibly revealing the source or destination of data.|
 |ip-4|(25\[0-5]&verbar;2\[0-4]\[0-9]&verbar;\[01]?\[0-9]\[0-9]?)\\.(25\[0-5]&verbar;2\[0-4]\[0-9]&verbar;\[01]?\[0-9]\[0-9]?)\\.(25\[0-5]&verbar;2\[0-4]\[0-9]&verbar;\[01]?\[0-9]\[0-9]?)\\.(25\[0-5]&verbar;2\[0-4]\[0-9]&verbar;\[01]?\[0-9]\[0-9]?)\['";\\s]|Any IPs in `<script>` elements may be of interest to a cyber security analyst in a similar way to URLs. Regex adapted from [w3resource](https://www.w3resource.com/javascript/form/ip-address-validation.php).|
 |ajax-request|\\$\\.ajax\\(\\{.*type:\\s?\['"](POST&verbar;GET)\['"].\*\\}\\)|Some credential harvesting frameworks utilise Ajax methods to post harvested credentials to the collecting server, and the destination URL will not appear in the `action` attribute of the `<form>` element, or else a fake one will be used. It is therefore useful to detect data being posted using an Ajax request, as this may reveal the destination of the data.|
 |jquery-request|\\$\\.(post&verbar;get)\\(.\*\\);|This is a variant of the ajax-request signature.|
-|xml-http-request|\[a-zA-Z_0-9]+\\.open\\(\\s?\["'](\[pPoOsStT]{4}&verbar;\[gGeEtT]{3})\['"].*\\)\[;\\s]|The [XMLHttpRequest](https://www.w3schools.com/js/js_ajax_http.asp) object can be used to send and receive data with a web server. It could prove useful to know when a web page is doing so.|
-|window-location-replace|window\\.location\\.replace\\(.*\\)\[;\\s]|The [window.location.replace()](https://developer.mozilla.org/en-US/docs/Web/API/Location/replace) method will redirect the browser to the URL passed to it.|
+|xml-http-request|\\b\[^\s]+\\.open\\(\\s?\["'](\[pPoOsStT]{4}&verbar;\[gGeEtT]{3})\['"].*\\)\[;\\s]|The [XMLHttpRequest](https://www.w3schools.com/js/js_ajax_http.asp) object can be used to send and receive data with a web server. It could prove useful to know when a web page is doing so.|
+|browser-redirection|location\\.(replace\\(.\*\\)\[;\\s]&verbar;href\\s?=.*;)|The [location.replace() or location.href](https://developer.mozilla.org/en-US/docs/Web/API/Location/replace) methods will redirect the browser to the URL passed to it.|
+|url-variable-declaration|(let&verbar;var)\\s\[a-zA-Z0-9\\-\_]\*\[uUrRlL]{3}\[a-zA-Z0-9\\-_]*\\s?=\\s?\[^;]+\[;\\s]|While LinkRippr is already searching for URLs in `<script>` elements, URLs can be defined in inventive ways, so it is often useful to detect when a URL variable is declared.|
 
 ### Examples
 The following are some examples of the output generated by JavaScript signatures. I will be using the HTML document located at the [W3 - Learn HTML](https://www.w3schools.com/html/default.asp) page to generate JavaScript detections.
@@ -356,3 +362,4 @@ The banner for LinkRippr was adapted from an image posted at [wallup.net](https:
 |2020-11-28 | FEATURE | 1.2.0 | Wildcards and Regex implemented for HTML signatures. Significant refactoring. Output simplified and modernised ([#Issue 26](https://github.com/sjb-ch1mp/LinkRippr/issues/26), [#Issue 32](https://github.com/sjb-ch1mp/LinkRippr/issues/32))|
 |2020-11-29 | FEATURE | 1.2.1 | LinkRippr now compiling a list of unique domains from URL-like signature detections. |
 |2020-11-30 | SIGNATURE | 1.2.1 | Added JS signature `browser-redirection` and HTML signatures `onclick` and `base` ([#Issue 34](https://github.com/sjb-ch1mp/LinkRippr/issues/34) and [#Issue 33](https://github.com/sjb-ch1mp/LinkRippr/issues/33))|
+|2020-12-04 | FEATURE | 1.2.2 | Made the dictionary in the `defaults.js::getDefaultSettings()` method more user-friendly in the hopes that it is easier to define your own default settings. Modified the default signatures. ([#Issue 34](https://github.com/sjb-ch1mp/LinkRippr/issues/34), [#Issue 37](https://github.com/sjb-ch1mp/LinkRippr/issues/37) and [#Issue 35](https://github.com/sjb-ch1mp/LinkRippr/issues/35))|

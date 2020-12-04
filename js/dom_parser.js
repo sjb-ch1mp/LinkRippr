@@ -228,8 +228,7 @@ class DomParser{
     }
 
     extractUniqueDomains(){
-        let domain;
-        let urlLike = /http(s)?(:|%3A)\/\/.*\..*/g;
+        let urlLike = /http(s)?[\W]{3}[a-zA-Z0-9\-]+\..*/g;
         //get url-like detections from html signatures
         if(this.hasHtmlDetections()){
             for(let name in this.htmlSignatures){
@@ -260,7 +259,7 @@ class DomParser{
             let jsDetections = getDetectedSignatures(this.scripts, 'detection');
             for(let name in jsDetections){
                 for(let i in jsDetections[name]){
-                    if(urlLike.test(jsDetections[name])){
+                    if(urlLike.test(unescape(jsDetections[name][i]))){
                         urlLike.lastIndex = 0;
                         this.addDomain(jsDetections[name][i]);
                     }
@@ -297,8 +296,9 @@ class DomParser{
         let domains = [];
         let possibleDomains = url.split('http');
         for(let i=1; i<possibleDomains.length; i++){
-            if(/^(s)?(:|%3A)\/\//g.test(possibleDomains[i])){
-                let possibleDomain = possibleDomains[i].substring(possibleDomains[i].indexOf('//') + 2, possibleDomains[i].length);
+            let unescapedPossibleDomain = unescape(possibleDomains[i]);
+            if(/^(s)?[\W]{3}/g.test(unescapedPossibleDomain)){
+                let possibleDomain = unescapedPossibleDomain.substring(unescapedPossibleDomain.indexOf('//') + 2, unescapedPossibleDomain.length);
                 let endOfDomain = 0;
                 while(endOfDomain < possibleDomain.length && /[a-zA-Z0-9\-\.]/.test(possibleDomain.charAt(endOfDomain))){
                     endOfDomain++;

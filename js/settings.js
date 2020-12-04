@@ -88,7 +88,16 @@ function clearHtmlSignatures(){
 }
 
 function resetHtmlSignatureDefaults(){
-    userSettings.htmlSignatures = getDefaultHtmlSignatures();
+    userSettings.htmlSignatures = null;
+    let defaultHtmlSignatures = getDefaultSettings()['htmlSignatures'];
+    for(let name in defaultHtmlSignatures){
+        userSettings.addHtmlSignature(
+            name,
+            defaultHtmlSignatures[name]['element'],
+            defaultHtmlSignatures[name]['attributes'],
+            defaultHtmlSignatures[name]['value']
+        );
+    }
     showSettings('html');
 }
 
@@ -98,7 +107,14 @@ function clearJavaScriptSignatures(){
 }
 
 function resetJavaScriptSignatureDefaults(){
-    userSettings.javaScriptSignatures = getDefaultJavaScriptSignatures();
+    userSettings.javaScriptSignatures = null;
+    let defaultJsSignatures = getDefaultSettings()['jsSignatures'];
+    for(let name in defaultJsSignatures){
+        userSettings.addJavaScriptSignature(
+            name,
+            defaultJsSignatures[name]
+        );
+    }
     showSettings('javascript');
 }
 
@@ -108,7 +124,16 @@ function clearCssSignatures(){
 }
 
 function resetCssSignatureDefaults(){
-    userSettings.cssSignatures = getDefaultCssSignatures();
+    userSettings.cssSignatures = null;
+    let defaultCssSignatures = getDefaultSettings()['cssSignatures'];
+    for(let name in defaultCssSignatures){
+        userSettings.addCssSignature(
+            name,
+            defaultCssSignatures[name]['selector'],
+            defaultCssSignatures[name]['property'],
+            defaultCssSignatures[name]['value']
+        );
+    }
     showSettings('css');
 }
 
@@ -140,17 +165,11 @@ function loadSettingsFromFile(settingsFile){
 class UserSettings{
 
     constructor(){
-        this.htmlSignatures = getDefaultHtmlSignatures();
-        this.javaScriptSignatures = getDefaultJavaScriptSignatures();
-        this.cssSignatures = getDefaultCssSignatures();
-        this.options = {
-            'debugTokenizer': false,
-            'truncate':false,
-            'simpleDeob':true,
-            'extractDomains':true,
-            'conditionalComments':true,
-            'deobSignatures':getDefaultObfuscationSignatures()
-        };
+        this.htmlSignatures = {};
+        this.javaScriptSignatures = {};
+        this.cssSignatures = {};
+        this.options = {};
+        this.import(JSON.parse(getDefaultSettings()));
     }
 
     export(){
@@ -395,4 +414,21 @@ class UserSettings{
         }
         return {"attributes":attributes, "hasNested":hasNested};
     }
+}
+
+function getDefaultObfuscationSignatures(){
+    return {
+        'document-write-unescape':{
+            'global':new RegExp('document\\.write\\(unescape\\(["\'].*["\']\\)\\)', 'g'),
+            'sticky':new RegExp('document\\.write\\(unescape\\(["\'].*["\']\\)\\)', 'y'),
+            'user_view':'document\\.write\\(unescape\\(("|\').*("|\')\\)\\)',
+            'unwrap':new RegExp('(^document\\.write\\(unescape\\(["\']|["\']\\)\\)$)','g')
+        },
+        'document-write':{
+            'global':new RegExp('document\\.write\\(["\'].*["\']\\)', 'g'),
+            'sticky':new RegExp('document\\.write\\(["\'].*["\']\\)', 'y'),
+            'user_view':'document\\.write\\("|\').*("|\'))',
+            'unwrap':new RegExp('(^document\\.write\\(["\']|["\']\\)$)','g')
+        }
+    };
 }

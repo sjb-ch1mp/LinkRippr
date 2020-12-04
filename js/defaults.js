@@ -1,137 +1,84 @@
-function getDefaultHtmlSignatures(){
-    return {
-        "base":{
-            "element":"base",
-            "attributes":["*"],
-            "value":new RegExp(".*", "g"),
-            "value-user-view":".*",
-            "hasNested":false
-        },"external-hyperlinks":{
-            "element":"*",
-            "attributes":["href","data-src","src"],
-            "value":new RegExp("http(s)?:\\/\\/", "g"),
-            "value-user-view":"http(s)?:\\/\\/",
-            "hasNested":false
+function getDefaultSettings(){
+    let defaults = {
+
+        //==== DEFAULT SETTINGS ====
+        //These are the default settings for LinkRippr.
+        //You can change the behaviour of LinkRippr by modifying this dictionary.
+        //LinkRippr will load this dictionary on start up.
+
+        //== USER SETTINGS ==
+        "debugTokenizer":false,     //Debug mode: LinkRippr will dump tokens from the tokenizer
+        "truncate":false,           //LinkRippr will truncate any detection greater than 100 characters to 97 characters + "..."
+        "simpleDeob":true,          //LinkRippr will attempt to deobfuscate simple obfuscation techniques
+        "extractDomains":true,      //LinkRippr will extract all unique domains from detections
+        "conditionalComments":true, //LinkRippr will detect conditional comments
+
+        // == HTML SIGNATURES ==
+        //These are the default HTML signatures that LinkRippr will search for. Each HTML signature requires a unique key, and an 'element', 'attributes' and 'value' field.
+        "htmlSignatures":{
+            "base":{
+                "element":"base",
+                "attributes":["*"],
+                "value":".*"
+            },
+            "external-hyperlinks":{
+                "element":"*",
+                "attributes":["href","data-src","src"],
+                "value":"http(s)?:\\/\\/"
+            },
+            "all-iframes":{
+                "element":"iframe",
+                "attributes":["*"],
+                "value":".*"
+            },
+            "all-forms":{
+                "element":"form",
+                "attributes":["method","action","[input:name,type]"],
+                "value":".*"
+            },
+            "data-binds":{
+                "element":"*",
+                "attributes":["data-bind"],
+                "value":".*"
+            },
+            "refresh":{
+                "element":"meta",
+                "attributes":["http-equiv"],
+                "value":"[rReEfFsShH]{7}"
+            },
+            "onclick":{
+                "element":"*",
+                "attributes":["onclick"],
+                "value":".*"
+            }
         },
-        "all-iframes":{
-            "element":"iframe",
-            "attributes":["*"],
-            "value":new RegExp(".*", "g"),
-            "value-user-view":".*",
-            "hasNested":false
+
+        //== JAVASCRIPT SIGNATURES ==
+        //These are the default JavaScript signatures that LinkRippr will search for. Each JavaScript signature requires a unique key and a unique regex value.
+        "jsSignatures":{
+            "document.write":"document\\.write\\(.*\\)[;\\s]",
+            "eval":"eval\\(.*\\)[;\\s]",
+            "atob":"atob\\(.*\\)[;\\s]",
+            "unescape":"unescape\\(.*\\)[;\\s]",
+            "url":"http(s)?[\\W3A2F]{3,9}[a-zA-Z0-9\\-]+\\..*[\"';\\s\\)\\(]",
+            "ip-4":"(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)['\";\\s]",
+            "ajax-request":"\\$\\.ajax\\(\\{.*type:\\s?['\"]([pPoOsStT]{4}|[gGeEtT]{3})['\"].*\\}\\)",
+            "jquery-request":"\\$\\.([pPoOsStT]{4}|[gGeEtT]{3})\\(.*\\);",
+            "xml-http-request":"\\b[^\\s]+\\.open\\(\\s?[\"']([pPoOsStT]{4}|[gGeEtT]{3})['\"].*\\)[;\\s]",
+            "browser-redirection":"location\\.(replace\\(.*\\)[;\\s]|href\\s?=.*;)",
+            "url-variable-declaration":"(let|var)\\s[a-zA-Z0-9\\-_]*[uUrRlL]{3}[a-zA-Z0-9\\-_]*\\s?=\\s?[^;]+[;\\s]"
         },
-        "all-forms":{
-            "element":"form",
-            "attributes":["method","action","[input:name,type]"],
-            "value":new RegExp(".*", "g"),
-            "value-user-view":".*",
-            "hasNested":true
-        },
-        "data-binds":{
-            "element":"*",
-            "attributes":["data-bind"],
-            "value":new RegExp(".*", "g"),
-            "value-user-view":".*",
-            "hasNested":false,
-        },
-        "refresh":{
-            "element":"meta",
-            "attributes":["http-equiv"],
-            "value":new RegExp("[rReEfFsShH]{7}", "g"),
-            "value-user-view":"[rReEfFsShH]{7}",
-            "hasNested":false
-        },
-        "onclick":{
-            "element":"*",
-            "attributes":["onclick"],
-            "value":new RegExp(".*", "g"),
-            "value-user-view":".*",
-            "hasNested":false
+
+        //== CSS SIGNATURES ==
+        //These are the default CSS signatures that LinkRippr will search for. Each CSS signature requires a unique key and a 'selector', 'property' and 'value' field.
+        "cssSignatures":{
+            "external-resource":{
+                "selector":".*",
+                "property":".*",
+                "value":"url\\(['\"]http.*\\)"
+            }
         }
     };
-}
 
-function getDefaultJavaScriptSignatures(){
-    return {
-        "document.write":{
-            "global":new RegExp("document\\.write\\(.*\\)[;\\s]", "g"),
-            "sticky":new RegExp("document\\.write\\(.*\\)[;\\s]", "y"),
-            "user_view":"document\\.write\\(.*\\)[;\\s]",
-            "default":true},
-        "eval":{
-            "global":new RegExp("eval\\(.*\\)[;\\s]", "g"),
-            "sticky":new RegExp("eval\\(.*\\)[;\\s]", "y"),
-            "user_view":"eval\\(.*\\)[;\\s]",
-            "default":true},
-        "atob":{
-            "global":new RegExp("atob\\(.*\\)[;\\s]", "g"),
-            "sticky":new RegExp("atob\\(.*\\)[;\\s]", "y"),
-            "user_view":"atob\\(.*\\)[;\\s]",
-            "default":true},
-        "unescape":{
-            "global":new RegExp("unescape\\(.*\\)[;\\s]", "g"),
-            "sticky":new RegExp("unescape\\(.*\\)[;\\s]", "y"),
-            "user_view":"unescape\\(.*\\)[;\\s]",
-            "default":true},
-        "url":{
-            "global":new RegExp('http(s)?:\\/\\/[a-zA-Z\\-]+\\..*["\';\\s\\)\\(]', "g"),
-            "sticky":new RegExp('http(s)?:\\/\\/[a-zA-Z\\-]+\\..*["\';\\s\\)\\(]', "y"),
-            "user_view":"http(s)?:\\/\\/[a-zA-Z\\-]+\\..*[\"\';\\s\\)\\(]",
-            "default":true},
-        "ip-4":{
-            "global":new RegExp('(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)[\'";\\s]', "g"),
-            "sticky":new RegExp('(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)[\'";\\s]', "y"),
-            "user_view":'(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)[\'";\\s]',
-            "default":true},
-        "ajax-request":{
-            "global":new RegExp("\\$\\.ajax\\(\\{.*type:\\s?['\"]([pPoOsStT]{4}|[gGeEtT]{3})['\"].*\\}\\)", "g"),
-            "sticky":new RegExp("\\$\\.ajax\\(\\{.*type:\\s?['\"]([pPoOsStT]{4}|[gGeEtT]{3})['\"].*\\}\\)", "y"),
-            "user_view":"\\$\\.ajax\\(\\{.*type:\\s?['\"]([pPoOsStT]{4}|[gGeEtT]{3})['\"].*\\}\\)",
-            "default":true},
-        "jquery-request":{
-            "global":new RegExp("\\$\\.([pPoOsStT]{4}|[gGeEtT]{3})\\(.*\\);", "g"),
-            "sticky":new RegExp("\\$\\.([pPoOsStT]{4}|[gGeEtT]{3})\\(.*\\);", "y"),
-            "user_view":"\\$\\.([pPoOsStT]{4}|[gGeEtT]{3})\\(.*\\);",
-            "default":true},
-        "xml-http-request":{
-            "global":new RegExp("\b[a-zA-Z_0-9]+\\.open\\(\\s?[\"']([pPoOsStT]{4}|[gGeEtT]{3})['\"].*\\)[;\\s]", "g"),
-            "sticky":new RegExp("\b[a-zA-Z_0-9]+\\.open\\(\\s?[\"']([pPoOsStT]{4}|[gGeEtT]{3})['\"].*\\)[;\\s]", "y"),
-            "user_view":"\b[a-zA-Z_0-9]+\\.open\\(\\s?[\"']([pPoOsStT]{4}|[gGeEtT]{3})['\"].*\\)[;\\s]",
-            "default":true},
-        "browser-redirection":{
-            "global":new RegExp("location\\.(replace\\(.*\\)[;\\s]|href\\s?=.*;)", "g"),
-            "sticky":new RegExp("location\\.(replace\\(.*\\)[;\\s]|href\\s?=.*;)", "y"),
-            "user_view":"location\\.(replace\\(.*\\)[;\\s]|href\\s?=.*;)",
-            "default":true}
-    };
-}
-
-function getDefaultObfuscationSignatures(){
-    return {
-        'document-write-unescape':{
-            'global':new RegExp('document\\.write\\(unescape\\(["\'].*["\']\\)\\)', 'g'),
-            'sticky':new RegExp('document\\.write\\(unescape\\(["\'].*["\']\\)\\)', 'y'),
-            'user_view':'document\\.write\\(unescape\\(("|\').*("|\')\\)\\)',
-            'unwrap':new RegExp('(^document\\.write\\(unescape\\(["\']|["\']\\)\\)$)','g')
-        },
-        'document-write':{
-            'global':new RegExp('document\\.write\\(["\'].*["\']\\)', 'g'),
-            'sticky':new RegExp('document\\.write\\(["\'].*["\']\\)', 'y'),
-            'user_view':'document\\.write\\("|\').*("|\'))',
-            'unwrap':new RegExp('(^document\\.write\\(["\']|["\']\\)$)','g')
-        }
-    };
-}
-
-function getDefaultCssSignatures(){
-    return {
-        'external-resource':{
-            'selector':new RegExp('.*', 'g'),
-            'attribute':new RegExp('.*', 'g'),
-            'value':new RegExp('url\\([\'"]http.*\\)', 'g'),
-            'selector_user_view':'.*',
-            'attribute_user_view':'.*',
-            'value_user_view':'url\\([\'"]http.*\\)'
-        }
-    };
+    return JSON.stringify(defaults);
 }
