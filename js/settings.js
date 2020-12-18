@@ -88,13 +88,13 @@ function clearHtmlSignatures(){
 }
 
 function resetHtmlSignatureDefaults(){
-    userSettings.htmlSignatures = null;
-    let defaultHtmlSignatures = getDefaultSettings()['htmlSignatures'];
+    userSettings.htmlSignatures = {};
+    let defaultHtmlSignatures = JSON.parse(getDefaultSettings())['htmlSignatures'];
     for(let name in defaultHtmlSignatures){
         userSettings.addHtmlSignature(
             name,
             defaultHtmlSignatures[name]['element'],
-            defaultHtmlSignatures[name]['attributes'],
+            defaultHtmlSignatures[name]['attributes'].join(","),
             defaultHtmlSignatures[name]['value']
         );
     }
@@ -107,8 +107,8 @@ function clearJavaScriptSignatures(){
 }
 
 function resetJavaScriptSignatureDefaults(){
-    userSettings.javaScriptSignatures = null;
-    let defaultJsSignatures = getDefaultSettings()['jsSignatures'];
+    userSettings.javaScriptSignatures = {};
+    let defaultJsSignatures = JSON.parse(getDefaultSettings())['jsSignatures'];
     for(let name in defaultJsSignatures){
         userSettings.addJavaScriptSignature(
             name,
@@ -124,8 +124,8 @@ function clearCssSignatures(){
 }
 
 function resetCssSignatureDefaults(){
-    userSettings.cssSignatures = null;
-    let defaultCssSignatures = getDefaultSettings()['cssSignatures'];
+    userSettings.cssSignatures = {};
+    let defaultCssSignatures = JSON.parse(getDefaultSettings())['cssSignatures'];
     for(let name in defaultCssSignatures){
         userSettings.addCssSignature(
             name,
