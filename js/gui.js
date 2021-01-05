@@ -87,6 +87,8 @@ function buildSettingsMenu(){
     settingsHtml += "<tr><td><input id='simpleDeob' type='checkbox' onchange='toggleOption(this.id)'></td><td><label class='settings' for='simpleDeob'>Attempt Simple Deobfuscation</label></td></tr>";
     settingsHtml += "<tr><td><input id='conditionalComments' type='checkbox' onchange='toggleOption(this.id)'></td><td><label class='settings' for='conditionalComments'>Extract Conditional HTML</label></td></tr>";
     settingsHtml += "<tr><td><input id='extractDomains' type='checkbox' onchange='toggleOption(this.id)'></td><td><label class='settings' for='extractDomains'>Extract Unique Domains from Signature Detections</label></td></tr>";
+    settingsHtml += "<tr><td><input id='includeDOM' type='checkbox' onchange='toggleOption(this.id)'></td><td><label class='settings' for='includeDOM'>Include Raw DOM</label></td></tr>";
+    settingsHtml += "<tr><td><input id='includeJS' type='checkbox' onchange='toggleOption(this.id)'></td><td><label class='settings' for='includeJS'>Include Raw Script Blocks</label></td></tr>";
     settingsHtml += "<tr><td><input id='debugTokenizer' type='checkbox' onchange='toggleOption(this.id)'></td><td><label class='settings' for='debugTokenizer'>Debug Mode</label></td></tr></table>";
     settingsHtml += "<br><hr style='color: #54001C'>";
     settingsHtml += "<h2>< Save /></h2>";

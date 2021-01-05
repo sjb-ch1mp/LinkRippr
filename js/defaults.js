@@ -12,6 +12,8 @@ function getDefaultSettings(){
         "simpleDeob":true,          //LinkRippr will attempt to deobfuscate simple obfuscation techniques
         "extractDomains":true,      //LinkRippr will extract all unique domains from detections
         "conditionalComments":true, //LinkRippr will detect conditional comments
+        "includeDOM":false,         //LinkRippr will dump the entire HTML document to the results summary
+        "includeJS":false,          //LinkRippr will dump all script blocks to the results summary after splitting into statements
 
         // == HTML SIGNATURES ==
         //These are the default HTML signatures that LinkRippr will search for. Each HTML signature requires a unique key, and an 'element', 'attributes' and 'value' field.

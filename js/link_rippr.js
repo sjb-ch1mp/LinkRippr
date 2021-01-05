@@ -33,7 +33,11 @@ function ripLinks(){
                 detections.push(new DetectionFormatter(getDetectedSignatures(parser.scripts, 'deobfuscation'), "obf"));
             }
             if(userSettings.getOption("conditionalComments") && parser.hasConditionalHtmlDetections()){
-                detections.push(new DetectionFormatter(parser.groupConditionalHtmlDetectionsByCondition(), "chtml")); //FIXME : Aggregate conditional comments that are the same type into a single group, use this as the signature 'name'
+                detections.push(new DetectionFormatter(parser.groupConditionalHtmlDetectionsByCondition(), "chtml"));
+            }
+            if(parser.scripts.length > 0 && userSettings.getOption("includeJS")){
+                console.log("formatting raw js");
+                detections.push(new DetectionFormatter(parser.scripts, "jsraw"));
             }
 
             let summary = "";
@@ -45,6 +49,12 @@ function ripLinks(){
                     summary += detections[i].print();
                 }
             }
+
+
+            if(userSettings.getOption("includeDOM")){
+                summary += new DetectionFormatter(file.toString(), "dom").print();
+            }
+
             resultPanel.innerHTML = summary;
             previousResults = new PreviousResults(fileName, summary, false);
             padContent();

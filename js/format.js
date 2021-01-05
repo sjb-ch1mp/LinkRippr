@@ -40,7 +40,7 @@ class DetectionFormatter{
     print(){
         let toPrint = "";
         for(let name in this.detections){
-            if((this.signatureType === "html")?this.detections[name]['detections'].length > 0:this.detections[name].length > 0){
+            if((this.signatureType === "html")?this.detections[name]['detections'].length > 0:(this.detections[name].length > 0 || this.signatureType === "jsraw")){
                 let formattedHeader;
                 let formattedDetections;
                 switch(this.signatureType){
@@ -67,9 +67,22 @@ class DetectionFormatter{
                     case "domains":
                         formattedDetections = new UniqueDomainsDetections(this.detections[name]);
                         formattedHeader = new DetectionHeader("DOMAINS", name, this.detections[name].length);
+                        break;
+                    case "dom":
+                        formattedDetections = new RawDom(this.detections);
+                        formattedHeader = new DetectionHeader("RAW", "full dom", "-");
+                        break;
+                    case "jsraw":
+                        let idx = name;
+                        idx++;
+                        formattedDetections = new RawJavaScript(this.detections[name]);
+                        formattedHeader = new DetectionHeader("RAW", "script-" + padNumber(idx), this.detections[name].statements.length);
                 }
                 let detectionSummary = new DetectionSummary(formattedHeader, formattedDetections);
                 toPrint += detectionSummary.print();
+                if(this.signatureType === "dom"){
+                    break;
+                }
             }
         }
         return toPrint;
@@ -279,6 +292,42 @@ class ConditionalCommentDetections{
             idx++;
             toPrint += "<tr class='detection-row-" + ((idx%2===0)?"even":"odd") + "'><td>" + padNumber(idx) + "</td>";
             toPrint += "<td>" + safeEscape(checkLength(stripNewLines(this.detections[i]['html']), 100)) + "</td></tr>";
+        }
+        return toPrint + "</table>";
+    }
+}
+
+class RawDom{
+    constructor(dom){
+        this.dom = dom.split("\n");
+    }
+    print(){
+        let toPrint = "<table class='detection-table'><tr><th class='dh'>#</th><th class='dh'>LINE</th></tr>";
+        let idx = 0;
+        for(let i in this.dom){
+            if(this.dom[i].trim().length > 0){
+                idx++;
+                toPrint += "<tr class='detection-row-odd'><td>" + padNumber(idx) + "</td>";
+                toPrint += "<td>" + safeEscape(checkLength(stripNewLines(this.dom[i].trim()), 100)) + "</td></tr>";
+            }
+        }
+        return toPrint + "</table>";
+    }
+}
+
+class RawJavaScript{
+    constructor(script){
+        console.log(script);
+        this.script = script;
+    }
+    print(){
+        let toPrint = "<table class='detection-table'><tr><th class='dh'>#</th><th class='dh'>STATEMENT</th></tr>";
+        let idx = 0;
+        for(let i in this.script.statements){
+            console.log(this.script.statements[i]);
+            idx++;
+            toPrint += "<tr class='detection-row-odd'><td>" + padNumber(idx) + "</td>";
+            toPrint += "<td>" + safeEscape(checkLength(stripNewLines(this.script.statements[i]._raw), 100)) + "</td></tr>";
         }
         return toPrint + "</table>";
     }
