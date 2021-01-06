@@ -36,7 +36,6 @@ function ripLinks(){
                 detections.push(new DetectionFormatter(parser.groupConditionalHtmlDetectionsByCondition(), "chtml"));
             }
             if(parser.scripts.length > 0 && userSettings.getOption("includeJS")){
-                console.log("formatting raw js");
                 detections.push(new DetectionFormatter(parser.scripts, "jsraw"));
             }
 
@@ -44,17 +43,15 @@ function ripLinks(){
             chatter(stylize(fileName).toUpperCase());
             if(detections.length === 0){
                 summary += new DetectionHeader("INFO", "no-signatures-detected", 0).print();
+                summary += new DetectionFormatter(file.toString(), "dom").print();
             }else{
                 for(let i in detections){
                     summary += detections[i].print();
                 }
+                if(userSettings.getOption("includeDOM")){
+                    summary += new DetectionFormatter(file.toString(), "dom").print();
+                }
             }
-
-
-            if(userSettings.getOption("includeDOM")){
-                summary += new DetectionFormatter(file.toString(), "dom").print();
-            }
-
             resultPanel.innerHTML = summary;
             previousResults = new PreviousResults(fileName, summary, false);
             padContent();

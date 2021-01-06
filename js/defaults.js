@@ -12,7 +12,7 @@ function getDefaultSettings(){
         "simpleDeob":true,          //LinkRippr will attempt to deobfuscate simple obfuscation techniques
         "extractDomains":true,      //LinkRippr will extract all unique domains from detections
         "conditionalComments":true, //LinkRippr will detect conditional comments
-        "includeDOM":false,         //LinkRippr will dump the entire HTML document to the results summary
+        "includeDOM":true,          //LinkRippr will dump the entire HTML document to the results summary
         "includeJS":false,          //LinkRippr will dump all script blocks to the results summary after splitting into statements
 
         // == HTML SIGNATURES ==
@@ -46,7 +46,7 @@ function getDefaultSettings(){
             "refresh":{
                 "element":"meta",
                 "attributes":["http-equiv"],
-                "value":"[rReEfFsShH]{7}"
+                "value":"[rR][eE][fF][rR][eE][sS][hH]"
             },
             "onclick":{
                 "element":"*",
@@ -68,7 +68,7 @@ function getDefaultSettings(){
             "jquery-request":"\\$\\.([pPoOsStT]{4}|[gGeEtT]{3})\\(.*\\);",
             "xml-http-request":"\\b[^\\s]+\\.open\\(\\s?[\"']([pPoOsStT]{4}|[gGeEtT]{3})['\"].*\\)[;\\s]",
             "browser-redirection":"location\\.(replace\\(.*\\)[;\\s]|href\\s?=.*;)",
-            "url-variable-declaration":"(let|var)\\s[a-zA-Z0-9\\-_]*[uUrRlL]{3}[a-zA-Z0-9\\-_]*\\s?=\\s?[^;]+[;\\s]"
+            "url-variable-declaration":"(let|var)\\s[a-zA-Z0-9\\-_]*[uU][rR][lL][a-zA-Z0-9\\-_]*\\s?=\\s?[^;]+[;\\s]"
         },
 
         //== CSS SIGNATURES ==

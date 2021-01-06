@@ -120,9 +120,22 @@ class DomParser{
             }else if(_tokenizer.current.tokenType === DOMTokenType.OPEN_TAG_NAME){
                 let tagName = _tokenizer.current.value;
                 let attributes = this.getCurrentAttributes(_tokenizer);
-                if(attributes !== null && 'style' in attributes){
-                    let styleParser = new StyleParser(new DOMToken(DOMTokenType.STYLE, attributes['style']), tagName);
-                    this.styleBlocks.push(styleParser.styleBlock);
+                if(attributes !== null){
+                    if('style' in attributes){
+                        let styleParser = new StyleParser(new DOMToken(DOMTokenType.STYLE, attributes['style']), tagName);
+                        this.styleBlocks.push(styleParser.styleBlock);
+                    }
+                    if('src' in attributes && attributes["src"].trim().startsWith("data:application/javascript")){
+                        let encodingAndBody = attributes["src"].split("data:application/javascript")[1];
+                        let firstComma = encodingAndBody.indexOf(",");
+                        let encoding = encodingAndBody.split(",")[0];
+                        let body = encodingAndBody.substring(firstComma + 1, encodingAndBody.length);
+                        let scriptParser = new ScriptParser(new DOMToken(
+                            DOMTokenType.SCRIPT,
+                            (encoding.endsWith("base64")) ? atob(body) : unescape(body)
+                        ));
+                        this.scripts.push(scriptParser.script);
+                    }
                 }
             }
             _tokenizer.next();

@@ -11,7 +11,7 @@ class ScriptParser{
 
     parseScript(){
         if(this.script.statements != null){
-            let statements = this.script.statements
+            let statements = this.script.statements;
             for(let i in statements){
                 statements[i].checkForSignatures(this.signatures, false);
                 if(userSettings.getOption('simpleDeob')){
@@ -110,7 +110,7 @@ class Script{
                 }else if(buffer[CURRENT] === CLOSE_PAREN){
                     statement += buffer[CURRENT];
                     depthParen--;
-                }else if(buffer[CURRENT] + buffer[NEXT] === SINGLE_LINE_COMMENT){
+                }else if(buffer[CURRENT] + buffer[NEXT] === SINGLE_LINE_COMMENT && buffer[PREVIOUS] !== ":"/*this should exclude urls*/){
                     inSingleComment = true;
                 }else if(buffer[CURRENT] + buffer[NEXT] === ML_COMMENT_OPEN){
                     inMLComment = true;
@@ -157,8 +157,10 @@ class Statement{
 
     checkForSignatures(signatures, attemptDeobfuscation){
         for(let key in signatures){
+            let lengthExceeded = false;
             let global = signatures[key]["global"];
             if(global.test(this._raw)){
+                global.lastIndex = 0;
                 //signature exists in the statement
                 if(this._raw.length <= 100 && !attemptDeobfuscation){
                     if(!(this.alreadyExists(key, this._raw))){
@@ -179,7 +181,17 @@ class Statement{
                             let breakIdx = stickyIdx;
                             while(breakIdx < this._raw.length){
                                 breakIdx++;
-                                if(global.test(this._raw.substring(stickyIdx, breakIdx)) || breakIdx >= 20000){
+                                if(breakIdx >= 20000){
+                                    lengthExceeded = true;
+                                    let tag = this._raw.substring(stickyIdx, breakIdx);
+                                    if(!(this.alreadyExists(key, tag))){
+                                        this.detections.push({
+                                            "signature":key,
+                                            "tag":tag
+                                        });
+                                    }
+                                    break;
+                                }else if(global.test(this._raw.substring(stickyIdx, breakIdx))){
                                     global.lastIndex = 0;
                                     //this is the last character of a match
                                     if(attemptDeobfuscation){
@@ -193,7 +205,7 @@ class Statement{
                                         if(!(this.alreadyExists(key, tag))){
                                             this.detections.push({
                                                 "signature":key,
-                                                "tag":this._raw.substring(stickyIdx, breakIdx)
+                                                "tag":tag
                                             });
                                         }
                                     }
@@ -201,8 +213,14 @@ class Statement{
                                 }
                             }
                         }
+                        if(lengthExceeded){
+                            break;
+                        }
                     }
                 }
+            }
+            if(lengthExceeded){
+                break;
             }
         }
     }
