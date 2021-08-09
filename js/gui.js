@@ -183,7 +183,7 @@ function toggleOption(id){
 
 function hideSettings(){
     settingsVisible = false;
-    document.getElementById("content").innerHTML = "<br><button style='display:none;' id='button-redo' class='close-button' onclick='redo()'>&#11153;</button><p id='results'></p>";
+    document.getElementById("content").innerHTML = "<br><button style='display:none;' id='button-redo' class='close-button' onclick='redo()'>&#11153;</button><div id='results'></div>";
     if(previousResults !== null){
         if(previousResults.debug){
             document.getElementById("results").innerText = previousResults.resultString;

@@ -166,6 +166,7 @@ td{
     font-family: "Courier New";
     font-size: small;
     padding: 5px;
+    word-wrap:break-word;
 }
 td.menu{
     background-color: #0A1926;
