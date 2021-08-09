@@ -70,7 +70,7 @@ function getDefaultSettings(){
             "browser-redirection":"location\\.(replace\\(.*\\)[;\\s]|href\\s?=.*;)",
             "url-variable-declaration":"(let|var)\\s[a-zA-Z0-9\\-_]*[uU][rR][lL][a-zA-Z0-9\\-_]*\\s?=\\s?[^;]+[;\\s]",
             "fetch-api":"(\\s+|^)fetch\\(.*\\);",
-            "create-element":"\\.createElement\\(.*\\)[;\\s]"
+            "create-element":"[^\\s]+\\.createElement\\(.*\\)[;\\s]"
         },
 
         //== CSS SIGNATURES ==
