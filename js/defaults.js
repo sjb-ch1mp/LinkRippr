@@ -13,7 +13,7 @@ function getDefaultSettings(){
         "extractDomains":true,      //LinkRippr will extract all unique domains from detections
         "conditionalComments":true, //LinkRippr will detect conditional comments
         "includeDOM":true,          //LinkRippr will dump the entire HTML document to the results summary
-        "includeJS":false,          //LinkRippr will dump all script blocks to the results summary after splitting into statements
+        "includeJS":true,           //LinkRippr will dump all script blocks to the results summary after splitting into statements
 
         // == HTML SIGNATURES ==
         //These are the default HTML signatures that LinkRippr will search for. Each HTML signature requires a unique key, and an 'element', 'attributes' and 'value' field.
@@ -68,7 +68,8 @@ function getDefaultSettings(){
             "jquery-request":"\\$\\.([pPoOsStT]{4}|[gGeEtT]{3})\\(.*\\);",
             "xml-http-request":"\\b[^\\s]+\\.open\\(\\s?[\"']([pPoOsStT]{4}|[gGeEtT]{3})['\"].*\\)[;\\s]",
             "browser-redirection":"location\\.(replace\\(.*\\)[;\\s]|href\\s?=.*;)",
-            "url-variable-declaration":"(let|var)\\s[a-zA-Z0-9\\-_]*[uU][rR][lL][a-zA-Z0-9\\-_]*\\s?=\\s?[^;]+[;\\s]"
+            "url-variable-declaration":"(let|var)\\s[a-zA-Z0-9\\-_]*[uU][rR][lL][a-zA-Z0-9\\-_]*\\s?=\\s?[^;]+[;\\s]",
+            "fetch-api":"(\\s+|^)fetch\\(.*\\);"
         },
 
         //== CSS SIGNATURES ==
