@@ -52,6 +52,11 @@ function getDefaultSettings(){
                 "element":"*",
                 "attributes":["onclick"],
                 "value":".*"
+            },
+            "onerror":{
+                "element":"*",
+                "attributes":["onerror"],
+                "value":".*"
             }
         },
 
